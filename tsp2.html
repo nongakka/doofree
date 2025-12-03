@@ -1,41 +1,34 @@
-<div class="video-container">
-            <!-- Channel Info -->
-                <div class="channel-info">
-            <strong>กำลังถ่ายทอดสด:</strong> True Sport 2        </div>
-        
-        <!-- Bypass API Embed Player -->
-        <iframe
-            id="embed-player"
-            class="embed-player"
-            src="https://54fdr4gtr8hdf165sf1s5.live/embed/true-sport-2?wmsAuthSign=c2VydmVyX3RpbWU9MTIvMy8yMDI1IDE6MDU6NTIgUE0maGFzaF92YWx1ZT1DQjg1WmlaU0NHQjByaEcxNHltb2xRPT0mdmFsaWRtaW51dGVzPTM2MCZpZD0x"
-            allowfullscreen
-            allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
-            height: '100%',
-            width: '100%',
-            frameborder="0"
-            scrolling="no">
-        </iframe>
+<div class="video-container" style="width:100%; max-width:100%;">
 
-        <script>
-        // Responsive iframe height
-        function resizeEmbedPlayer() {
-            const iframe = document.getElementById('embed-player');
-            if (iframe) {
-                const width = iframe.offsetWidth;
-                const height = (width * 20) / 35;
-                iframe.style.height = height + 'px';
-            }
-        }
-
-        window.addEventListener('load', resizeEmbedPlayer);
-        window.addEventListener('resize', resizeEmbedPlayer);
-
-        // Prevent right-click on player
-        document.addEventListener('contextmenu', function(e) {
-            if (e.target.id === 'embed-player') {
-                e.preventDefault();
-                return false;
-            }
-        });
-        </script>
+    <!-- Channel Info -->
+    <div class="channel-info" style="font-weight:bold; margin-bottom:8px;">
+        หรรมน้อย IPTV: True Sport 2
     </div>
+
+    <!-- Player -->
+    <iframe
+        id="embed-player"
+        class="embed-player"
+        src="https://54fdr4gtr8hdf165sf1s5.live/embed/true-sport-2?wmsAuthSign=c2VydmVyX3RpbWU9MTIvMy8yMDI1IDE6MDU6NTIgUE0maGFzaF92YWx1ZT1DQjg1WmlaU0NHQjByaEcxNHltb2xRPT0mdmFsaWRtaW51dGVzPTM2MCZpZD0x"
+        allowfullscreen
+        allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
+        frameborder="0"
+        scrolling="no"
+        style="
+            width: 100%;
+            aspect-ratio: 16/9;
+            border: 0;
+            display: block;
+        "
+    ></iframe>
+</div>
+
+<script>
+// ป้องกันคลิกขวาเฉพาะบน iframe
+document.addEventListener('contextmenu', function(e) {
+    if (e.target.id === 'embed-player') {
+        e.preventDefault();
+        return false;
+    }
+});
+</script>
