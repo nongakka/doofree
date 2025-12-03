@@ -1,0 +1,36 @@
+<div class="video-container" style="width:100%; max-width:100%;">
+    <head>
+    <title>หรรมน้อย IPTV</title>
+    </head>
+    <!-- Channel Info -->
+    
+    <!-- Player -->
+    <center>
+    <iframe
+        id="embed-player"
+        class="embed-player"
+        src="https://raw.githubusercontent.com/nongakka/doofree/refs/heads/main/monomax2.m3u8"
+        allowfullscreen
+        allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
+        frameborder="0"
+        scrolling="no"
+        style="
+            width: 80%;
+            aspect-ratio: 16/9;
+            border: 0;
+            display: block;
+        "
+    ></iframe>
+    </center>
+</div>
+
+<script>
+// ป้องกันคลิกขวาเฉพาะบน iframe
+document.addEventListener('contextmenu', function(e) {
+    if (e.target.id === 'embed-player') {
+        e.preventDefault();
+        return false;
+    }
+});
+</script>
+   
