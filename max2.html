@@ -1,32 +1,36 @@
 <div class="video-container" style="width:100%; max-width:100%;">
-    <h2 style="text-align:center;">หรรมน้อย IPTV</h2>
-
+    <head>
+    <title>หรรมน้อย IPTV</title>
+    </head>
+    <!-- Channel Info -->
+    
+    <!-- Player -->
     <center>
-        <video id="videoPlayer" controls style="width:80%; aspect-ratio:16/9; background:#000;"></video>
+    <iframe
+        id="embed-player"
+        class="embed-player"
+        src="http://egaletv.cc:80/play/live.php?mac=00:1A:79:D9:5A:A8&stream=1776144&extension=.m3u8"
+        allowfullscreen
+        allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
+        frameborder="0"
+        scrolling="no"
+        style="
+            width: 80%;
+            aspect-ratio: 16/9;
+            border: 0;
+            display: block;
+        "
+    ></iframe>
     </center>
 </div>
 
-<!-- โหลด HLS.js -->
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-
 <script>
-var video = document.getElementById('videoPlayer');
-var videoSrc = "https://raw.githubusercontent.com/nongakka/doofree/refs/heads/main/monomax2.m3u8";
-
-if (Hls.isSupported()) {
-    var hls = new Hls();
-    hls.loadSource(videoSrc);
-    hls.attachMedia(video);
-} else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-    // สำหรับ Safari เล่นไฟล์ m3u8 ได้โดยตรง
-    video.src = videoSrc;
-}
-
-// ป้องกันคลิกขวา
+// ป้องกันคลิกขวาเฉพาะบน iframe
 document.addEventListener('contextmenu', function(e) {
-    if (e.target.id === 'videoPlayer') {
+    if (e.target.id === 'embed-player') {
         e.preventDefault();
         return false;
     }
 });
 </script>
+   
