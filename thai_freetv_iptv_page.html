@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<title>หรรมน้อย IPTV – Thai Free TV</title>
+<style>
+    body { font-family: sans-serif; background:#111; color:#fff; margin:0; padding:0; }
+    .container { width:100%; max-width:900px; margin:auto; padding:20px; }
+    .channel-list { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:15px; }
+    .channel { background:#222; padding:10px; border-radius:10px; text-align:center; cursor:pointer; transition:0.2s; }
+    .channel:hover { background:#333; }
+    .channel img { width:80%; max-width:120px; }
+    video { width:80%; aspect-ratio:16/9; background:#000; border-radius:10px; margin-top:20px; }
+</style>
+</head>
+<body>
+<div class="container">
+    
+    <center>
+    <video id="videoPlayer" controls autoplay></video>
+   </center>
+   <h2 style="text-align:center;">📺 หรรมน้อย IPTV – Thai Free TV</h2>
+
+    <h3>เลือกรับชมช่อง</h3>
+    <div class="channel-list">
+        
+        <!-- ช่อง NBT HD -->
+        <div class="channel" onclick="play('http://45.144.166.242:1935/NBT/t3_nbt/playlist.m3u8')">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/9/9d/NBT_Logo.png" />
+            <div>ช่อง NBT HD</div>
+        </div>
+
+        <!-- ช่อง 3 HD -->
+        <div class="channel" onclick="play('http://45.136.252.97:8081/app/ch3hd/playlist.m3u8')">
+            <img src="https://ais-s.ais-vidnt.com/ais/play/origin/LIVE/channelicon/LOGO3HD.PNG" />
+            <div>ช่อง 3 HD</div>
+        </div>
+
+        <!-- ช่อง 7 HD -->
+        <div class="channel" onclick="play('http://45.136.252.97:8081/app/ch7hd/playlist.m3u8')">
+            <img src="https://ais-s.ais-vidnt.com/ais/play/origin/LIVE/channelicon/0018.png" />
+            <div>ช่อง 7 HD</div>
+        </div>
+
+        <!-- ช่อง One31 -->
+        <div class="channel" onclick="play('http://45.136.252.97:8081/app/onehd/playlist.m3u8')">
+            <img src="https://ais-s.ais-vidnt.com/ais/play/origin/LIVE/channelicon/0012.png" />
+            <div>ONE31</div>
+        </div>
+
+        <!-- ช่อง Workpoint -->
+        <div class="channel" onclick="play('https://global-media.sooplive.com/live/workpoint/master.m3u8')">
+            <img src="https://ais-s.ais-vidnt.com/ais/play/origin/LIVE/channelicon/0015_R.png" />
+            <div>Workpoint</div>
+        </div>
+
+        <!-- ช่อง Nation TV -->
+        <div class="channel" onclick="play('http://portal.geniptv.com:8080//live/dmtndmtnkimo/a7GPMeArdf/8663.m3u8')">
+            <img src="https://ais-s.ais-vidnt.com/ais/play/origin/LIVE/channelicon/22_Nation_2025.png" />
+            <div>Nation TV</div>
+        </div>
+
+        <!-- ช่อง ThaiPBS -->
+        <div class="channel" onclick="play('http://thaipbs-live.cdn.byteark.com/live/playlist_1080p/index.m3u8')">
+            <img src="https://ais-s.ais-vidnt.com/ais/play/origin/LIVE/channelicon/0014.png" />
+            <div>Thai PBS</div>
+        </div>
+
+        <!-- ช่อง MCOT HD -->
+        <div class="channel" onclick="play('http://45.136.252.97:8081/app/mcothd/playlist.m3u8')">
+            <img src="https://ais-s.ais-vidnt.com/ais/play/origin/LIVE/channelicon/MCOT_new.png" />
+            <div>MCOT HD</div>
+        </div>
+
+        <!-- ช่อง 8 -->
+        <div class="channel" onclick="play('http://45.136.252.97:8081/app/ch8/playlist.m3u8')">
+            <img src="https://ais-s.ais-vidnt.com/ais/play/origin/LIVE/channelicon/0006.png" />
+            <div>ช่อง 8</div>
+        </div>
+
+        <!-- ช่อง True4U -->
+        <div class="channel" onclick="play('http://45.136.252.97:8081/app/true4u/playlist.m3u8')">
+            <img src="https://58-64-52-73-rewriter.ais-vidnt.com/ais/play/origin/LIVE/channelicon/0054.png" />
+            <div>True4U</div>
+        </div>
+
+        <!-- ช่อง Amarin TV -->
+        <div class="channel" onclick="play('http://45.136.252.97:8081/app/amarin/playlist.m3u8')">
+            <img src="https://ais-s.ais-vidnt.com/ais/play/origin/LIVE/channelicon/AmarinTV_NEW512.png" />
+            <div>Amarin TV</div>
+        </div>
+        <!-- ช่อง ThairathTV -->
+        <div class="channel" onclick="play('http://45.136.252.97:8081/app/thairathtv/playlist.m3u8')">
+            <img src="https://ais-s.ais-vidnt.com/ais/play/origin/LIVE/channelicon/0013_R.png" />
+            <div>ThairathTV</div>
+        </div>
+
+
+
+
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<script>
+var video = document.getElementById('videoPlayer');
+
+function play(url){
+    if (Hls.isSupported()){
+        var hls = new Hls();
+        hls.loadSource(url);
+        hls.attachMedia(video);
+    } else if (video.canPlayType('application/vnd.apple.mpegurl')){
+        video.src = url;
+    }
+}
+</script>
+
+</body>
+</html>
