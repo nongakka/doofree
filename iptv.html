@@ -8,128 +8,118 @@
     <script>
         jwplayer.key = 'XSuP4qMl+9tK17QNb+4+th2Pm9AWgMO/cYH8CI0HGGr7bdjo';
     </script>
+
     <style>
-    body {
-        margin: 0;
-        padding: 0;
-        background-color: #000;
-        color: #fff;
-        font-family: Arial, sans-serif;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-
-    #player {
-        width: 40%;        /* ลดขนาดวีดีโอเหลือ 75% */
-        max-width: 1200px;
-        aspect-ratio: 16/9;
-        margin-top: 10px;
-    }
-
-    #channel-list {
-        margin: 10px auto;
-        max-width: 1200px;
-        display: grid;
-        grid-template-columns: repeat(8, 1fr); /* แถวละ 10 ช่อง */
-        gap: 10px;
-        overflow-x: auto;
-        padding: 10px;
-    }
-
-    .channel {
-        cursor: pointer;
-        padding: 5px 3px;      /* ลด padding ให้ช่องเตี้ยลง */
-        background: #222;
-        border: 2px solid #444;
-        border-radius: 8px;
-        text-align: center;
-        font-size: 12px;
-        transition: all 0.2s;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: flex-start;
-        min-height: 80px;      /* ลดความสูง Desktop */
-    }
-
-    .channel img {
-        width: 65px;   /* โลโก้ใหญ่ขึ้น 30% */
-        height: 65px;
-        margin-bottom: 5px;
-        object-fit: contain;
-    }
-
-    .channel:hover {
-        background: #000;
-        border-color: orange;
-    }
-
-    .channel.active {
-        background: orange;
-        color: black;
-        border-color: yellow;
-    }
-
-    #startPlayback {
-        margin: 15px;
-        padding: 10px 20px;
-        background: orange;
-        color: black;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        font-weight: bold;
-    }
-
-    /* Scrollbar สวยงามสำหรับมือถือ */
-    #channel-list::-webkit-scrollbar {
-        height: 8px;
-    }
-    #channel-list::-webkit-scrollbar-thumb {
-        background: orange;
-        border-radius: 4px;
-    }
-    #channel-list::-webkit-scrollbar-track {
-        background: #111;
-    }
-
-    /* Responsive สำหรับแท็บเล็ตและมือถือ */
-    @media(max-width: 768px){
-        #channel-list {
-            grid-template-columns: repeat(5, 1fr); /* 5 ช่องต่อแถว */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #000;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
+
+        #player {
+            width: 40%;
+            max-width: 1200px;
+            aspect-ratio: 16/9;
+            margin-top: 10px;
+        }
+
+        #channel-list {
+            margin: 10px auto;
+            max-width: 1200px;
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 10px;
+            overflow-x: auto;
+            padding: 10px;
+        }
+
         .channel {
-            min-height: 70px;   /* tablet */
+            cursor: pointer;
+            padding: 5px 3px;
+            background: #222;
+            border: 2px solid #444;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 12px;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 80px;
         }
-    }
 
-    @media(max-width: 480px){
-        #channel-list {
-            grid-template-columns: repeat(3, 1fr); /* 3 ช่องต่อแถว */
-        }
         .channel img {
-            width: 52px;   /* โลโก้มือถือใหญ่ขึ้น 30% */
-            height: 52px;
+            width: 65px;
+            height: 65px;
+            margin-bottom: 5px;
+            object-fit: contain;
         }
-        .channel {
-            font-size: 10px;
-            min-height: 60px;   /* mobile */
+
+        .channel:hover {
+            background: #000;
+            border-color: orange;
         }
-    }
-</style>
+
+        .channel.active {
+            background: orange;
+            color: black;
+            border-color: yellow;
+        }
+
+        #channel-list::-webkit-scrollbar {
+            height: 8px;
+        }
+        #channel-list::-webkit-scrollbar-thumb {
+            background: orange;
+            border-radius: 4px;
+        }
+        #channel-list::-webkit-scrollbar-track {
+            background: #111;
+        }
+
+        @media(max-width: 768px){
+            #channel-list {
+                grid-template-columns: repeat(5, 1fr);
+            }
+            .channel {
+                min-height: 70px;
+            }
+        }
+
+        @media(max-width: 480px){
+            #channel-list {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .channel img {
+                width: 52px;
+                height: 52px;
+            }
+            .channel {
+                font-size: 10px;
+                min-height: 60px;
+            }
+        }
+    </style>
 </head>
 <body>
-    
+
     <div id="player"></div>
 
-	<h2 style="color:orange; text-align:center;">หรรมน้อย IPTV</h2>
-	
+    <h2 style="color:orange; text-align:center;">หรรมน้อย IPTV</h2>
+
     <div id="channel-list"></div>
 
-    <script>
-        const channels = [
-             	{
+<script>
+
+    // ---------- ช่องที่เหลือหลังลบท้าย ----------
+    const channels = [
+        {
                 name: "TV5HD",
                 logo: "https://ais-s.ais-vidnt.com/ais/play/origin/LIVE/channelicon/ch5new.logo.png",
                 file: "https://cri-streamer3.cdn.3bbtv.com:8443/3bb/live/5/5.mpd",
@@ -655,60 +645,60 @@
 				drm: true
             	},
 	        */
-		
+		 ];
 
             // … เพิ่มช่องอื่น ๆ ตามต้องการ
-        ];
+    // -------------------------------------------
 
-        let currentChannelDiv = null;
 
-        function loadPlayer(channel, clickedDiv=null) {
-            const config = {
-                file: channel.file,
-                width: "80%",
-                aspectratio: "16:9",
-                autostart: true,
-                mute: false
-            };
+    // โหลดช่อง + ตั้งค่า player
+    function loadChannel(channel, element) {
 
-            if (channel.drm) {
-                config.type = "dash";
-                config.drm = {
-                    clearkey: {
-                        keyId: channel.keyId,
-                        key: channel.key
-                    }
-                };
-            } else {
-                config.type = "hls";
-            }
+        document.querySelectorAll('.channel').forEach(ch => ch.classList.remove('active'));
+        if (element) element.classList.add('active');
 
-            jwplayer("player").setup(config);
+        jwplayer("player").setup({
+            file: channel.file,
+            drm: channel.drm ? {
+                clearkey: {
+                    keyId: channel.keyId,
+                    key: channel.key
+                }
+            } : undefined,
+            width: "100%",
+            aspectratio: "16:9",
+            autostart: true,
+            volume: 25    // <<< เสียงเริ่ม 25%
+        });
+    }
 
-            // highlight ช่องที่กำลังเล่น
-            if (currentChannelDiv) currentChannelDiv.classList.remove("active");
-            if (clickedDiv) {
-                clickedDiv.classList.add("active");
-                currentChannelDiv = clickedDiv;
-            }
+    const listContainer = document.getElementById("channel-list");
+    let firstChannel = null;
+    let firstElement = null;
+
+    channels.forEach((ch, index) => {
+        const div = document.createElement("div");
+        div.className = "channel";
+        div.innerHTML = `<img src="${ch.logo}"><span>${ch.name}</span>`;
+        div.onclick = () => loadChannel(ch, div);
+
+        if (index === 0) {
+            firstChannel = ch;
+            firstElement = div;
         }
 
-        const channelList = document.getElementById("channel-list");
-        channels.forEach(channel => {
-            const div = document.createElement("div");
-            div.className = "channel";
-            div.innerHTML = `
-                <img src="${channel.logo}" alt="${channel.name}">
-                <span>${channel.name}</span>
-            `;
-            div.onclick = () => loadPlayer(channel, div);
-            channelList.appendChild(div);
-        });
+        listContainer.appendChild(div);
+    });
 
-        document.getElementById("startPlayback").onclick = () => {
-            loadPlayer(channels[0], channelList.children[0]);
-            document.getElementById("startPlayback").style.display = "none";
-        };
-    </script>
+    // โหลดช่องแรกทันที
+    window.onload = () => {
+        if (firstChannel) {
+            firstElement.classList.add("active");
+            loadChannel(firstChannel, firstElement);
+        }
+    };
+
+</script>
+
 </body>
 </html>
