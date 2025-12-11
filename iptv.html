@@ -299,7 +299,6 @@
 				drm: true
             	},
 			
-				/*
 				{
                 name: "CH3 HD",
                 logo: "https://ais-s.ais-vidnt.com/ais/play/origin/LIVE/channelicon/LOGO3HD.PNG",
@@ -308,15 +307,7 @@
                 key: "051027a6ff54494b949ba792928e9008",
 				drm: true
             	},
-				*/
-			
-				{
-                name: "CH3 HD",
-                logo: "https://ais-s.ais-vidnt.com/ais/play/origin/LIVE/channelicon/LOGO3HD.PNG",
-                file: "https://ch3-33-web.cdn.byteark.com/live/playlist_720p/index.m3u8",
-                drm: false
-            	},
-			
+				
 				{
                 name: "CH7 HD",
                 logo: "https://ais-s.ais-vidnt.com/ais/play/origin/LIVE/channelicon/0018.png",
@@ -325,6 +316,7 @@
                 key: "0f4770219ccb4be5836a7517057e51c3",
 				drm: true
             	},
+			
             	{
                 name: "AmarinTV",
                 logo: "https://ais-s.ais-vidnt.com/ais/play/origin/LIVE/channelicon/AmarinTV_NEW512.png",
@@ -337,21 +329,12 @@
 				{
                 name: "PPTV",
                 logo: "https://ais-s.ais-vidnt.com/ais/play/origin/LIVE/channelicon/PPTV_2024e.jpg",
-                file: "https://lb1-live-mv.v2h-cdn.com/hls/ffab/pptv/pptv.m3u8",
-                drm: false
-				},
-			
-				/*
-            	{
-                name: "PPTV",
-                logo: "https://ais-s.ais-vidnt.com/ais/play/origin/LIVE/channelicon/PPTV_2024e.jpg",
                 file: "https://cri-streamer3.cdn.3bbtv.com:8443/3bb/live/36/36.mpd",
                 keyId: "0aeffa7753674e77b99443fac7757b8a",
                 key: "b8c8a462008a40aa91823e0b02e8dd31",
 				drm: true
             	},
-				*/
-				
+								
 				{
                 name: "Asian Hits",
                 logo: "https://ais-s.ais-vidnt.com/ais/play/origin/LIVE///channelicon//3BBAsian_new.png",
@@ -360,6 +343,7 @@
                 key: "2e2ac52cadf843459915eaa1a9b95e48",
 				drm: true
             	},
+			
             	{
              	name: "Mono29Plus",
                 logo: "https://ais-s.ais-vidnt.com/ais/play/origin/LIVE///channelicon//Mono29Plus_new.png",
@@ -377,6 +361,7 @@
                 key: "85e4ef232c6e460f888eb20f651d66e3",
 				drm: true
             	},
+					
 				{
                 name: "CARTOONITO",
                 logo: "https://ais-s.ais-vidnt.com/ais/play/origin/LIVE/channelicon//Cartoonito.png",
@@ -385,6 +370,7 @@
                 key: "1ba155e345c4456ba891cbee9b3e1c4c",
 				drm: true
             	},
+			
             	{
                 name: "NICKELODEON",
                 logo: "https://49-231-37-237-rewriter.ais-vidnt.com/ais/play/origin/LIVE//channelicon/LOGO_Nickelodeon2.png",
@@ -393,6 +379,7 @@
                 key: "c2f4d3288cdb43cf81e519ceb414dd6f",
 				drm: true
             	},
+			
             	{
                 name: "NICK JR",
                 logo: "https://ais-s.ais-vidnt.com/ais/play/origin/LIVE//channelicon/Nickjr_2024.png",
@@ -401,6 +388,7 @@
                 key: "e06f3a2e327643249c3831ab199c4015",
 				drm: true
             	},
+			
 		     	{
              	name: "Animax",
                 logo: "https://i.ibb.co/vJdY0NG/animax.png",
@@ -409,6 +397,7 @@
                 key: "2f5a3199b26e9b693ae881af7ff864cf",
 				drm: true
             	},
+			
 				{
                 name: "Mr.Bean",
                 logo: "https://i.postimg.cc/yWqNWZf5/Mr-Bean.png",
@@ -421,12 +410,14 @@
                 file: "https://2-fss-2.streamhoster.com/pl_140/amlst:200914-1298290/playlist.m3u8",
                 drm: false
             	},
+			
 				{
                 name: "Boomerang CARTOON",
                 logo: "https://i.postimg.cc/Wz7qzMTG/IMG-2061.png",
                 file: "https://lb1-live-mv.v2h-cdn.com/hls/ffbd/boomanime/boomanime.m3u8",
                 drm: false
             	},
+			
 				{
                 name:"Boomerang",
                 logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/BoomThailand2025.png/250px-BoomThailand2025.png",
@@ -669,7 +660,7 @@
         function loadPlayer(channel, clickedDiv=null) {
             const config = {
                 file: channel.file,
-                width: "100%",
+                width: "80%",
                 aspectratio: "16:9",
                 autostart: true,
                 mute: false
