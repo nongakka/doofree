@@ -729,5 +729,25 @@
 
 </script>
 
+<!-- 🔽 ตัวนับจำนวนผู้เข้าชม -->
+<p id="counter" style="margin:15px; color:#aaa; font-size:14px;">
+    กำลังโหลดจำนวนผู้เข้าชม...
+</p>
+
+<!-- 🔽 ใส่ script ตรงนี้ (ก่อนปิด body) -->
+<script>
+let count = localStorage.getItem("visitCount");
+
+if (count === null) {
+    count = 1;
+} else {
+    count = parseInt(count) + 1;
+}
+
+localStorage.setItem("visitCount", count);
+document.getElementById("counter").innerText =
+    "ผู้เข้าชมเว็บไซต์: " + count + " ครั้ง";
+</script>
+	
 </body>
 </html>
