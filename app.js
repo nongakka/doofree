@@ -1,6 +1,6 @@
 // ===== ตั้งค่าตรงนี้ =====
-const BASE_URL = "https://API_TONTHANG"; // ใส่โดเมน API
-const API_KEY  = "API_KEY";             // ใส่ key
+const BASE_URL = "https://embed.icandothisallday.online/dooball66v2"; // ใส่โดเมน API
+const API_KEY  = "hmcb4rf66f";             // ใส่ key
 // ========================
 
 const list = document.getElementById("match-list");
@@ -29,3 +29,4 @@ document.addEventListener("click", e => {
       window.scrollTo({ top: 0, behavior: "smooth" });
     });
 });
+
