@@ -2,129 +2,168 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<title>Sport Auto Convert</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Streaming List</title>
+
+<!-- hls.js สำหรับเล่น m3u8 -->
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
 <style>
-body{margin:0;font-family:Arial;background:#111;color:#fff}
-h2{text-align:center;padding:15px}
-#status{text-align:center;color:#0f0}
-.groupTitle{padding:10px 20px;font-size:18px;color:#00d4ff}
-.station{
-  margin:6px 30px;
-  padding:8px;
-  background:#1c1c1c;
-  border-radius:6px;
-  cursor:pointer;
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #0f0f0f;
+    color: white;
 }
-.station:hover{background:#333}
-.station img{width:40px;vertical-align:middle;margin-right:8px}
-#playerBox{display:none;padding:10px}
-video{width:100%;height:60vh;background:black}
+
+header {
+    padding: 15px;
+    text-align: center;
+    background: #141414;
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.search-box {
+    text-align: center;
+    padding: 10px;
+}
+
+.search-box input {
+    width: 80%;
+    padding: 8px;
+    border-radius: 5px;
+    border: none;
+}
+
+#player-container {
+    width: 100%;
+    max-width: 900px;
+    margin: 20px auto;
+}
+
+video {
+    width: 100%;
+    border-radius: 10px;
+}
+
+.container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 15px;
+    padding: 20px;
+}
+
+.card {
+    background: #1c1c1c;
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.card:hover {
+    transform: scale(1.05);
+}
+
+.card img {
+    width: 100%;
+    height: 260px;
+    object-fit: cover;
+}
+
+.card-body {
+    padding: 10px;
+}
+
+.card h3 {
+    font-size: 14px;
+    margin: 0 0 5px;
+}
+
+.card p {
+    font-size: 12px;
+    color: #aaa;
+    margin: 0;
+}
 </style>
 </head>
+
 <body>
 
-<h2>📺 Sport Live Auto</h2>
-<div id="status">กำลังโหลด...</div>
+<header id="title">กำลังโหลด...</header>
 
-<div id="playerBox">
-  <video id="video" controls autoplay></video>
+<div class="search-box">
+    <input type="text" id="search" placeholder="ค้นหา...">
 </div>
 
-<div id="content"></div>
+<div id="player-container">
+    <video id="video" controls></video>
+</div>
+
+<div class="container" id="movieList"></div>
 
 <script>
+const jsonURL = "https://dl.dropboxusercontent.com/scl/fi/dlm0ozopc05prtn0ji94o/New-123-hdd.txt?rlkey=ggvnqqsdjktayg8wwq2ulh0ry";
 
-// 🔥 ใส่ลิงก์ .w3u ตรงนี้
-const W3U_URL = "https://test5-theta-six.vercel.app/Sport-v2.w3u";
+let movieData = [];
 
-async function loadM3U(){
-  try{
-    const res = await fetch(W3U_URL);
-    if(!res.ok) throw new Error();
-    const text = await res.text();
+fetch(jsonURL)
+.then(res => res.json())
+.then(data => {
+    document.getElementById("title").textContent = data.name + " | " + data.author;
+    movieData = data.stations;
+    displayMovies(movieData);
+})
+.catch(err => alert("โหลดไฟล์ไม่สำเร็จ (อาจติด CORS)"));
 
-    const channels = parseM3U(text);
-    renderGrouped(channels);
+function displayMovies(list) {
+    const container = document.getElementById("movieList");
+    container.innerHTML = "";
 
-    document.getElementById("status").innerHTML =
-      "โหลดสำเร็จ "+channels.length+" ช่อง";
+    list.forEach(item => {
+        const card = document.createElement("div");
+        card.className = "card";
 
-  }catch{
-    document.getElementById("status").innerHTML =
-      "❌ โหลดไฟล์ไม่ได้ (อาจติด CORS)";
-  }
-}
+        card.innerHTML = `
+            <img src="${item.image}">
+            <div class="card-body">
+                <h3>${item.name}</h3>
+                <p>${item.info}</p>
+            </div>
+        `;
 
-function parseM3U(text){
-  const lines = text.split(/\r?\n/);
-  const list = [];
-
-  for(let i=0;i<lines.length;i++){
-    const line = lines[i].trim();
-    if(line.startsWith("#EXTINF")){
-      const url = lines[i+1]?.trim();
-      if(!url || url.startsWith("#")) continue;
-
-      const name = line.split(",")[1]?.trim() || "No Name";
-      const logo = (line.match(/tvg-logo="([^"]*)"/)||[])[1] || "";
-      const group = (line.match(/group-title="([^"]*)"/)||[])[1] || "อื่นๆ";
-
-      list.push({name,logo,group,url});
-    }
-  }
-
-  return list;
-}
-
-function renderGrouped(data){
-  const content = document.getElementById("content");
-  content.innerHTML="";
-
-  const grouped = {};
-
-  data.forEach(ch=>{
-    if(!grouped[ch.group]) grouped[ch.group]=[];
-    grouped[ch.group].push(ch);
-  });
-
-  for(const groupName in grouped){
-
-    const gTitle = document.createElement("div");
-    gTitle.className="groupTitle";
-    gTitle.textContent=groupName;
-    content.appendChild(gTitle);
-
-    grouped[groupName].forEach(ch=>{
-      const div=document.createElement("div");
-      div.className="station";
-      div.innerHTML=`
-        <img src="${ch.logo}" onerror="this.style.display='none'">
-        ${ch.name}
-      `;
-      div.onclick=()=>play(ch.url);
-      content.appendChild(div);
+        card.onclick = () => playVideo(item.url);
+        container.appendChild(card);
     });
-  }
 }
 
-function play(url){
-  const video=document.getElementById("video");
-  document.getElementById("playerBox").style.display="block";
+function playVideo(url) {
+    const video = document.getElementById("video");
 
-  if(Hls.isSupported()){
-    const hls=new Hls();
-    hls.loadSource(url);
-    hls.attachMedia(video);
-  }else{
-    video.src=url;
-  }
-
-  window.scrollTo({top:0,behavior:"smooth"});
+    if (Hls.isSupported()) {
+        const hls = new Hls();
+        hls.loadSource(url);
+        hls.attachMedia(video);
+        hls.on(Hls.Events.MANIFEST_PARSED,function() {
+            video.play();
+        });
+    } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
+        video.src = url;
+        video.play();
+    } else {
+        alert("เบราว์เซอร์ไม่รองรับ HLS");
+    }
 }
 
-loadM3U();
-
+document.getElementById("search").addEventListener("keyup", function() {
+    const keyword = this.value.toLowerCase();
+    const filtered = movieData.filter(item =>
+        item.name.toLowerCase().includes(keyword)
+    );
+    displayMovies(filtered);
+});
 </script>
+
 </body>
 </html>
