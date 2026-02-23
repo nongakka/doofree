@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>หรรมน้อย ออนไลน์</title>
+
+<style>
+body{
+  margin:0;
+  display:flex;
+  height:100vh;
+  font-family:'Segoe UI',sans-serif;
+  background:#0f0f17;
+  overflow:hidden;
+  color:white;
+}
+
+/* MOBILE BUTTON */
+#mobileToggle{
+  position:fixed;
+  top:15px;
+  left:15px;
+  background:linear-gradient(90deg,#8e2de2,#4a00e0);
+  color:#fff;
+  padding:8px 14px;
+  border-radius:8px;
+  cursor:pointer;
+  z-index:1000;
+  display:none;
+  box-shadow:0 5px 15px rgba(0,0,0,0.5);
+}
+
+/* SIDEBAR - GLASS STYLE */
+#menu{
+  width:200px;
+  backdrop-filter: blur(12px);
+  background:rgba(20,30,48,0.85);
+  border-right:1px solid rgba(255,255,255,0.08);
+  overflow-y:auto;
+  padding:18px;
+  transition:0.3s ease;
+  box-shadow:5px 0 30px rgba(0,0,0,0.6);
+}
+#menu.hidden{
+  transform:translateX(-100%);
+}
+
+/* LOGO */
+.logo-box{
+  text-align:center;
+  margin-bottom:25px;
+  padding-bottom:15px;
+  border-bottom:1px solid rgba(255,255,255,0.1);
+}
+.logo-box img{
+  width:90px;
+  border-radius:16px;
+  box-shadow:0 0 25px rgba(142,45,226,0.6);
+}
+.logo-text{
+  margin-top:10px;
+  font-size:17px;
+  font-weight:bold;
+  letter-spacing:1px;
+}
+
+/* MENU TITLE */
+.menu-title{
+  padding:12px;
+  border-radius:10px;
+  cursor:pointer;
+  font-weight:600;
+  margin:12px 0 6px 0;
+  transition:0.3s;
+}
+.menu-title:hover{
+  transform:scale(1.04);
+  box-shadow:0 6px 20px rgba(0,0,0,0.4);
+}
+
+/* CATEGORY COLORS */
+.premium{background:linear-gradient(90deg,#8e2de2,#4a00e0);}
+.movie{background:linear-gradient(90deg,#ff416c,#ff4b2b);}
+.series{background:linear-gradient(90deg,#f7971e,#ffd200);}
+.anime{background:linear-gradient(90deg,#11998e,#38ef7d);}
+.music{background:linear-gradient(90deg,#fc466b,#3f5efb);}
+
+.submenu{
+  display:none;
+  margin-bottom:12px;
+}
+
+.menu-link{
+  display:block;
+  padding:10px;
+  margin:6px 0;
+  background:rgba(255,255,255,0.05);
+  border-radius:8px;
+  color:#fff;
+  text-decoration:none;
+  transition:0.3s;
+  font-size:14px;
+}
+.menu-link:hover{
+  background:#e94560;
+  transform:translateX(6px);
+}
+
+.home-btn{
+  display:block;
+  padding:10px;
+  background:linear-gradient(90deg,#00adb5,#00f2fe);
+  text-align:center;
+  border-radius:8px;
+  color:#fff;
+  text-decoration:none;
+  margin-bottom:15px;
+  font-weight:bold;
+  box-shadow:0 5px 15px rgba(0,0,0,0.5);
+}
+
+/* PLAYER AREA */
+#player-container{
+  flex:1;
+  position:relative;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background: radial-gradient(circle at center, #1a1a2e 0%, #000 70%);
+}
+
+/* WELCOME SCREEN */
+#welcome{
+  position:absolute;
+  text-align:center;
+  opacity:0.4;
+  font-size:22px;
+  letter-spacing:2px;
+}
+
+/* VIDEO & IFRAME */
+#video, #iframePlayer{
+  width:100%;
+  height:100%;
+  border:none;
+}
+.hidden{
+  display:none;
+}
+
+/* MOBILE */
+@media(max-width:768px){
+  #menu{
+    position:fixed;
+    height:100%;
+    z-index:999;
+  }
+  #mobileToggle{
+    display:block;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div id="mobileToggle" onclick="toggleSidebar()">☰ เมนู</div>
+
+<div id="menu">
+
+<div class="logo-box">
+  <img src="https://img2.pic.in.th/ChatGPT-Image-8-..-2569-11_01_58.png">
+  <div class="logo-text">หรรมน้อย ออนไลน์</div>
+</div>
+
+<a class="home-btn" onclick="goHome()">🏠 หน้าแรก</a>
+
+<div class="menu-title premium" onclick="toggleMenu('tvMenu')">📺 TV ONLINE</div>
+<div id="tvMenu" class="submenu">
+  <a class="menu-link" onclick="openIframe('https://nongakka.github.io/doofree/iptv.html')">🔥 ดิจิตอลทีวี</a>
+</div>
+
+<div class="menu-title movie" onclick="toggleMenu('movieMenu')">🎬 หนัง</div>
+<div id="movieMenu" class="submenu">
+    <a class="menu-link" onclick="openIframe('https://udzaa2238.github.io/oldman_wander/หนังใหม่.html')">🔥 หนังใหม่ ™</a>
+    <a class="menu-link" onclick="openIframe('https://udzaa2238.github.io/oldman_wander/หนังจีน.html')">🎎 หนังจีน ™</a>
+    <a class="menu-link" onclick="openIframe('https://udzaa2238.github.io/oldman_wander/หนังฝรั่ง.html')">🌎 หนังฝรั่ง ™</a>
+    <a class="menu-link" onclick="openIframe('https://udzaa2238.github.io/oldman_wander/หนังไทย.html')">🇹🇭 หนังไทย ™</a>
+    <a class="menu-link" onclick="openIframe('https://udzaa2238.github.io/oldman_wander/หนังเกาหลี.html')">🇰🇷 หนังเกาหลี ™</a>
+    <a class="menu-link" onclick="openIframe('https://udzaa2238.github.io/oldman_wander/หนังภาคต่อ.html')">🎞 หนังภาคต่อ ™</a>
+    <a class="menu-link" onclick="openIframe('https://udzaa2238.github.io/oldman_wander/หนังซูม.html')">📹 หนังซูม ™</a>
+    <a class="menu-link" onclick="openIframe('https://udzaa2238.github.io/oldman_wander/สารคดี.html')">📚 สารคดี ™</a>
+</div>
+
+<div class="menu-title series" onclick="toggleMenu('seriesMenu')">📺 ซีรีส์</div>
+<div id="seriesMenu" class="submenu">
+  <a class="menu-link" onclick="openIframe('#')">🇰🇷 ซีรีส์เกาหลี</a>
+</div>
+
+<div class="menu-title anime" onclick="toggleMenu('animeMenu')">🧸 อนิเมะ</div>
+<div id="animeMenu" class="submenu">
+  <a class="menu-link" onclick="openIframe('https://udzaa2238.github.io/oldman_wander/การ์ตูนมูฟวี่.html')">🧸 หนังการ์ตูน</a>
+</div>
+
+<div class="menu-title music" onclick="toggleMenu('musicMenu')">🎵 เพลง & วาไรตี้</div>
+<div id="musicMenu" class="submenu">
+  <a class="menu-link" onclick="openIframe('#')">🎤 เพลงฮิต</a>
+</div>
+
+</div>
+
+<div id="player-container">
+  <div id="welcome">หรรมน้อย ออนไลน์</div>
+  <video id="video" class="hidden" controls autoplay></video>
+  <iframe id="iframePlayer" class="hidden"></iframe>
+</div>
+
+<script>
+function toggleMenu(id){
+  const all=document.querySelectorAll('.submenu');
+  all.forEach(menu=>{
+    if(menu.id!==id) menu.style.display="none";
+  });
+  const el=document.getElementById(id);
+  el.style.display = el.style.display==="block" ? "none" : "block";
+}
+
+function toggleSidebar(){
+  document.getElementById("menu").classList.toggle("hidden");
+}
+
+function openIframe(url){
+  const iframe=document.getElementById("iframePlayer");
+  const video=document.getElementById("video");
+  document.getElementById("welcome").style.display="none";
+
+  video.pause();
+  video.classList.add("hidden");
+
+  iframe.src=url;
+  iframe.classList.remove("hidden");
+
+  if(window.innerWidth<768) toggleSidebar();
+}
+
+function goHome(){
+  const iframe=document.getElementById("iframePlayer");
+  const video=document.getElementById("video");
+
+  iframe.classList.add("hidden");
+  iframe.src="";
+  video.classList.add("hidden");
+  document.getElementById("welcome").style.display="block";
+}
+
+document.addEventListener("DOMContentLoaded",()=>{
+  // เปิดเมนู TV ONLINE อัตโนมัติ
+  toggleMenu('tvMenu');
+
+  // โหลดหน้า TV ONLINE เป็นหน้าแรก
+  openIframe('https://nongakka.github.io/doofree/iptv.html');
+});
+</script>
+
+</body>
+</html>
