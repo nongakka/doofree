@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CATTV IPTV (แยกหมวด)</title>
+<title>หรรมน้อย ออนไลน์</title>
 
 <script src="https://ssl.p.jwpcdn.com/player/v/8.26.0/jwplayer.js"></script>
 <script>
@@ -11,114 +11,61 @@ jwplayer.key = "XSuP4qMl+9tK17QNb+4+th2Pm9AWgMO/cYH8CI0HGGr7bdjo";
 </script>
 
 <style>
-body{
-margin:0;
-background:#000;
-color:#fff;
-font-family:sans-serif;
-text-align:center
-}
+html{scroll-behavior:smooth;}
+body{margin:0;background:#000;color:#fff;font-family:sans-serif;text-align:center}
 
-#player{
-width:90%;
-max-width:1200px;
-aspect-ratio:16/9;
-margin:15px auto
-}
+#player{width:90%;max-width:1200px;aspect-ratio:16/9;margin:15px auto}
 
 #categories{
-display:flex;
-flex-wrap:wrap;
-gap:8px;
-justify-content:center;
-padding:10px;
+display:flex;flex-wrap:wrap;gap:8px;
+justify-content:center;padding:10px;
 }
 
 .category{
-padding:6px 14px;
-background:#222;
-border:1px solid #444;
-border-radius:20px;
-cursor:pointer;
-font-size:13px;
-transition:.2s;
+padding:6px 14px;background:#222;border:1px solid #444;
+border-radius:20px;cursor:pointer;font-size:13px;transition:.2s;
 }
-
 .category:hover{background:#333;}
 .category.active{background:orange;color:black;}
 
 #channels{
 display:grid;
 grid-template-columns:repeat(auto-fill,minmax(120px,1fr));
-gap:18px; /* เพิ่มระยะเผื่อ Tooltip ด้านบน */
-padding:25px 15px 15px;
-max-width:1200px;
-margin:auto;
+gap:18px;padding:25px 15px;
+max-width:1200px;margin:auto;
 }
 
 .channel{
-background:#111;
-border:1px solid #333;
-border-radius:14px;
-padding:12px 8px;
-cursor:pointer;
-display:flex;
-flex-direction:column;
-align-items:center;
-justify-content:center;
-height:135px;
-transition:.2s;
-position:relative;
-overflow:visible; /* สำคัญมาก ให้ Tooltip โผล่ออกมาได้ */
+background:#111;border:1px solid #333;border-radius:14px;
+padding:12px 8px;cursor:pointer;
+display:flex;flex-direction:column;
+align-items:center;justify-content:center;
+height:135px;transition:.2s;position:relative;
 }
 
-.channel:hover{
-border-color:orange;
-transform:scale(1.05);
-z-index:5;
-}
-
-.channel.active{
-background:orange;
-color:black;
-}
+.channel:hover{border-color:orange;transform:scale(1.05);z-index:5;}
+.channel.active{background:orange;color:black;}
 
 .channel img{
-width:65px;
-height:65px;
-object-fit:contain;
-margin-bottom:6px;
+width:65px;height:65px;object-fit:contain;margin-bottom:6px;
 }
 
 .channel .name{
-font-size:13px;
-white-space:nowrap;
-overflow:hidden;
-text-overflow:ellipsis;
-width:100%;
-text-align:center;
+font-size:13px;white-space:nowrap;
+overflow:hidden;text-overflow:ellipsis;
+width:100%;text-align:center;
 }
 
-/* 🔥 Tooltip ลอยด้านบน */
+/* Tooltip ด้านบน */
 .channel::after{
 content: attr(data-fullname);
-position:absolute;
-bottom:100%;           /* จากเดิม bottom:-30px */
-left:50%;
+position:absolute;bottom:100%;left:50%;
 transform:translateX(-50%) translateY(-8px);
-background:rgba(0,0,0,0.9);
-color:#fff;
-padding:5px 10px;
-font-size:12px;
-border-radius:6px;
-white-space:nowrap;
-opacity:0;
-pointer-events:none;
-transition:0.2s;
-z-index:20;
-box-shadow:0 4px 10px rgba(0,0,0,0.5);
+background:rgba(0,0,0,0.9);color:#fff;
+padding:5px 10px;font-size:12px;border-radius:6px;
+white-space:nowrap;opacity:0;pointer-events:none;
+transition:.2s;z-index:20;
 }
-
 .channel:hover::after{
 opacity:1;
 transform:translateX(-50%) translateY(-12px);
@@ -128,7 +75,7 @@ transform:translateX(-50%) translateY(-12px);
 
 <body>
 
-<h2 style="color:orange;">CATTV IPTV</h2>
+<h2 style="color:orange;">หรรมน้อย ออนไลน์</h2>
 
 <div id="player"></div>
 <div id="categories"></div>
@@ -136,7 +83,9 @@ transform:translateX(-50%) translateY(-12px);
 
 <script>
 
+const DEFAULT_LOGO = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
 const m3uUrl = "https://dl.dropboxusercontent.com/scl/fi/62fiv12wkovcvsja9ytjp/movie2535.m3u?rlkey=wc4lqa5rb334w7knv2c0jsmuh&st=i6a6uvtt&dl=0";
+
 let player = jwplayer("player");
 let allChannels = [];
 
@@ -158,7 +107,7 @@ function parseM3U(text){
             current.name = line.split(",").pop().trim();
 
             const logoMatch = line.match(/tvg-logo="(.*?)"/);
-            current.logo = logoMatch ? logoMatch[1] : "";
+            current.logo = logoMatch ? logoMatch[1] : DEFAULT_LOGO;
 
             const groupMatch = line.match(/group-title="(.*?)"/);
             current.group = groupMatch ? groupMatch[1] : "อื่นๆ";
@@ -174,9 +123,10 @@ function parseM3U(text){
             }
         }
 
-        else if(line.startsWith("https")){
+        // 🔥 รองรับ http และ https
+        else if(line.startsWith("http")){
             current.file = line;
-            current.type = line.endsWith(".mpd") ? "dash" : "hls";
+            current.type = line.includes(".mpd") ? "dash" : "hls";
             allChannels.push(current);
         }
 
@@ -232,11 +182,16 @@ function renderChannels(list){
         div.setAttribute("data-fullname", ch.name);
 
         div.innerHTML = `
-            <img src="${ch.logo || ''}">
+            <img src="${ch.logo}" 
+                 onerror="this.src='${DEFAULT_LOGO}'">
             <div class="name">${ch.name}</div>
         `;
 
-        div.onclick = ()=> playChannel(ch,div);
+        div.onclick = ()=>{
+            playChannel(ch,div);
+            document.getElementById("player")
+                .scrollIntoView({behavior:"smooth"});
+        };
 
         container.appendChild(div);
     });
@@ -250,26 +205,18 @@ function playChannel(channel,element){
 
     player.stop(true);
 
-    if(channel.type==="dash" && channel.drm){
-        player.setup({
-            file: channel.file,
-            type:"dash",
-            drm:{
-                clearkey:{
-                    keyId: channel.keyId,
-                    key: channel.key
-                }
-            },
-            width:"100%",
-            aspectratio:"16:9"
-        });
-    }else{
-        player.setup({
-            file: channel.file,
-            width:"100%",
-            aspectratio:"16:9"
-        });
-    }
+    player.setup({
+        file: channel.file,
+        type: channel.type,
+        width:"100%",
+        aspectratio:"16:9",
+        drm: channel.drm ? {
+            clearkey:{
+                keyId: channel.keyId,
+                key: channel.key
+            }
+        } : undefined
+    });
 }
 
 </script>
