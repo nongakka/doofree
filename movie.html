@@ -13,7 +13,6 @@ jwplayer.key = "XSuP4qMl+9tK17QNb+4+th2Pm9AWgMO/cYH8CI0HGGr7bdjo";
 <style>
 html{scroll-behavior:smooth;}
 body{margin:0;background:#000;color:#fff;font-family:sans-serif;text-align:center}
-
 #player{width:90%;max-width:1200px;aspect-ratio:16/9;margin:15px auto}
 
 #categories{
@@ -23,53 +22,54 @@ justify-content:center;padding:10px;
 
 .category{
 padding:6px 14px;background:#222;border:1px solid #444;
-border-radius:20px;cursor:pointer;font-size:13px;transition:.2s;
+border-radius:20px;cursor:pointer;font-size:13px;
 }
-.category:hover{background:#333;}
 .category.active{background:orange;color:black;}
 
 #channels{
 display:grid;
-grid-template-columns:repeat(auto-fill,minmax(120px,1fr));
-gap:18px;padding:25px 15px;
+grid-template-columns:repeat(auto-fill,minmax(130px,1fr));
+gap:20px;padding:25px;
 max-width:1200px;margin:auto;
 }
 
 .channel{
-background:#111;border:1px solid #333;border-radius:14px;
-padding:12px 8px;cursor:pointer;
-display:flex;flex-direction:column;
-align-items:center;justify-content:center;
-height:135px;transition:.2s;position:relative;
+background:#111;border:1px solid #333;
+border-radius:14px;padding:12px;
+cursor:pointer;display:flex;
+flex-direction:column;align-items:center;
+justify-content:center;height:150px;
+transition:.2s;position:relative;
 }
 
-.channel:hover{border-color:orange;transform:scale(1.05);z-index:5;}
+.channel:hover{border-color:orange;transform:scale(1.05);}
 .channel.active{background:orange;color:black;}
 
 .channel img{
-width:65px;height:65px;object-fit:contain;margin-bottom:6px;
+width:75px;height:75px;
+object-fit:cover;border-radius:8px;
+margin-bottom:6px;
 }
 
 .channel .name{
-font-size:13px;white-space:nowrap;
-overflow:hidden;text-overflow:ellipsis;
+font-size:13px;
+white-space:nowrap;
+overflow:hidden;
+text-overflow:ellipsis;
 width:100%;text-align:center;
 }
 
-/* Tooltip ด้านบน */
+/* Tooltip บน */
 .channel::after{
 content: attr(data-fullname);
 position:absolute;bottom:100%;left:50%;
-transform:translateX(-50%) translateY(-8px);
-background:rgba(0,0,0,0.9);color:#fff;
-padding:5px 10px;font-size:12px;border-radius:6px;
-white-space:nowrap;opacity:0;pointer-events:none;
-transition:.2s;z-index:20;
+transform:translateX(-50%) translateY(-10px);
+background:#000;padding:6px 12px;
+font-size:12px;border-radius:6px;
+white-space:nowrap;opacity:0;
+transition:.2s;pointer-events:none;
 }
-.channel:hover::after{
-opacity:1;
-transform:translateX(-50%) translateY(-12px);
-}
+.channel:hover::after{opacity:1;}
 </style>
 </head>
 
@@ -104,7 +104,12 @@ function parseM3U(text){
 
         if(line.startsWith("#EXTINF")){
             current = {};
-            current.name = line.split(",").pop().trim();
+
+            // 🔥 ดึง tvg-name แบบปลอดภัย
+            const nameMatch = line.match(/tvg-name="(.*?)"/);
+            current.name = nameMatch 
+                ? nameMatch[1] 
+                : line.substring(line.lastIndexOf(",")+1);
 
             const logoMatch = line.match(/tvg-logo="(.*?)"/);
             current.logo = logoMatch ? logoMatch[1] : DEFAULT_LOGO;
@@ -113,21 +118,10 @@ function parseM3U(text){
             current.group = groupMatch ? groupMatch[1] : "อื่นๆ";
         }
 
-        else if(line.startsWith("#KODIPROP") && line.includes("license_key")){
-            const keyData = line.split("=").pop().trim();
-            const parts = keyData.split(":");
-            if(parts.length === 2){
-                current.keyId = parts[0];
-                current.key = parts[1];
-                current.drm = true;
-            }
-        }
-
-        // 🔥 รองรับ http และ https
         else if(line.startsWith("http")){
             current.file = line;
-            current.type = line.includes(".mpd") ? "dash" : "hls";
-            allChannels.push(current);
+            current.type = "hls"; // 🔥 บังคับเป็น HLS สำหรับ m3u8
+            allChannels.push({...current});
         }
 
     });
@@ -207,15 +201,9 @@ function playChannel(channel,element){
 
     player.setup({
         file: channel.file,
-        type: channel.type,
+        type: "hls",
         width:"100%",
-        aspectratio:"16:9",
-        drm: channel.drm ? {
-            clearkey:{
-                keyId: channel.keyId,
-                key: channel.key
-            }
-        } : undefined
+        aspectratio:"16:9"
     });
 }
 
