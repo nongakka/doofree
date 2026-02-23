@@ -11,10 +11,6 @@ jwplayer.key = "XSuP4qMl+9tK17QNb+4+th2Pm9AWgMO/cYH8CI0HGGr7bdjo";
 </script>
 
 <style>
-html{
-scroll-behavior:smooth; /* 🔥 เลื่อนแบบลื่น */
-}
-
 body{
 margin:0;
 background:#000;
@@ -54,7 +50,7 @@ transition:.2s;
 #channels{
 display:grid;
 grid-template-columns:repeat(auto-fill,minmax(120px,1fr));
-gap:18px;
+gap:18px; /* เพิ่มระยะเผื่อ Tooltip ด้านบน */
 padding:25px 15px 15px;
 max-width:1200px;
 margin:auto;
@@ -73,7 +69,7 @@ justify-content:center;
 height:135px;
 transition:.2s;
 position:relative;
-overflow:visible;
+overflow:visible; /* สำคัญมาก ให้ Tooltip โผล่ออกมาได้ */
 }
 
 .channel:hover{
@@ -103,11 +99,11 @@ width:100%;
 text-align:center;
 }
 
-/* Tooltip ด้านบน */
+/* 🔥 Tooltip ลอยด้านบน */
 .channel::after{
 content: attr(data-fullname);
 position:absolute;
-bottom:100%;
+bottom:100%;           /* จากเดิม bottom:-30px */
 left:50%;
 transform:translateX(-50%) translateY(-8px);
 background:rgba(0,0,0,0.9);
@@ -240,13 +236,7 @@ function renderChannels(list){
             <div class="name">${ch.name}</div>
         `;
 
-        div.onclick = ()=>{
-            playChannel(ch,div);
-
-            // 🔥 เลื่อนกลับขึ้น Player
-            document.getElementById("player")
-                .scrollIntoView({behavior:"smooth"});
-        };
+        div.onclick = ()=> playChannel(ch,div);
 
         container.appendChild(div);
     });
