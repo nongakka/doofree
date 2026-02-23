@@ -29,7 +29,9 @@ body{margin:0;background:#000;color:#fff;font-family:sans-serif;text-align:cente
 
 <script>
 
-const m3uUrl = "https://raw.githubusercontent.com/cattviptv2605/iptv/refs/heads/main/cattv.m3u";
+// ใช้ jsDelivr กัน CORS
+const m3uUrl = "https://cdn.jsdelivr.net/gh/cattviptv2605/iptv@main/cattv.m3u";
+
 let player = jwplayer("player");
 
 fetch(m3uUrl)
@@ -40,7 +42,6 @@ function parseM3U(text){
 
     const lines = text.split("\n");
     const channels = [];
-
     let current = {};
 
     lines.forEach(line => {
@@ -49,14 +50,12 @@ function parseM3U(text){
 
         if(line.startsWith("#EXTINF")){
             current = {};
-
             current.name = line.split(",").pop().trim();
 
             const logoMatch = line.match(/tvg-logo="(.*?)"/);
             current.logo = logoMatch ? logoMatch[1] : "";
         }
 
-        // อ่าน DRM key จาก KODIPROP
         else if(line.startsWith("#KODIPROP") && line.includes("license_key")){
             const keyData = line.split("=").pop().trim();
             const parts = keyData.split(":");
@@ -68,17 +67,9 @@ function parseM3U(text){
             }
         }
 
-        // รับเฉพาะ https stream
         else if(line.startsWith("https")){
-
             current.file = line;
-
-            if(line.endsWith(".mpd")){
-                current.type = "dash";
-            }else{
-                current.type = "hls";
-            }
-
+            current.type = line.endsWith(".mpd") ? "dash" : "hls";
             channels.push(current);
         }
 
@@ -90,6 +81,7 @@ function parseM3U(text){
 function renderChannels(list){
 
     const container = document.getElementById("channels");
+    container.innerHTML = "";
 
     list.forEach((ch,index)=>{
 
@@ -113,8 +105,11 @@ function renderChannels(list){
 
 function playChannel(channel,element){
 
-    document.querySelectorAll(".channel").forEach(el=>el.classList.remove("active"));
+    document.querySelectorAll(".channel")
+        .forEach(el=>el.classList.remove("active"));
     element.classList.add("active");
+
+    player.stop(true); // หยุดตัวเก่า
 
     if(channel.type==="dash" && channel.drm){
 
@@ -128,7 +123,9 @@ function playChannel(channel,element){
                 }
             },
             width:"100%",
-            aspectratio:"16:9"
+            aspectratio:"16:9",
+            autostart:true,
+            mute:true
         });
 
     }else{
@@ -136,10 +133,15 @@ function playChannel(channel,element){
         player.setup({
             file: channel.file,
             width:"100%",
-            aspectratio:"16:9"
+            aspectratio:"16:9",
+            autostart:true,
+            mute:true
         });
-
     }
+
+    player.on("ready", function(){
+        player.play();
+    });
 }
 
 </script>
