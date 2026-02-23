@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CATTV IPTV DRM AUTO</title>
+
+<script src="https://ssl.p.jwpcdn.com/player/v/8.26.0/jwplayer.js"></script>
+<script>
+jwplayer.key = "XSuP4qMl+9tK17QNb+4+th2Pm9AWgMO/cYH8CI0HGGr7bdjo";
+</script>
+
+<style>
+body{margin:0;background:#000;color:#fff;font-family:sans-serif;text-align:center}
+#player{width:90%;max-width:1200px;aspect-ratio:16/9;margin:15px auto}
+#channels{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;padding:10px;max-width:1200px;margin:auto}
+.channel{background:#111;border:1px solid #333;border-radius:8px;padding:6px;cursor:pointer}
+.channel img{width:60px;height:60px;object-fit:contain}
+.channel:hover{border-color:orange}
+.active{background:orange;color:black}
+</style>
+</head>
+
+<body>
+
+<h2 style="color:orange;">CATTV IPTV (Auto DRM)</h2>
+<div id="player"></div>
+<div id="channels"></div>
+
+<script>
+
+const m3uUrl = "https://raw.githubusercontent.com/cattviptv2605/iptv/refs/heads/main/cattv.m3u";
+let player = jwplayer("player");
+
+fetch(m3uUrl)
+.then(res => res.text())
+.then(text => parseM3U(text));
+
+function parseM3U(text){
+
+    const lines = text.split("\n");
+    const channels = [];
+
+    let current = {};
+
+    lines.forEach(line => {
+
+        line = line.trim();
+
+        if(line.startsWith("#EXTINF")){
+            current = {};
+
+            current.name = line.split(",").pop().trim();
+
+            const logoMatch = line.match(/tvg-logo="(.*?)"/);
+            current.logo = logoMatch ? logoMatch[1] : "";
+        }
+
+        // อ่าน DRM key จาก KODIPROP
+        else if(line.startsWith("#KODIPROP") && line.includes("license_key")){
+            const keyData = line.split("=").pop().trim();
+            const parts = keyData.split(":");
+
+            if(parts.length === 2){
+                current.keyId = parts[0];
+                current.key = parts[1];
+                current.drm = true;
+            }
+        }
+
+        // รับเฉพาะ https stream
+        else if(line.startsWith("https")){
+
+            current.file = line;
+
+            if(line.endsWith(".mpd")){
+                current.type = "dash";
+            }else{
+                current.type = "hls";
+            }
+
+            channels.push(current);
+        }
+
+    });
+
+    renderChannels(channels);
+}
+
+function renderChannels(list){
+
+    const container = document.getElementById("channels");
+
+    list.forEach((ch,index)=>{
+
+        const div = document.createElement("div");
+        div.className="channel";
+
+        div.innerHTML = `
+            <img src="${ch.logo || ''}">
+            <div>${ch.name}</div>
+        `;
+
+        div.onclick = ()=> playChannel(ch,div);
+
+        container.appendChild(div);
+
+        if(index===0){
+            playChannel(ch,div);
+        }
+    });
+}
+
+function playChannel(channel,element){
+
+    document.querySelectorAll(".channel").forEach(el=>el.classList.remove("active"));
+    element.classList.add("active");
+
+    if(channel.type==="dash" && channel.drm){
+
+        player.setup({
+            file: channel.file,
+            type:"dash",
+            drm:{
+                clearkey:{
+                    keyId: channel.keyId,
+                    key: channel.key
+                }
+            },
+            width:"100%",
+            aspectratio:"16:9"
+        });
+
+    }else{
+
+        player.setup({
+            file: channel.file,
+            width:"100%",
+            aspectratio:"16:9"
+        });
+
+    }
+}
+
+</script>
+
+</body>
+</html>
