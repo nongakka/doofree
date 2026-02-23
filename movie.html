@@ -5,208 +5,289 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>หรรมน้อย ออนไลน์</title>
 
-<script src="https://ssl.p.jwpcdn.com/player/v/8.26.0/jwplayer.js"></script>
-<script>
-jwplayer.key = "XSuP4qMl+9tK17QNb+4+th2Pm9AWgMO/cYH8CI0HGGr7bdjo";
-</script>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
 
 <style>
-html{scroll-behavior:smooth;}
-body{margin:0;background:#000;color:#fff;font-family:sans-serif;text-align:center}
-#player{width:90%;max-width:1200px;aspect-ratio:16/9;margin:15px auto}
+:root{
+--main:#ff9800;
+--glass:rgba(255,255,255,0.05);
+--border:rgba(255,255,255,0.08);
+}
 
+body{
+margin:0;
+background:linear-gradient(135deg,#000,#0a0a0a,#111);
+color:#fff;
+font-family:'Kanit',sans-serif;
+}
+
+/* Header */
+header{
+text-align:center;
+padding:25px 10px;
+font-size:28px;
+font-weight:600;
+color:var(--main);
+}
+
+/* Player (ลดขนาดแล้ว) */
+#player-container{
+width:85%;
+max-width:900px;
+aspect-ratio:16/9;
+margin:0 auto 30px;
+background:#000;
+border-radius:22px;
+overflow:hidden;
+box-shadow:0 0 30px rgba(255,152,0,0.25);
+border:1px solid var(--border);
+}
+
+#video{
+width:100%;
+height:100%;
+background:#000;
+}
+
+/* Categories */
 #categories{
-display:flex;flex-wrap:wrap;gap:8px;
-justify-content:center;padding:10px;
+display:flex;
+flex-wrap:wrap;
+gap:10px;
+justify-content:center;
+padding:15px;
 }
 
 .category{
-padding:6px 14px;background:#222;border:1px solid #444;
-border-radius:20px;cursor:pointer;font-size:13px;
+padding:8px 18px;
+background:var(--glass);
+border:1px solid var(--border);
+border-radius:30px;
+cursor:pointer;
+font-size:14px;
+transition:.3s;
 }
-.category.active{background:orange;color:black;}
 
+.category:hover{
+border-color:var(--main);
+color:var(--main);
+}
+
+.category.active{
+background:var(--main);
+color:#000;
+font-weight:600;
+}
+
+/* Channels */
 #channels{
 display:grid;
-grid-template-columns:repeat(auto-fill,minmax(130px,1fr));
-gap:20px;padding:25px;
-max-width:1200px;margin:auto;
+grid-template-columns:repeat(auto-fill,minmax(170px,1fr));
+gap:25px;
+padding:35px;
+max-width:1300px;
+margin:auto;
 }
 
 .channel{
-background:#111;border:1px solid #333;
-border-radius:14px;padding:12px;
-cursor:pointer;display:flex;
-flex-direction:column;align-items:center;
-justify-content:center;height:150px;
-transition:.2s;position:relative;
+background:var(--glass);
+border:1px solid var(--border);
+border-radius:20px;
+padding:18px;
+cursor:pointer;
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+height:200px;
+transition:.35s;
+position:relative;
 }
 
-.channel:hover{border-color:orange;transform:scale(1.05);}
-.channel.active{background:orange;color:black;}
+.channel:hover{
+transform:translateY(-6px) scale(1.04);
+border-color:var(--main);
+}
+
+.channel.active{
+background:var(--main);
+color:#000;
+font-weight:600;
+}
 
 .channel img{
-width:75px;height:75px;
-object-fit:cover;border-radius:8px;
-margin-bottom:6px;
+width:90px;
+height:90px;
+object-fit:cover;
+border-radius:14px;
+margin-bottom:12px;
 }
 
 .channel .name{
-font-size:13px;
+font-size:14px;
 white-space:nowrap;
 overflow:hidden;
 text-overflow:ellipsis;
-width:100%;text-align:center;
+width:100%;
+text-align:center;
 }
 
-/* Tooltip บน */
+/* Tooltip ลอยด้านบน */
 .channel::after{
-content: attr(data-fullname);
-position:absolute;bottom:100%;left:50%;
-transform:translateX(-50%) translateY(-10px);
-background:#000;padding:6px 12px;
-font-size:12px;border-radius:6px;
-white-space:nowrap;opacity:0;
-transition:.2s;pointer-events:none;
+content:attr(data-fullname);
+position:absolute;
+top:-38px;
+left:50%;
+transform:translateX(-50%);
+background:#111;
+padding:7px 14px;
+font-size:12px;
+border-radius:8px;
+white-space:nowrap;
+opacity:0;
+transition:.25s;
+pointer-events:none;
+border:1px solid var(--border);
 }
-.channel:hover::after{opacity:1;}
+
+.channel:hover::after{
+opacity:1;
+}
 </style>
 </head>
 
 <body>
 
-<h2 style="color:orange;">หรรมน้อย ออนไลน์</h2>
+<header>🎬 หรรมน้อย ออนไลน์</header>
 
-<div id="player"></div>
+<div id="player-container">
+<video id="video" controls></video>
+</div>
+
 <div id="categories"></div>
 <div id="channels"></div>
 
 <script>
+const DEFAULT_LOGO="https://cdn-icons-png.flaticon.com/512/149/149071.png";
+const playlistURL="https://dl.dropbox.com/scl/fi/j8w9kgqn0gfmf22tob56k/.m3u?rlkey=h7trc6tsisnhijdg7tc9105oj&dl=1";
 
-const DEFAULT_LOGO = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
-const m3uUrl = "https://dl.dropboxusercontent.com/scl/fi/62fiv12wkovcvsja9ytjp/movie2535.m3u?rlkey=wc4lqa5rb334w7knv2c0jsmuh&st=i6a6uvtt&dl=0";
+let channels=[];
 
-let player = jwplayer("player");
-let allChannels = [];
-
-fetch(m3uUrl)
-.then(res => res.text())
-.then(text => parseM3U(text));
+fetch(playlistURL)
+.then(res=>res.text())
+.then(text=>parseM3U(text));
 
 function parseM3U(text){
 
-    const lines = text.split("\n");
-    let current = {};
+const lines=text.split("\n");
+let current={};
 
-    lines.forEach(line => {
+lines.forEach(line=>{
+line=line.trim();
 
-        line = line.trim();
+if(line.startsWith("#EXTINF")){
+current={};
 
-        if(line.startsWith("#EXTINF")){
-            current = {};
+const nameMatch=line.match(/tvg-name="(.*?)"/);
+current.title=nameMatch
+?nameMatch[1]
+:line.substring(line.lastIndexOf(",")+1);
 
-            // 🔥 ดึง tvg-name แบบปลอดภัย
-            const nameMatch = line.match(/tvg-name="(.*?)"/);
-            current.name = nameMatch 
-                ? nameMatch[1] 
-                : line.substring(line.lastIndexOf(",")+1);
+const logoMatch=line.match(/tvg-logo="(.*?)"/);
+current.logo=logoMatch?logoMatch[1]:DEFAULT_LOGO;
 
-            const logoMatch = line.match(/tvg-logo="(.*?)"/);
-            current.logo = logoMatch ? logoMatch[1] : DEFAULT_LOGO;
+const groupMatch=line.match(/group-title="(.*?)"/);
+current.group=groupMatch?groupMatch[1]:"อื่นๆ";
+}
 
-            const groupMatch = line.match(/group-title="(.*?)"/);
-            current.group = groupMatch ? groupMatch[1] : "อื่นๆ";
-        }
+else if(line.startsWith("http")){
+current.url=line;
+channels.push({...current});
+}
+});
 
-        else if(line.startsWith("http")){
-            current.file = line;
-            current.type = "hls"; // 🔥 บังคับเป็น HLS สำหรับ m3u8
-            allChannels.push({...current});
-        }
-
-    });
-
-    renderCategories();
+renderCategories();
 }
 
 function renderCategories(){
 
-    const container = document.getElementById("categories");
-    container.innerHTML = "";
+const container=document.getElementById("categories");
+container.innerHTML="";
 
-    const groups = [...new Set(allChannels.map(ch => ch.group))];
-    groups.unshift("ทั้งหมด");
+const groups=[...new Set(channels.map(c=>c.group))];
+groups.unshift("ทั้งหมด");
 
-    groups.forEach((group)=>{
+groups.forEach((group,index)=>{
 
-        const btn = document.createElement("div");
-        btn.className = "category";
-        btn.innerText = group;
+const btn=document.createElement("div");
+btn.className="category";
+btn.innerText=group;
 
-        btn.onclick = ()=>{
-            document.querySelectorAll(".category")
-                .forEach(el=>el.classList.remove("active"));
-            btn.classList.add("active");
+btn.onclick=()=>{
+document.querySelectorAll(".category")
+.forEach(el=>el.classList.remove("active"));
+btn.classList.add("active");
 
-            if(group==="ทั้งหมด"){
-                renderChannels(allChannels);
-            }else{
-                renderChannels(allChannels.filter(ch=>ch.group===group));
-            }
-        };
+if(group==="ทั้งหมด"){
+renderChannels(channels);
+}else{
+renderChannels(channels.filter(c=>c.group===group));
+}
+};
 
-        container.appendChild(btn);
+container.appendChild(btn);
 
-        if(group==="ทั้งหมด"){
-            btn.classList.add("active");
-            renderChannels(allChannels);
-        }
-    });
+if(index===0){
+btn.classList.add("active");
+renderChannels(channels);
+}
+
+});
 }
 
 function renderChannels(list){
 
-    const container = document.getElementById("channels");
-    container.innerHTML = "";
+const container=document.getElementById("channels");
+container.innerHTML="";
 
-    list.forEach((ch)=>{
+list.forEach((ch)=>{
 
-        const div = document.createElement("div");
-        div.className="channel";
-        div.setAttribute("data-fullname", ch.name);
+const div=document.createElement("div");
+div.className="channel";
+div.setAttribute("data-fullname",ch.title);
 
-        div.innerHTML = `
-            <img src="${ch.logo}" 
-                 onerror="this.src='${DEFAULT_LOGO}'">
-            <div class="name">${ch.name}</div>
-        `;
+div.innerHTML=`
+<img src="${ch.logo}" onerror="this.src='${DEFAULT_LOGO}'">
+<div class="name">${ch.title}</div>
+`;
 
-        div.onclick = ()=>{
-            playChannel(ch,div);
-            document.getElementById("player")
-                .scrollIntoView({behavior:"smooth"});
-        };
+div.onclick=()=>{
+playChannel(ch,div);
+document.getElementById("player-container")
+.scrollIntoView({behavior:"smooth"});
+};
 
-        container.appendChild(div);
-    });
+container.appendChild(div);
+
+});
 }
 
 function playChannel(channel,element){
 
-    document.querySelectorAll(".channel")
-        .forEach(el=>el.classList.remove("active"));
-    element.classList.add("active");
+document.querySelectorAll(".channel")
+.forEach(el=>el.classList.remove("active"));
 
-    player.stop(true);
+element.classList.add("active");
 
-    player.setup({
-        file: channel.file,
-        type: "hls",
-        width:"100%",
-        aspectratio:"16:9"
-    });
+const video=document.getElementById("video");
+video.src=channel.url;
+
+/* เล่นอัตโนมัติเมื่อกด */
+video.play().catch(err=>{
+console.log("Autoplay blocked:",err);
+});
+
 }
-
 </script>
 
 </body>
