@@ -10,7 +10,6 @@
 <script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
 
 <style>
-/* ===== CSS เดิมทั้งหมด ไม่ลบ ===== */
 :root{
 --accent:#7b2cff;
 --bg:#0a0614;
@@ -39,18 +38,42 @@ video{width:100%;height:100%;object-fit:contain;background:#000}
 #preview-left{position:absolute;top:50%;left:370px;transform:translateY(-50%) scale(.95);width:280px;height:400px;background:#000;border-radius:14px;overflow:hidden;opacity:0;transition:.25s;z-index:9999;pointer-events:none;box-shadow:0 0 30px rgba(0,0,0,.7);}
 #preview-left.active{opacity:1;transform:translateY(-50%) scale(1);box-shadow:0 0 40px rgba(123,44,255,.6);}
 #preview-left img{width:100%;height:100%;object-fit:contain;}
+
+/* ===== FIX ปุ่มลบล้นเมื่อชื่อยาว ===== */
+.category-header span{
+flex:1;
+overflow:hidden;
+white-space:nowrap;
+text-overflow:ellipsis;
+margin-right:8px;
+}
+
+.category-header button{
+flex-shrink:0;
+}
+
+/* ===== FIX Preview Logo Hover ===== */
+#preview-left{
+left:370px; /* ติดข้างเมนู */
+pointer-events:none;
+}
+
+.channel{
+position:relative;
+}
+
 </style>
 </head>
 
 <body>
 
-<div id="player-container" class="blur">
+<div id="player-container">
 <video id="video" controls autoplay></video>
 </div>
 
-<div id="overlay"></div>
+<div id="overlay" class="hide"></div>
 
-<div id="menu">
+<div id="menu" class="hide">
 <div class="control-box">
 <input type="file" id="fileInput" accept=".m3u,.m3u8">
 <input type="text" id="urlInput" placeholder="วาง URL m3u">
@@ -72,7 +95,6 @@ function save(){
 localStorage.setItem("iptv_playlists",JSON.stringify(playlists));
 }
 
-/* ===== FIX parse รองรับไฟล์ไม่มี #EXTM3U ===== */
 function parseM3U(text){
 const lines=text.replace(/\r/g,"").split("\n");
 let current={},list=[];
@@ -97,7 +119,6 @@ list.push({...current});
 return list;
 }
 
-/* ===== FIX render ไม่ให้ชื่อยาวล้น ===== */
 function shortName(name){
 return name.length>40?name.substring(0,40)+"...":name;
 }
@@ -148,7 +169,26 @@ div.className="channel";
 div.innerHTML=`
 ${ch.logo?`<img src="${ch.logo}" onerror="this.style.display='none'">`:""}
 <span>${ch.title}</span>`;
+
 div.onclick=()=>play(ch);
+
+/* ===== เพิ่ม Preview Hover ===== */
+const preview=document.getElementById("preview-left");
+const previewImg=document.getElementById("previewImg");
+
+div.addEventListener("mouseenter",()=>{
+if(ch.logo){
+previewImg.src=ch.logo;
+preview.classList.add("active");
+}
+});
+
+div.addEventListener("mouseleave",()=>{
+preview.classList.remove("active");
+});
+
+/* ===== จบส่วนเพิ่ม ===== */
+
 return div;
 }
 
@@ -159,7 +199,6 @@ save();render();
 }
 }
 
-/* ===== FIX เล่น mpd + m3u8 ครบ ===== */
 function play(channel){
 const video=document.getElementById("video");
 if(hls){try{hls.destroy()}catch(e){} hls=null;}
@@ -186,7 +225,6 @@ video.play();
 }
 }
 
-/* ===== FIX โหลด URL ไม่ให้เงียบ ===== */
 async function addURL(){
 const url=document.getElementById("urlInput").value.trim();
 if(!url)return alert("ใส่ URL ก่อน");
@@ -218,6 +256,42 @@ render();
 reader.readAsText(file);
 });
 
+/* ====== 🔥 ระบบเมนู Auto Show / Hide + Delay 5 วิ ====== */
+
+const menu=document.getElementById("menu");
+let hideTimer=null;
+
+/* แสดงเมื่อเมาส์ชนขอบซ้าย */
+document.addEventListener("mousemove",function(e){
+if(e.clientX <= 10){
+menu.classList.remove("hide");
+
+/* ถ้ามีการนับเวลาซ่อนอยู่ ให้ยกเลิก */
+if(hideTimer){
+clearTimeout(hideTimer);
+hideTimer=null;
+}
+}
+});
+
+/* เมื่อเมาส์ออกจากเมนู เริ่มนับถอยหลัง 5 วิ */
+menu.addEventListener("mouseleave",function(){
+hideTimer=setTimeout(()=>{
+menu.classList.add("hide");
+},1500); // 1500ms = 5 วิ
+});
+
+/* ถ้าเมาส์กลับเข้ามาในเมนูก่อนครบ 5 วิ ให้ยกเลิก */
+menu.addEventListener("mouseenter",function(){
+if(hideTimer){
+clearTimeout(hideTimer);
+hideTimer=null;
+}
+});
+
+
+/* ====== จบส่วนแก้ไข ====== */
+menu.classList.remove("hide");
 render();
 </script>
 </body>
