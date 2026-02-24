@@ -18,20 +18,17 @@
 *{box-sizing:border-box}
 body{margin:0;font-family:'Kanit',sans-serif;background:#000;color:#fff;overflow:hidden}
 
-/* PLAYER */
 #player-container{
 position:fixed;top:0;left:0;width:100%;height:100%;
 background:#000;transition:.3s;z-index:1}
 #player-container.blur{filter:blur(10px) brightness(.4)}
 video{width:100%;height:100%;object-fit:contain;background:#000}
 
-/* OVERLAY */
 #overlay{
 position:fixed;top:0;left:0;width:100%;height:100%;
 background:rgba(0,0,0,.7);transition:.3s;z-index:8}
 #overlay.hide{opacity:0;visibility:hidden}
 
-/* MENU */
 #menu{
 position:fixed;top:0;left:0;width:360px;height:100%;
 background:var(--bg);border-right:1px solid var(--border);
@@ -48,7 +45,6 @@ width:100%;padding:6px;margin-bottom:6px;
 background:var(--accent);border:none;
 color:#fff;border-radius:6px;cursor:pointer}
 
-/* CATEGORY */
 .category{margin:10px;background:var(--card);
 border:1px solid var(--border);border-radius:10px}
 .category-header{
@@ -56,9 +52,8 @@ padding:8px 12px;cursor:pointer;
 display:flex;justify-content:space-between;
 align-items:center;background:#1b1530}
 .category-content{display:none;padding:6px}
-.category.active .category-content{display:block}
+.category.active>.category-content{display:block}
 
-/* CHANNEL */
 .channel{
 display:flex;align-items:center;
 padding:6px;margin-bottom:6px;
@@ -67,18 +62,15 @@ transition:.2s}
 .channel:hover{background:var(--accent)}
 .channel img{width:32px;height:32px;object-fit:contain;margin-right:8px}
 
-/* ===== FIXED PREVIEW (IFRAME SAFE) ===== */
 #preview-left{
-position:absolute;   /* เปลี่ยนจาก fixed */
+position:absolute;
 top:50%;
 left:370px;
 transform:translateY(-50%) scale(.95);
 width:280px;height:400px;
 background:#000;border-radius:14px;
-overflow:hidden;
-opacity:0;
-transition:opacity .25s ease, transform .25s ease;
-z-index:9999;
+overflow:hidden;opacity:0;
+transition:.25s;z-index:9999;
 pointer-events:none;
 box-shadow:0 0 30px rgba(0,0,0,.7);
 }
@@ -88,9 +80,7 @@ transform:translateY(-50%) scale(1);
 box-shadow:0 0 40px rgba(123,44,255,.6);
 }
 #preview-left img{
-width:100%;height:100%;
-object-fit:contain;
-transition:opacity .2s ease;
+width:100%;height:100%;object-fit:contain;
 }
 </style>
 </head>
@@ -125,36 +115,11 @@ const player=document.getElementById("player-container");
 const previewBox=document.getElementById("preview-left");
 const previewImg=document.getElementById("previewImg");
 
-let previewTimer=null;
-
-/* ===== PREVIEW SMOOTH SAFE ===== */
-function showPreview(img){
-if(!img)return;
-clearTimeout(previewTimer);
-
-previewTimer=setTimeout(()=>{
-previewImg.style.opacity=0;
-
-const temp=new Image();
-temp.onload=()=>{
-previewImg.src=img;
-previewImg.style.opacity=1;
-previewBox.classList.add("active");
-};
-temp.src=img;
-
-},100);
-}
-
-function hidePreview(){
-clearTimeout(previewTimer);
-previewBox.classList.remove("active");
-}
-
 function save(){
 localStorage.setItem("iptv_playlists",JSON.stringify(playlists));
 }
 
+/* ===== PARSE รองรับ subgroup ถ้ามี tvg-id ===== */
 function parseM3U(text){
 const lines=text.split("\n");
 let current={},list=[];
@@ -164,10 +129,13 @@ if(line.startsWith("#EXTINF")){
 const name=line.match(/,(.*)$/);
 const logo=line.match(/tvg-logo="(.*?)"/);
 const group=line.match(/group-title="(.*?)"/);
+const sub=line.match(/tvg-id="(.*?)"/); // ชั้นย่อย
+
 current={
 title:name?name[1]:"ไม่มีชื่อ",
 logo:logo?logo[1]:"",
-group:group?group[1]:"อื่นๆ"
+group:group?group[1]:"อื่นๆ",
+subgroup:sub?sub[1]:null
 };
 }else if(line && !line.startsWith("#")){
 current.url=line;
@@ -180,43 +148,113 @@ return list;
 function render(){
 const container=document.getElementById("playlistContainer");
 container.innerHTML="";
+
 playlists.forEach((pl,i)=>{
+
 const box=document.createElement("div");
 box.className="category";
 
 const head=document.createElement("div");
 head.className="category-header";
 head.innerHTML=`<span>📂 ${pl.name}</span>
-<button class="delete-btn">ลบ</button>`;
-
-head.querySelector(".delete-btn").onclick=(e)=>{
-e.stopPropagation();
-if(confirm("ลบ Playlist นี้ใช่หรือไม่?")){
-playlists.splice(i,1);
-save();render();
-}
-};
-
+<button onclick="event.stopPropagation();deletePlaylist(${i})">ลบ</button>`;
 head.onclick=()=>box.classList.toggle("active");
 
 const content=document.createElement("div");
 content.className="category-content";
 
+/* ===== จัดกลุ่มหลัก ===== */
+const groups={};
 pl.data.forEach(ch=>{
-const div=document.createElement("div");
-div.className="channel";
-div.innerHTML=`${ch.logo?`<img src="${ch.logo}" onerror="this.style.display='none'">`:""}
-<span>${ch.title}</span>`;
-div.onclick=()=>play(ch);
-div.onmouseenter=()=>showPreview(ch.logo);
-div.onmouseleave=()=>hidePreview();
-content.appendChild(div);
+if(!groups[ch.group]) groups[ch.group]=[];
+groups[ch.group].push(ch);
 });
+
+for(let g in groups){
+
+const mainGroup=document.createElement("div");
+mainGroup.className="category";
+
+const gHead=document.createElement("div");
+gHead.className="category-header";
+gHead.innerHTML=`<span>📁 ${g}</span>`;
+gHead.onclick=()=>mainGroup.classList.toggle("active");
+
+const gContent=document.createElement("div");
+gContent.className="category-content";
+
+/* ตรวจว่ามี subgroup จริงไหม */
+const hasSub=groups[g].some(ch=>ch.subgroup);
+
+/* ===== ถ้ามี subgroup ===== */
+if(hasSub){
+
+const subGroups={};
+groups[g].forEach(ch=>{
+const key=ch.subgroup||"อื่นๆ";
+if(!subGroups[key]) subGroups[key]=[];
+subGroups[key].push(ch);
+});
+
+for(let s in subGroups){
+
+const subBox=document.createElement("div");
+subBox.className="category";
+
+const sHead=document.createElement("div");
+sHead.className="category-header";
+sHead.innerHTML=`<span>📂 ${s}</span>`;
+sHead.onclick=()=>subBox.classList.toggle("active");
+
+const sContent=document.createElement("div");
+sContent.className="category-content";
+
+subGroups[s].forEach(ch=>{
+sContent.appendChild(createChannel(ch));
+});
+
+subBox.appendChild(sHead);
+subBox.appendChild(sContent);
+gContent.appendChild(subBox);
+}
+
+}
+/* ===== ถ้าไม่มี subgroup ===== */
+else{
+groups[g].forEach(ch=>{
+gContent.appendChild(createChannel(ch));
+});
+}
+
+mainGroup.appendChild(gHead);
+mainGroup.appendChild(gContent);
+content.appendChild(mainGroup);
+}
 
 box.appendChild(head);
 box.appendChild(content);
 container.appendChild(box);
+
 });
+}
+
+function createChannel(ch){
+const div=document.createElement("div");
+div.className="channel";
+div.innerHTML=`
+${ch.logo?`<img src="${ch.logo}" onerror="this.style.display='none'">`:""}
+<span>${ch.title}</span>`;
+div.onclick=()=>play(ch);
+div.onmouseenter=()=>{ if(ch.logo){previewImg.src=ch.logo;previewBox.classList.add("active");}};
+div.onmouseleave=()=>previewBox.classList.remove("active");
+return div;
+}
+
+function deletePlaylist(i){
+if(confirm("ลบ Playlist นี้ใช่หรือไม่?")){
+playlists.splice(i,1);
+save();render();
+}
 }
 
 function play(channel){
@@ -224,19 +262,11 @@ const video=document.getElementById("video");
 if(hls){try{hls.destroy()}catch(e){} hls=null;}
 video.pause();video.removeAttribute("src");video.load();
 
-const url=(channel.url||"").trim().toLowerCase();
-const isHLS=url.includes(".m3u8")||url.includes(".m3u");
-
-if(isHLS){
+if(channel.url.includes(".m3u8")){
 if(video.canPlayType("application/vnd.apple.mpegurl")){
 video.src=channel.url;video.play();
-}else if(typeof Hls!=="undefined"&&Hls.isSupported()){
-hls=new Hls({
-maxBufferLength:60,
-backBufferLength:30,
-lowLatencyMode:true,
-enableWorker:true
-});
+}else if(Hls.isSupported()){
+hls=new Hls({maxBufferLength:60});
 hls.loadSource(channel.url);
 hls.attachMedia(video);
 hls.on(Hls.Events.MANIFEST_PARSED,()=>video.play());
@@ -284,23 +314,10 @@ menu.classList.add("hide");
 overlay.classList.add("hide");
 player.classList.remove("blur");
 }
-let menuTimer=null;
 
 document.addEventListener("mousemove",e=>{
-
-// เปิดเมนูเมื่อเมาส์ชิดซ้าย
-if(e.clientX < 15){
-clearTimeout(menuTimer);
-openMenu();
-}
-
-// ปิดเมนูเมื่อเมาส์ออกห่าง
-if(e.clientX > 420){
-menuTimer = setTimeout(()=>{
-closeMenu();
-}, 300);
-}
-
+if(e.clientX < 15) openMenu();
+if(e.clientX > 420) closeMenu();
 });
 overlay.onclick=closeMenu;
 
