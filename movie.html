@@ -7,6 +7,7 @@
 
 <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
 
 <style>
 :root{
@@ -17,85 +18,64 @@
 }
 *{box-sizing:border-box}
 body{margin:0;font-family:'Kanit',sans-serif;background:#000;color:#fff;overflow:hidden}
-
-#player-container{
-position:fixed;top:0;left:0;width:100%;height:100%;
-background:#000;transition:.3s;z-index:1}
+#player-container{position:fixed;top:0;left:0;width:100%;height:100%;background:#000;transition:.3s;z-index:1}
 #player-container.blur{filter:blur(10px) brightness(.4)}
 video{width:100%;height:100%;object-fit:contain;background:#000}
-
-#overlay{
-position:fixed;top:0;left:0;width:100%;height:100%;
-background:rgba(0,0,0,.7);transition:.3s;z-index:8}
+#overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);transition:.3s;z-index:8}
 #overlay.hide{opacity:0;visibility:hidden}
-
-#menu{
-position:fixed;top:0;left:0;width:360px;height:100%;
-background:var(--bg);border-right:1px solid var(--border);
-overflow-y:auto;transition:.4s;z-index:10}
+#menu{position:fixed;top:0;left:0;width:360px;height:100%;background:var(--bg);border-right:1px solid var(--border);overflow-y:auto;transition:.4s;z-index:10}
 #menu.hide{transform:translateX(-100%)}
-
 .control-box{padding:12px;border-bottom:1px solid var(--border)}
-.control-box input{
-width:100%;padding:6px;margin-bottom:6px;
-background:#111;border:1px solid var(--border);
-color:#fff;border-radius:6px}
-.control-box button{
-width:100%;padding:6px;margin-bottom:6px;
-background:var(--accent);border:none;
-color:#fff;border-radius:6px;cursor:pointer}
-
-.category{margin:10px;background:var(--card);
-border:1px solid var(--border);border-radius:10px}
-.category-header{
-padding:8px 12px;cursor:pointer;
-display:flex;justify-content:space-between;
-align-items:center;background:#1b1530}
+.control-box input{width:100%;padding:6px;margin-bottom:6px;background:#111;border:1px solid var(--border);color:#fff;border-radius:6px}
+.control-box button{width:100%;padding:6px;margin-bottom:6px;background:var(--accent);border:none;color:#fff;border-radius:6px;cursor:pointer}
+.category{margin:10px;background:var(--card);border:1px solid var(--border);border-radius:10px}
+.category-header{padding:8px 12px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:#1b1530}
 .category-content{display:none;padding:6px}
 .category.active>.category-content{display:block}
-
-.channel{
-display:flex;align-items:center;
-padding:6px;margin-bottom:6px;
-background:#1a142b;border-radius:8px;cursor:pointer;
-transition:.2s}
+.channel{display:flex;align-items:center;padding:6px;margin-bottom:6px;background:#1a142b;border-radius:8px;cursor:pointer;transition:.2s}
 .channel:hover{background:var(--accent)}
 .channel img{width:32px;height:32px;object-fit:contain;margin-right:8px}
+#preview-left{position:absolute;top:50%;left:370px;transform:translateY(-50%) scale(.95);width:280px;height:400px;background:#000;border-radius:14px;overflow:hidden;opacity:0;transition:.25s;z-index:9999;pointer-events:none;box-shadow:0 0 30px rgba(0,0,0,.7);}
+#preview-left.active{opacity:1;transform:translateY(-50%) scale(1);box-shadow:0 0 40px rgba(123,44,255,.6);}
+#preview-left img{width:100%;height:100%;object-fit:contain;}
 
+/* ===== FIX ปุ่มลบล้นเมื่อชื่อยาว ===== */
+.category-header span{
+flex:1;
+overflow:hidden;
+white-space:nowrap;
+text-overflow:ellipsis;
+margin-right:8px;
+}
+
+.category-header button{
+flex-shrink:0;
+}
+
+/* ===== FIX Preview Logo Hover ===== */
 #preview-left{
-position:absolute;
-top:50%;
-left:370px;
-transform:translateY(-50%) scale(.95);
-width:280px;height:400px;
-background:#000;border-radius:14px;
-overflow:hidden;opacity:0;
-transition:.25s;z-index:9999;
+left:370px; /* ติดข้างเมนู */
 pointer-events:none;
-box-shadow:0 0 30px rgba(0,0,0,.7);
 }
-#preview-left.active{
-opacity:1;
-transform:translateY(-50%) scale(1);
-box-shadow:0 0 40px rgba(123,44,255,.6);
+
+.channel{
+position:relative;
 }
-#preview-left img{
-width:100%;height:100%;object-fit:contain;
-}
+
 </style>
 </head>
 
 <body>
 
-<div id="player-container" class="blur">
+<div id="player-container">
 <video id="video" controls autoplay></video>
 </div>
 
-<div id="overlay"></div>
+<div id="overlay" class="hide"></div>
 
-<div id="menu">
+<div id="menu" class="hide">
 <div class="control-box">
-<input type="file" id="fileInput" accept=".m3u">
+<input type="file" id="fileInput" accept=".m3u,.m3u8">
 <input type="text" id="urlInput" placeholder="วาง URL m3u">
 <button onclick="addURL()">เพิ่ม URL</button>
 <input type="text" id="search" placeholder="ค้นหา...">
@@ -106,22 +86,17 @@ width:100%;height:100%;object-fit:contain;
 <div id="preview-left"><img id="previewImg"></div>
 
 <script>
+
 let playlists=JSON.parse(localStorage.getItem("iptv_playlists"))||[];
 let hls=null;
-
-const menu=document.getElementById("menu");
-const overlay=document.getElementById("overlay");
-const player=document.getElementById("player-container");
-const previewBox=document.getElementById("preview-left");
-const previewImg=document.getElementById("previewImg");
+let dashPlayer=null;
 
 function save(){
 localStorage.setItem("iptv_playlists",JSON.stringify(playlists));
 }
 
-/* ===== PARSE รองรับ subgroup ถ้ามี tvg-id ===== */
 function parseM3U(text){
-const lines=text.split("\n");
+const lines=text.replace(/\r/g,"").split("\n");
 let current={},list=[];
 for(let line of lines){
 line=line.trim();
@@ -129,112 +104,62 @@ if(line.startsWith("#EXTINF")){
 const name=line.match(/,(.*)$/);
 const logo=line.match(/tvg-logo="(.*?)"/);
 const group=line.match(/group-title="(.*?)"/);
-const sub=line.match(/tvg-id="(.*?)"/); // ชั้นย่อย
-
+const sub=line.match(/tvg-id="(.*?)"/);
 current={
-title:name?name[1]:"ไม่มีชื่อ",
+title:name?name[1].trim():"ไม่มีชื่อ",
 logo:logo?logo[1]:"",
 group:group?group[1]:"อื่นๆ",
 subgroup:sub?sub[1]:null
 };
 }else if(line && !line.startsWith("#")){
-current.url=line;
+current.url=line.trim();
 list.push({...current});
 }
 }
 return list;
 }
 
+function shortName(name){
+return name.length>40?name.substring(0,40)+"...":name;
+}
+
 function render(){
 const container=document.getElementById("playlistContainer");
 container.innerHTML="";
-
 playlists.forEach((pl,i)=>{
-
 const box=document.createElement("div");
 box.className="category";
-
 const head=document.createElement("div");
 head.className="category-header";
-head.innerHTML=`<span>📂 ${pl.name}</span>
+head.innerHTML=`<span>📂 ${shortName(pl.name)}</span>
 <button onclick="event.stopPropagation();deletePlaylist(${i})">ลบ</button>`;
 head.onclick=()=>box.classList.toggle("active");
-
 const content=document.createElement("div");
 content.className="category-content";
-
-/* ===== จัดกลุ่มหลัก ===== */
 const groups={};
 pl.data.forEach(ch=>{
 if(!groups[ch.group]) groups[ch.group]=[];
 groups[ch.group].push(ch);
 });
-
 for(let g in groups){
-
 const mainGroup=document.createElement("div");
 mainGroup.className="category";
-
 const gHead=document.createElement("div");
 gHead.className="category-header";
 gHead.innerHTML=`<span>📁 ${g}</span>`;
 gHead.onclick=()=>mainGroup.classList.toggle("active");
-
 const gContent=document.createElement("div");
 gContent.className="category-content";
-
-/* ตรวจว่ามี subgroup จริงไหม */
-const hasSub=groups[g].some(ch=>ch.subgroup);
-
-/* ===== ถ้ามี subgroup ===== */
-if(hasSub){
-
-const subGroups={};
-groups[g].forEach(ch=>{
-const key=ch.subgroup||"อื่นๆ";
-if(!subGroups[key]) subGroups[key]=[];
-subGroups[key].push(ch);
-});
-
-for(let s in subGroups){
-
-const subBox=document.createElement("div");
-subBox.className="category";
-
-const sHead=document.createElement("div");
-sHead.className="category-header";
-sHead.innerHTML=`<span>📂 ${s}</span>`;
-sHead.onclick=()=>subBox.classList.toggle("active");
-
-const sContent=document.createElement("div");
-sContent.className="category-content";
-
-subGroups[s].forEach(ch=>{
-sContent.appendChild(createChannel(ch));
-});
-
-subBox.appendChild(sHead);
-subBox.appendChild(sContent);
-gContent.appendChild(subBox);
-}
-
-}
-/* ===== ถ้าไม่มี subgroup ===== */
-else{
 groups[g].forEach(ch=>{
 gContent.appendChild(createChannel(ch));
 });
-}
-
 mainGroup.appendChild(gHead);
 mainGroup.appendChild(gContent);
 content.appendChild(mainGroup);
 }
-
 box.appendChild(head);
 box.appendChild(content);
 container.appendChild(box);
-
 });
 }
 
@@ -244,9 +169,26 @@ div.className="channel";
 div.innerHTML=`
 ${ch.logo?`<img src="${ch.logo}" onerror="this.style.display='none'">`:""}
 <span>${ch.title}</span>`;
+
 div.onclick=()=>play(ch);
-div.onmouseenter=()=>{ if(ch.logo){previewImg.src=ch.logo;previewBox.classList.add("active");}};
-div.onmouseleave=()=>previewBox.classList.remove("active");
+
+/* ===== เพิ่ม Preview Hover ===== */
+const preview=document.getElementById("preview-left");
+const previewImg=document.getElementById("previewImg");
+
+div.addEventListener("mouseenter",()=>{
+if(ch.logo){
+previewImg.src=ch.logo;
+preview.classList.add("active");
+}
+});
+
+div.addEventListener("mouseleave",()=>{
+preview.classList.remove("active");
+});
+
+/* ===== จบส่วนเพิ่ม ===== */
+
 return div;
 }
 
@@ -260,21 +202,45 @@ save();render();
 function play(channel){
 const video=document.getElementById("video");
 if(hls){try{hls.destroy()}catch(e){} hls=null;}
+if(dashPlayer){try{dashPlayer.reset()}catch(e){} dashPlayer=null;}
 video.pause();video.removeAttribute("src");video.load();
 
 if(channel.url.includes(".m3u8")){
 if(video.canPlayType("application/vnd.apple.mpegurl")){
 video.src=channel.url;video.play();
 }else if(Hls.isSupported()){
-hls=new Hls({maxBufferLength:60});
+hls=new Hls();
 hls.loadSource(channel.url);
 hls.attachMedia(video);
 hls.on(Hls.Events.MANIFEST_PARSED,()=>video.play());
 }
-}else{
-video.src=channel.url;video.play();
 }
-closeMenu();
+else if(channel.url.includes(".mpd")){
+dashPlayer=dashjs.MediaPlayer().create();
+dashPlayer.initialize(video,channel.url,true);
+}
+else{
+video.src=channel.url;
+video.play();
+}
+}
+
+async function addURL(){
+const url=document.getElementById("urlInput").value.trim();
+if(!url)return alert("ใส่ URL ก่อน");
+try{
+const res=await fetch(url,{mode:"cors"});
+if(!res.ok) throw new Error("โหลดไม่ได้");
+const text=await res.text();
+const data=parseM3U(text);
+if(!data.length) throw new Error("ไฟล์ว่าง");
+playlists.push({name:url,data});
+save();
+render();
+alert("โหลดสำเร็จ");
+}catch(err){
+alert("โหลดไม่ได้ อาจติด CORS หรือ URL ผิด");
+}
 }
 
 document.getElementById("fileInput").addEventListener("change",e=>{
@@ -282,45 +248,50 @@ const file=e.target.files[0];
 if(!file)return;
 const reader=new FileReader();
 reader.onload=ev=>{
-playlists.push({name:file.name,data:parseM3U(ev.target.result)});
-save();render();
+const data=parseM3U(ev.target.result);
+playlists.push({name:file.name,data});
+save();
+render();
 };
 reader.readAsText(file);
 });
 
-async function addURL(){
-const url=document.getElementById("urlInput").value.trim();
-if(!url)return;
-const res=await fetch(url);
-const text=await res.text();
-playlists.push({name:url,data:parseM3U(text)});
-save();render();
-}
+/* ====== 🔥 ระบบเมนู Auto Show / Hide + Delay 5 วิ ====== */
 
-document.getElementById("search").addEventListener("input",e=>{
-const k=e.target.value.toLowerCase();
-document.querySelectorAll(".channel").forEach(c=>{
-c.style.display=c.innerText.toLowerCase().includes(k)?"flex":"none";
-});
-});
+const menu=document.getElementById("menu");
+let hideTimer=null;
 
-function openMenu(){
+/* แสดงเมื่อเมาส์ชนขอบซ้าย */
+document.addEventListener("mousemove",function(e){
+if(e.clientX <= 10){
 menu.classList.remove("hide");
-overlay.classList.remove("hide");
-player.classList.add("blur");
-}
-function closeMenu(){
-menu.classList.add("hide");
-overlay.classList.add("hide");
-player.classList.remove("blur");
-}
 
-document.addEventListener("mousemove",e=>{
-if(e.clientX < 15) openMenu();
-if(e.clientX > 420) closeMenu();
+/* ถ้ามีการนับเวลาซ่อนอยู่ ให้ยกเลิก */
+if(hideTimer){
+clearTimeout(hideTimer);
+hideTimer=null;
+}
+}
 });
-overlay.onclick=closeMenu;
 
+/* เมื่อเมาส์ออกจากเมนู เริ่มนับถอยหลัง 5 วิ */
+menu.addEventListener("mouseleave",function(){
+hideTimer=setTimeout(()=>{
+menu.classList.add("hide");
+},1500); // 1500ms = 5 วิ
+});
+
+/* ถ้าเมาส์กลับเข้ามาในเมนูก่อนครบ 5 วิ ให้ยกเลิก */
+menu.addEventListener("mouseenter",function(){
+if(hideTimer){
+clearTimeout(hideTimer);
+hideTimer=null;
+}
+});
+
+
+/* ====== จบส่วนแก้ไข ====== */
+menu.classList.remove("hide");
 render();
 </script>
 </body>
