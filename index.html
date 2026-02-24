@@ -170,6 +170,39 @@ body{
     display:block;
   }
 }
+
+#welcome{
+  position:absolute;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:20px;
+  text-align:center;
+  opacity:0.9;
+}
+
+.home-logo{
+  width:300px;
+  max-width:80%;
+  border-radius:25px;
+  box-shadow:0 0 40px rgba(255,0,150,0.7);
+  animation:float 3s ease-in-out infinite;
+}
+
+.home-text{
+  font-size:36px;
+  font-weight:bold;
+  letter-spacing:3px;
+}
+
+/* ลอยเบา ๆ สวย ๆ */
+@keyframes float{
+  0%{transform:translateY(0px);}
+  50%{transform:translateY(-10px);}
+  100%{transform:translateY(0px);}
+}
+
 </style>
 </head>
 
@@ -251,9 +284,13 @@ body{
 </div>
 
 <div id="player-container">
-  <div id="welcome">หรรมน้อย ออนไลน์</div>
+  <div id="welcome">
+  <img src="https://img2.pic.in.th/ChatGPT-Image-23-..-2569-10_56_05.png" class="home-logo">
+  <div class="home-text">หรรมน้อย ออนไลน์</div>
+</div>
   <iframe id="iframePlayer" class="hidden"></iframe>
 </div>
+
 
 <script>
 function toggleMenu(id){
@@ -284,12 +321,10 @@ function goHome(){
 }
 
 document.addEventListener("DOMContentLoaded",()=>{
-  toggleMenu('tvMenu');
-  openIframe('https://nongakka.github.io/doofree/iptv.html');
+
+  
 });
 </script>
 
 </body>
 </html>
-
-
