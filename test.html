@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>หรรมน้อย ออนไลน์</title>
+<title>IPTV Player</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
@@ -37,21 +37,34 @@ overflow-y:auto;transition:.4s;z-index:10}
 #menu.hide{transform:translateX(-100%)}
 
 .control-box{padding:12px;border-bottom:1px solid var(--border)}
+.control-box input,.control-box button{
+width:100%;padding:6px;margin-bottom:6px;
+border-radius:6px}
 .control-box input{
-width:100%;padding:6px;margin-bottom:6px;
-background:#111;border:1px solid var(--border);
-color:#fff;border-radius:6px}
+background:#111;border:1px solid var(--border);color:#fff}
 .control-box button{
-width:100%;padding:6px;margin-bottom:6px;
-background:var(--accent);border:none;
-color:#fff;border-radius:6px;cursor:pointer}
+background:var(--accent);border:none;color:#fff;cursor:pointer}
 
 .category{margin:10px;background:var(--card);
 border:1px solid var(--border);border-radius:10px}
+
 .category-header{
-padding:8px 12px;cursor:pointer;
-display:flex;justify-content:space-between;
-align-items:center;background:#1b1530}
+padding:8px 12px;
+cursor:pointer;
+display:flex;
+justify-content:space-between;
+align-items:center;
+background:#1b1530;
+gap:8px;
+}
+
+.category-header span{
+flex:1;
+white-space:nowrap;
+overflow:hidden;
+text-overflow:ellipsis;
+}
+
 .category-content{display:none;padding:6px}
 .category.active>.category-content{display:block}
 
@@ -61,14 +74,16 @@ padding:6px;margin-bottom:6px;
 background:#1a142b;border-radius:8px;cursor:pointer;
 transition:.2s}
 .channel:hover{background:var(--accent)}
-.channel img{width:32px;height:32px;object-fit:contain;margin-right:8px}
+.channel img{
+width:32px;height:32px;
+object-fit:contain;margin-right:8px}
 
 #preview-left{
 position:absolute;
 top:50%;
 left:370px;
 transform:translateY(-50%) scale(.95);
-width:280px;height:400px;
+width:260px;height:380px;
 background:#000;border-radius:14px;
 overflow:hidden;opacity:0;
 transition:.25s;z-index:9999;
@@ -116,24 +131,18 @@ const overlay=document.getElementById("overlay");
 const player=document.getElementById("player-container");
 const previewBox=document.getElementById("preview-left");
 const previewImg=document.getElementById("previewImg");
+const video=document.getElementById("video");
 
 function save(){
 localStorage.setItem("iptv_playlists",JSON.stringify(playlists));
 }
 
-/* ===== PARSE รองรับ clearkey ===== */
+/* ===== PARSE M3U ===== */
 function parseM3U(text){
 const lines=text.split("\n");
 let current={},list=[];
-let licenseKey=null;
-
 for(let line of lines){
 line=line.trim();
-
-if(line.startsWith("#KODIPROP:inputstream.adaptive.license_key")){
-licenseKey=line.split("=")[1];
-}
-
 if(line.startsWith("#EXTINF")){
 const name=line.match(/,(.*)$/);
 const logo=line.match(/tvg-logo="(.*?)"/);
@@ -144,10 +153,8 @@ current={
 title:name?name[1]:"ไม่มีชื่อ",
 logo:logo?logo[1]:"",
 group:group?group[1]:"อื่นๆ",
-subgroup:sub?sub[1]:null,
-licenseKey:licenseKey
+subgroup:sub?sub[1]:null
 };
-licenseKey=null;
 }
 else if(line && !line.startsWith("#")){
 current.url=line;
@@ -156,102 +163,6 @@ list.push({...current});
 }
 return list;
 }
-
-function play(channel){
-const video=document.getElementById("video");
-
-if(hls){try{hls.destroy()}catch(e){} hls=null;}
-if(dashPlayer){try{dashPlayer.reset()}catch(e){} dashPlayer=null;}
-
-video.pause();
-video.removeAttribute("src");
-video.load();
-
-/* ===== HLS ===== */
-if(channel.url.includes(".m3u8")){
-if(video.canPlayType("application/vnd.apple.mpegurl")){
-video.src=channel.url;
-video.play();
-}else if(Hls.isSupported()){
-hls=new Hls({maxBufferLength:60});
-hls.loadSource(channel.url);
-hls.attachMedia(video);
-hls.on(Hls.Events.MANIFEST_PARSED,()=>video.play());
-}
-}
-
-/* ===== DASH (.mpd) ===== */
-else if(channel.url.includes(".mpd")){
-dashPlayer=dashjs.MediaPlayer().create();
-
-if(channel.licenseKey){
-const parts=channel.licenseKey.split(":");
-if(parts.length===2){
-dashPlayer.setProtectionData({
-"org.w3.clearkey":{
-clearkeys:{
-[parts[0]]:parts[1]
-}
-}
-});
-}
-}
-
-dashPlayer.initialize(video,channel.url,true);
-}
-
-/* ===== ไฟล์ปกติ ===== */
-else{
-video.src=channel.url;
-video.play();
-}
-
-closeMenu();
-}
-
-document.getElementById("fileInput").addEventListener("change",e=>{
-const file=e.target.files[0];
-if(!file)return;
-const reader=new FileReader();
-reader.onload=ev=>{
-playlists.push({name:file.name,data:parseM3U(ev.target.result)});
-save();render();
-};
-reader.readAsText(file);
-});
-
-async function addURL(){
-const url=document.getElementById("urlInput").value.trim();
-if(!url)return;
-const res=await fetch(url);
-const text=await res.text();
-playlists.push({name:url,data:parseM3U(text)});
-save();render();
-}
-
-document.getElementById("search").addEventListener("input",e=>{
-const k=e.target.value.toLowerCase();
-document.querySelectorAll(".channel").forEach(c=>{
-c.style.display=c.innerText.toLowerCase().includes(k)?"flex":"none";
-});
-});
-
-function openMenu(){
-menu.classList.remove("hide");
-overlay.classList.remove("hide");
-player.classList.add("blur");
-}
-function closeMenu(){
-menu.classList.add("hide");
-overlay.classList.add("hide");
-player.classList.remove("blur");
-}
-
-document.addEventListener("mousemove",e=>{
-if(e.clientX < 15) openMenu();
-if(e.clientX > 420) closeMenu();
-});
-overlay.onclick=closeMenu;
 
 /* ===== RENDER ===== */
 function render(){
@@ -265,8 +176,7 @@ box.className="category";
 
 const head=document.createElement("div");
 head.className="category-header";
-head.innerHTML=`<span>📂 ${pl.name}</span>
-<button onclick="event.stopPropagation();deletePlaylist(${i})">ลบ</button>`;
+head.innerHTML=`<span>📂 ${pl.name}</span>`;
 head.onclick=()=>box.classList.toggle("active");
 
 const content=document.createElement("div");
@@ -280,24 +190,49 @@ groups[ch.group].push(ch);
 
 for(let g in groups){
 
-const mainGroup=document.createElement("div");
-mainGroup.className="category";
+const main=document.createElement("div");
+main.className="category";
 
 const gHead=document.createElement("div");
 gHead.className="category-header";
 gHead.innerHTML=`<span>📁 ${g}</span>`;
-gHead.onclick=()=>mainGroup.classList.toggle("active");
+gHead.onclick=()=>main.classList.toggle("active");
 
 const gContent=document.createElement("div");
 gContent.className="category-content";
 
+const subGroups={};
 groups[g].forEach(ch=>{
-gContent.appendChild(createChannel(ch));
+const key=ch.subgroup||"ทั่วไป";
+if(!subGroups[key]) subGroups[key]=[];
+subGroups[key].push(ch);
 });
 
-mainGroup.appendChild(gHead);
-mainGroup.appendChild(gContent);
-content.appendChild(mainGroup);
+for(let s in subGroups){
+
+const sub=document.createElement("div");
+sub.className="category";
+
+const sHead=document.createElement("div");
+sHead.className="category-header";
+sHead.innerHTML=`<span>📂 ${s}</span>`;
+sHead.onclick=()=>sub.classList.toggle("active");
+
+const sContent=document.createElement("div");
+sContent.className="category-content";
+
+subGroups[s].forEach(ch=>{
+sContent.appendChild(createChannel(ch));
+});
+
+sub.appendChild(sHead);
+sub.appendChild(sContent);
+gContent.appendChild(sub);
+}
+
+main.appendChild(gHead);
+main.appendChild(gContent);
+content.appendChild(main);
 }
 
 box.appendChild(head);
@@ -306,24 +241,105 @@ container.appendChild(box);
 });
 }
 
+/* ===== CREATE CHANNEL ===== */
 function createChannel(ch){
 const div=document.createElement("div");
 div.className="channel";
 div.innerHTML=`
 ${ch.logo?`<img src="${ch.logo}" onerror="this.style.display='none'">`:""}
 <span>${ch.title}</span>`;
+
 div.onclick=()=>play(ch);
-div.onmouseenter=()=>{ if(ch.logo){previewImg.src=ch.logo;previewBox.classList.add("active");}};
+
+div.onmouseenter=()=>{
+if(ch.logo){
+previewImg.src=ch.logo;
+previewBox.classList.add("active");
+}};
 div.onmouseleave=()=>previewBox.classList.remove("active");
+
 return div;
 }
 
-function deletePlaylist(i){
-if(confirm("ลบ Playlist นี้ใช่หรือไม่?")){
-playlists.splice(i,1);
+/* ===== PLAY ===== */
+function play(channel){
+
+if(hls){hls.destroy();hls=null;}
+if(dashPlayer){dashPlayer.reset();dashPlayer=null;}
+
+video.pause();
+video.removeAttribute("src");
+video.load();
+
+if(channel.url.includes(".m3u8")){
+if(video.canPlayType("application/vnd.apple.mpegurl")){
+video.src=channel.url;
+video.play();
+}else if(Hls.isSupported()){
+hls=new Hls();
+hls.loadSource(channel.url);
+hls.attachMedia(video);
+hls.on(Hls.Events.MANIFEST_PARSED,()=>video.play());
+}
+}
+else if(channel.url.includes(".mpd")){
+dashPlayer=dashjs.MediaPlayer().create();
+dashPlayer.initialize(video, channel.url, true);
+}
+else{
+video.src=channel.url;
+video.play();
+}
+
+closeMenu();
+}
+
+/* ===== LOAD FILE ===== */
+document.getElementById("fileInput").addEventListener("change",e=>{
+const file=e.target.files[0];
+if(!file)return;
+const reader=new FileReader();
+reader.onload=ev=>{
+playlists.push({name:file.name,data:parseM3U(ev.target.result)});
+save();render();
+};
+reader.readAsText(file);
+});
+
+/* ===== ADD URL ===== */
+async function addURL(){
+const url=document.getElementById("urlInput").value.trim();
+if(!url)return;
+const res=await fetch(url);
+const text=await res.text();
+playlists.push({name:url,data:parseM3U(text)});
 save();render();
 }
+
+/* ===== SEARCH ===== */
+document.getElementById("search").addEventListener("input",e=>{
+const k=e.target.value.toLowerCase();
+document.querySelectorAll(".channel").forEach(c=>{
+c.style.display=c.innerText.toLowerCase().includes(k)?"flex":"none";
+});
+});
+
+/* ===== MENU ===== */
+function openMenu(){
+menu.classList.remove("hide");
+overlay.classList.remove("hide");
+player.classList.add("blur");
 }
+function closeMenu(){
+menu.classList.add("hide");
+overlay.classList.add("hide");
+player.classList.remove("blur");
+}
+document.addEventListener("mousemove",e=>{
+if(e.clientX<15) openMenu();
+if(e.clientX>420) closeMenu();
+});
+overlay.onclick=closeMenu;
 
 render();
 </script>
