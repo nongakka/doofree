@@ -18,26 +18,22 @@
 *{box-sizing:border-box}
 body{margin:0;font-family:'Kanit',sans-serif;background:#000;color:#fff;overflow:hidden}
 
-/* PLAYER */
 #player-container{
 position:fixed;top:0;left:0;width:100%;height:100%;background:#000;transition:.3s;z-index:1}
 #player-container.blur{filter:blur(10px) brightness(.4)}
 video{width:100%;height:100%;object-fit:contain;background:#000}
 
-/* OVERLAY */
 #overlay{
 position:fixed;top:0;left:0;width:100%;height:100%;
 background:rgba(0,0,0,.7);transition:.3s;z-index:8}
 #overlay.hide{opacity:0;visibility:hidden}
 
-/* MENU */
 #menu{
 position:fixed;top:0;left:0;width:360px;height:100%;
 background:var(--bg);border-right:1px solid var(--border);
 overflow-y:auto;transition:.4s;z-index:10}
 #menu.hide{transform:translateX(-100%)}
 
-/* CONTROL */
 .control-box{padding:12px;border-bottom:1px solid var(--border)}
 .control-box input{
 width:100%;padding:6px;margin-bottom:6px;
@@ -48,7 +44,6 @@ width:100%;padding:6px;margin-bottom:6px;
 background:var(--accent);border:none;
 color:#fff;border-radius:6px;cursor:pointer}
 
-/* CATEGORY */
 .category{margin:10px;background:var(--card);
 border:1px solid var(--border);border-radius:10px}
 .category-header{
@@ -68,13 +63,8 @@ vertical-align:middle;
 }
 
 .delete-btn{
-background:#aa0000;
-border:none;
-color:#fff;
-padding:4px 8px;
-border-radius:6px;
-cursor:pointer;
-font-size:12px;
+background:#aa0000;border:none;color:#fff;
+padding:4px 8px;border-radius:6px;cursor:pointer;font-size:12px;
 }
 
 .channel{
@@ -122,6 +112,8 @@ let hls=null;
 const menu=document.getElementById("menu");
 const overlay=document.getElementById("overlay");
 const player=document.getElementById("player-container");
+const previewBox=document.getElementById("preview-left");
+const previewImg=document.getElementById("previewImg");
 
 function save(){
 localStorage.setItem("iptv_playlists",JSON.stringify(playlists));
@@ -219,10 +211,10 @@ div.onclick=()=>play(ch);
 div.onmouseenter=()=>{
 if(ch.logo){
 previewImg.src=ch.logo;
-preview-left.classList.add("active");
+previewBox.classList.add("active");
 }
 };
-div.onmouseleave=()=>preview-left.classList.remove("active");
+div.onmouseleave=()=>previewBox.classList.remove("active");
 
 content.appendChild(div);
 });
@@ -232,7 +224,7 @@ cat.appendChild(content);
 return cat;
 }
 
-/* 🔥 PLAY (แก้สมบูรณ์) */
+/* 🔥 PLAY พร้อม buffer ลื่น */
 function play(channel){
 const video=document.getElementById("video");
 if(hls){try{hls.destroy()}catch(e){} hls=null;}
@@ -250,16 +242,28 @@ video.src=channel.url;
 video.play();
 }
 else if(typeof Hls!=="undefined" && Hls.isSupported()){
-hls=new Hls({enableWorker:true,lowLatencyMode:true});
+hls=new Hls({
+maxBufferLength:60,
+backBufferLength:30,
+maxBufferHole:0.5,
+lowLatencyMode:true,
+enableWorker:true
+});
 hls.loadSource(channel.url);
 hls.attachMedia(video);
 hls.on(Hls.Events.MANIFEST_PARSED,()=>video.play());
+hls.on(Hls.Events.ERROR,(e,data)=>{
+if(data.fatal){
+if(data.type==="networkError")hls.startLoad();
+else if(data.type==="mediaError")hls.recoverMediaError();
+else hls.destroy();
+}
+});
 }
 }else{
 video.src=channel.url;
 video.play();
 }
-
 closeMenu();
 }
 
