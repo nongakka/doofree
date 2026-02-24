@@ -278,13 +278,14 @@ body{
   </a>
 </div>
 
-<div class="menu-title M3U" onclick="toggleMenu('M3UMenu')">
+<div class="menu-title m3u" onclick="toggleMenu('m3uMenu')">
   <img src="https://img5.pic.in.th/file/secure-sv1/ChatGPT-Image-24-..-2569-11_49_26.png">
   MOVIE M3U
 </div>
+
 <div id="m3uMenu" class="submenu">
-  <a class="menu-link" onclick="openIframe('https://nongakka.github.io/doofree/movie.html')">M3U</a>
-  
+  <a class="menu-link" onclick="openIframe('https://nongakka.github.io/doofree/movie.html')">
+    M3U
   </a>
 </div>
 
@@ -302,11 +303,17 @@ body{
 
 <script>
 function toggleMenu(id){
-  document.querySelectorAll('.submenu').forEach(m=>{
-    if(m.id!==id) m.style.display="none";
+  const allMenus = document.querySelectorAll('.submenu');
+  allMenus.forEach(menu=>{
+    if(menu.id !== id){
+      menu.style.display="none";
+    }
   });
-  const el=document.getElementById(id);
-  el.style.display = el.style.display==="block" ? "none" : "block";
+
+  const el = document.getElementById(id);
+  if(!el) return; // กัน error ถ้า id ไม่เจอ
+
+  el.style.display = el.style.display === "block" ? "none" : "block";
 }
 
 function toggleSidebar(){
