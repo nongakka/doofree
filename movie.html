@@ -172,13 +172,21 @@ head.innerHTML=`
 <span class="playlist-title" title="${pl.name}">
 📂 ${pl.name}
 </span>
-<button class="delete-btn" onclick="deletePlaylist(${i})">ลบ</button>
+<button class="delete-btn">ลบ</button>
 `;
 
-head.onclick=(e)=>{
-if(e.target.tagName!=="BUTTON")
+/* ✅ FIX ปุ่มลบ */
+const deleteBtn=head.querySelector(".delete-btn");
+deleteBtn.addEventListener("click",function(e){
+e.stopPropagation();
+deletePlaylist(i);
+});
+
+head.addEventListener("click",(e)=>{
+if(!e.target.classList.contains("delete-btn")){
 box.classList.toggle("active");
-};
+}
+});
 
 const content=document.createElement("div");
 content.className="category-content";
@@ -290,7 +298,8 @@ save();render();
 function deletePlaylist(index){
 if(confirm("ลบ Playlist นี้ใช่หรือไม่?")){
 playlists.splice(index,1);
-save();render();
+save();
+render();
 }
 }
 
@@ -314,11 +323,7 @@ function closeMenu(){
 menu.classList.add("hide");
 overlay.classList.add("hide");
 player.classList.remove("blur");
-
-/* กันเบลอค้าง */
-setTimeout(()=>{
-player.classList.remove("blur");
-},50);
+setTimeout(()=>{player.classList.remove("blur");},50);
 }
 document.addEventListener("mousemove",e=>{
 if(e.clientX<15)openMenu();
