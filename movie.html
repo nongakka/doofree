@@ -58,7 +58,6 @@ align-items:center;background:#1b1530}
 .category-content{display:none;padding:6px}
 .category.active .category-content{display:block}
 
-/* PLAYLIST TITLE CUT */
 .playlist-title{
 max-width:220px;
 white-space:nowrap;
@@ -68,7 +67,6 @@ display:inline-block;
 vertical-align:middle;
 }
 
-/* DELETE BUTTON */
 .delete-btn{
 background:#aa0000;
 border:none;
@@ -79,7 +77,6 @@ cursor:pointer;
 font-size:12px;
 }
 
-/* CHANNEL */
 .channel{
 display:flex;align-items:center;
 padding:6px;margin-bottom:6px;
@@ -87,7 +84,6 @@ background:#1a142b;border-radius:8px;cursor:pointer}
 .channel:hover{background:var(--accent)}
 .channel img{width:32px;height:32px;object-fit:contain;margin-right:8px}
 
-/* PREVIEW */
 #preview-left{
 position:fixed;top:50%;left:380px;
 transform:translateY(-50%);
@@ -121,19 +117,16 @@ overflow:hidden;opacity:0;transition:.3s;z-index:20}
 
 <script>
 let playlists=JSON.parse(localStorage.getItem("iptv_playlists"))||[];
-let favorites=JSON.parse(localStorage.getItem("iptv_fav"))||[];
 let hls=null;
 
-const menu = document.getElementById("menu");
-const overlay = document.getElementById("overlay");
-const player = document.getElementById("player-container");
+const menu=document.getElementById("menu");
+const overlay=document.getElementById("overlay");
+const player=document.getElementById("player-container");
 
 function save(){
 localStorage.setItem("iptv_playlists",JSON.stringify(playlists));
-localStorage.setItem("iptv_fav",JSON.stringify(favorites));
 }
 
-/* PARSE */
 function parseM3U(text){
 const lines=text.split("\n");
 let current={},list=[];
@@ -156,18 +149,15 @@ list.push({...current});
 return list;
 }
 
-/* RENDER */
 function render(){
 const container=document.getElementById("playlistContainer");
 container.innerHTML="";
-
 playlists.forEach((pl,i)=>{
 const box=document.createElement("div");
 box.className="category";
 
 const head=document.createElement("div");
 head.className="category-header";
-
 head.innerHTML=`
 <span class="playlist-title" title="${pl.name}">
 📂 ${pl.name}
@@ -175,18 +165,15 @@ head.innerHTML=`
 <button class="delete-btn">ลบ</button>
 `;
 
-/* ✅ FIX ปุ่มลบ */
-const deleteBtn=head.querySelector(".delete-btn");
-deleteBtn.addEventListener("click",function(e){
+head.querySelector(".delete-btn").onclick=(e)=>{
 e.stopPropagation();
-deletePlaylist(i);
-});
-
-head.addEventListener("click",(e)=>{
-if(!e.target.classList.contains("delete-btn")){
-box.classList.toggle("active");
+if(confirm("ลบ Playlist นี้ใช่หรือไม่?")){
+playlists.splice(i,1);
+save();render();
 }
-});
+};
+
+head.onclick=()=>box.classList.toggle("active");
 
 const content=document.createElement("div");
 content.className="category-content";
@@ -207,7 +194,6 @@ container.appendChild(box);
 });
 }
 
-/* CREATE GROUP */
 function createGroup(name,data){
 const cat=document.createElement("div");
 cat.className="category active";
@@ -228,18 +214,15 @@ div.innerHTML=`
 ${ch.logo?`<img src="${ch.logo}" onerror="this.style.display='none'">`:""}
 <span>${ch.title}</span>
 `;
-
 div.onclick=()=>play(ch);
 
 div.onmouseenter=()=>{
 if(ch.logo){
-document.getElementById("previewImg").src=ch.logo;
-document.getElementById("preview-left").classList.add("active");
+previewImg.src=ch.logo;
+preview-left.classList.add("active");
 }
 };
-div.onmouseleave=()=>{
-document.getElementById("preview-left").classList.remove("active");
-};
+div.onmouseleave=()=>preview-left.classList.remove("active");
 
 content.appendChild(div);
 });
@@ -249,18 +232,25 @@ cat.appendChild(content);
 return cat;
 }
 
-/* PLAY */
+/* 🔥 PLAY (แก้สมบูรณ์) */
 function play(channel){
 const video=document.getElementById("video");
-if(hls){hls.destroy();hls=null;}
-video.pause();video.removeAttribute("src");video.load();
+if(hls){try{hls.destroy()}catch(e){} hls=null;}
 
-if(channel.url.endsWith(".m3u8")){
+video.pause();
+video.removeAttribute("src");
+video.load();
+
+const url=(channel.url||"").trim().toLowerCase();
+const isHLS=url.includes(".m3u8")||url.includes(".m3u");
+
+if(isHLS){
 if(video.canPlayType("application/vnd.apple.mpegurl")){
 video.src=channel.url;
 video.play();
-}else if(Hls.isSupported()){
-hls=new Hls();
+}
+else if(typeof Hls!=="undefined" && Hls.isSupported()){
+hls=new Hls({enableWorker:true,lowLatencyMode:true});
 hls.loadSource(channel.url);
 hls.attachMedia(video);
 hls.on(Hls.Events.MANIFEST_PARSED,()=>video.play());
@@ -269,10 +259,10 @@ hls.on(Hls.Events.MANIFEST_PARSED,()=>video.play());
 video.src=channel.url;
 video.play();
 }
+
 closeMenu();
 }
 
-/* ADD FILE */
 document.getElementById("fileInput").addEventListener("change",e=>{
 const file=e.target.files[0];
 if(!file)return;
@@ -284,7 +274,6 @@ save();render();
 reader.readAsText(file);
 });
 
-/* ADD URL */
 async function addURL(){
 const url=document.getElementById("urlInput").value.trim();
 if(!url)return;
@@ -294,16 +283,6 @@ playlists.push({name:url,data:parseM3U(text)});
 save();render();
 }
 
-/* DELETE PLAYLIST */
-function deletePlaylist(index){
-if(confirm("ลบ Playlist นี้ใช่หรือไม่?")){
-playlists.splice(index,1);
-save();
-render();
-}
-}
-
-/* SEARCH */
 document.getElementById("search").addEventListener("input",e=>{
 const k=e.target.value.toLowerCase();
 document.querySelectorAll(".channel").forEach(c=>{
@@ -311,10 +290,7 @@ c.style.display=c.innerText.toLowerCase().includes(k)?"flex":"none";
 });
 });
 
-/* MENU AUTO */
-let timer=null;
 function openMenu(){
-clearTimeout(timer);
 menu.classList.remove("hide");
 overlay.classList.remove("hide");
 player.classList.add("blur");
@@ -323,15 +299,11 @@ function closeMenu(){
 menu.classList.add("hide");
 overlay.classList.add("hide");
 player.classList.remove("blur");
-setTimeout(()=>{player.classList.remove("blur");},50);
 }
 document.addEventListener("mousemove",e=>{
 if(e.clientX<15)openMenu();
 });
-menu.addEventListener("mouseleave",()=>{
-timer=setTimeout(closeMenu,400);
-});
-overlay.addEventListener("click",closeMenu);
+overlay.onclick=closeMenu;
 
 render();
 </script>
