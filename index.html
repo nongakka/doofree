@@ -18,7 +18,7 @@ body{
   overflow:hidden;
 }
 
-/* ===== MOBILE BUTTON ===== */
+/* MOBILE BUTTON */
 #mobileToggle{
   position:fixed;
   top:15px;
@@ -30,12 +30,14 @@ body{
   z-index:1000;
   display:none;
   font-weight:bold;
+  transition:0.3s;
 }
+#mobileToggle:hover{transform:scale(1.05);}
 
-/* ===== SIDEBAR ===== */
+/* SIDEBAR */
 #menu{
-  width:240px;
-  background:rgba(20,20,35,0.85);
+  width:200px;
+  background:rgba(20,20,35,0.95);
   backdrop-filter:blur(15px);
   border-right:1px solid rgba(255,255,255,0.08);
   padding:20px;
@@ -43,12 +45,9 @@ body{
   transition:0.4s;
   box-shadow:5px 0 40px rgba(0,0,0,0.6);
 }
+#menu.hidden{transform:translateX(-100%);}
 
-#menu.hidden{
-  transform:translateX(-100%);
-}
-
-/* ===== LOGO ===== */
+/* LOGO */
 .logo-box{
   text-align:center;
   margin-bottom:25px;
@@ -61,66 +60,8 @@ body{
   border-radius:20px;
   box-shadow:0 0 30px rgba(255,0,150,0.7);
 }
-.logo-text{
-  margin-top:10px;
-  font-weight:bold;
-  letter-spacing:1px;
-}
 
-/* ===== MENU ITEMS ===== */
-.menu-title{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  padding:12px;
-  border-radius:12px;
-  cursor:pointer;
-  font-weight:600;
-  margin:12px 0 6px 0;
-  transition:0.3s;
-}
-
-.menu-title img{
-  width:32px;
-  height:32px;
-}
-
-.menu-title:hover{
-  transform:scale(1.05);
-  box-shadow:0 0 20px rgba(255,0,150,0.5);
-}
-
-/* Gradient Categories */
-.premium{background:linear-gradient(90deg,#ff512f,#dd2476);}
-.movie{background:linear-gradient(90deg,#fc466b,#3f5efb);}
-.series{background:linear-gradient(90deg,#f7971e,#ffd200);}
-.anime{background:linear-gradient(90deg,#11998e,#38ef7d);}
-.music{background:linear-gradient(90deg,#8e2de2,#4a00e0);}
-.m3u{background:linear-gradient(90deg,#fc466b,#3f5efb);}
-.submenu{
-  display:none;
-  margin-bottom:10px;
-}
-
-.menu-link{
-  display:flex;
-  align-items:center;
-  gap:12px;
-  padding:12px;
-  font-size:15px;
-}
-
-.menu-link img{
-  width:32px;
-  height:32px;
-}
-
-.menu-link:hover{
-  background:#e94560;
-  transform:translateX(8px);
-}
-
-/* ===== HOME BUTTON ===== */
+/* HOME */
 .home-btn{
   display:block;
   padding:10px;
@@ -128,13 +69,52 @@ body{
   background:linear-gradient(90deg,#00c6ff,#0072ff);
   border-radius:8px;
   margin-bottom:15px;
-  text-decoration:none;
-  color:#fff;
+  cursor:pointer;
   font-weight:bold;
-  box-shadow:0 5px 15px rgba(0,0,0,0.5);
+  transition:0.3s;
+}
+.home-btn:hover{transform:scale(1.05);}
+
+/* MENU TITLE */
+.menu-title{
+  padding:12px;
+  border-radius:12px;
+  cursor:pointer;
+  font-weight:600;
+  margin:12px 0 6px;
+  transition:0.3s;
+}
+.menu-title:hover{transform:scale(1.05);}
+
+.premium{background:linear-gradient(90deg,#ff512f,#dd2476);}
+.movie{background:linear-gradient(90deg,#fc466b,#3f5efb);}
+.series{background:linear-gradient(90deg,#f7971e,#ffd200);}
+.anime{background:linear-gradient(90deg,#11998e,#38ef7d);}
+.m3u{background:linear-gradient(90deg,#fc466b,#3f5efb);}
+
+/* SUBMENU */
+.submenu{
+  max-height:0;
+  overflow:hidden;
+  transition:max-height 0.4s ease;
+}
+.submenu.open{max-height:1000px;}
+
+/* LINKS */
+.menu-link{
+  display:block;
+  padding:10px 15px;
+  font-size:14px;
+  cursor:pointer;
+  transition:0.3s;
+  border-radius:6px;
+}
+.menu-link:hover{
+  background:#e94560;
+  transform:translateX(6px);
 }
 
-/* ===== PLAYER AREA ===== */
+/* PLAYER */
 #player-container{
   flex:1;
   position:relative;
@@ -143,201 +123,141 @@ body{
   align-items:center;
   background:radial-gradient(circle at center,#1a1a2e 0%,#000 80%);
 }
-
-#welcome{
-  position:absolute;
-  font-size:24px;
-  opacity:0.4;
-  letter-spacing:2px;
-}
-
-#iframePlayer{
-  width:100%;
-  height:100%;
-  border:none;
-}
-
-.hidden{display:none;}
-
-/* ===== MOBILE ===== */
-@media(max-width:768px){
-  #menu{
-    position:fixed;
-    height:100%;
-    z-index:999;
-  }
-  #mobileToggle{
-    display:block;
-  }
-}
-
-#welcome{
-  position:absolute;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  gap:20px;
-  text-align:center;
-  opacity:0.9;
-}
-
-.home-logo{
+#welcome{text-align:center;opacity:0.9;}
+#welcome img{
   width:300px;
   max-width:80%;
   border-radius:25px;
   box-shadow:0 0 40px rgba(255,0,150,0.7);
   animation:float 3s ease-in-out infinite;
 }
-
-.home-text{
-  font-size:36px;
-  font-weight:bold;
-  letter-spacing:3px;
-}
-
-/* ลอยเบา ๆ สวย ๆ */
 @keyframes float{
-  0%{transform:translateY(0px);}
+  0%{transform:translateY(0);}
   50%{transform:translateY(-10px);}
-  100%{transform:translateY(0px);}
+  100%{transform:translateY(0);}
+}
+iframe{
+  width:100%;
+  height:100%;
+  border:none;
+  display:none;
 }
 
+/* MOBILE */
+@media(max-width:768px){
+  #menu{position:fixed;height:100%;z-index:999;}
+  #mobileToggle{display:block;}
+}
 </style>
 </head>
 
 <body>
 
-<div id="mobileToggle" onclick="toggleSidebar()">☰ เมนู</div>
+<div id="mobileToggle">☰ เมนู</div>
 
 <div id="menu">
 
 <div class="logo-box">
   <img src="https://img2.pic.in.th/ChatGPT-Image-23-..-2569-10_56_05.png">
-  <div class="logo-text">หรรมน้อย ออนไลน์</div>
 </div>
 
-<a class="home-btn" onclick="goHome()">🏠 หน้าแรก</a>
+<div class="home-btn" id="homeBtn">🏠 หน้าแรก</div>
 
-<div class="menu-title premium" onclick="toggleMenu('tvMenu')">
-  <img src="https://img2.pic.in.th/ChatGPT-Image-23-..-2569-11_58_48.png">
-  ทีวีออนไลน์
-</div>
+<!-- ทีวี -->
+<div class="menu-title premium" data-menu="tvMenu">ทีวีออนไลน์</div>
 <div id="tvMenu" class="submenu">
-  <a class="menu-link" onclick="openIframe('https://nongakka.github.io/doofree/iptv.html')">
-    <img src="https://gigatv.3bbtv.co.th/wp-content/themes/changwattana/img/banner/All-Logo-PNG/JAS%20TV_500x500.png">ดิจิตอลทีวี
-  <a class="menu-link" onclick="openIframe('https://nongakka.github.io/doofree/inwhd.html')"> 
-    <img src="https://img2.pic.in.th/ChatGPT-Image-23-..-2569-11_31_36.png">INW HD
-  <a class="menu-link" onclick="openIframe('https://nongakka.github.io/doofree/cattv.html')"> 
-    <img src="https://avatars.githubusercontent.com/u/195849458?v=4">CAT TV
-  
-  </a>
+  <div class="menu-link" data-url="https://nongakka.github.io/doofree/iptv.html">ดิจิตอลทีวี</div>
+  <div class="menu-link" data-url="https://nongakka.github.io/doofree/inwhd.html">INW HD</div>
+  <div class="menu-link" data-url="https://nongakka.github.io/doofree/cattv.html">CAT TV</div>
 </div>
 
-<div class="menu-title movie" onclick="toggleMenu('movieMenu')">
-  <img src="https://img5.pic.in.th/file/secure-sv1/ChatGPT-Image-23-..-2569-11_55_12.png">
-  หนัง
-</div>
+<!-- หนัง -->
+<div class="menu-title movie" data-menu="movieMenu">หนัง</div>
 <div id="movieMenu" class="submenu">
-    
-    <a class="menu-link" onclick="openIframe('https://udzaa2238.github.io/oldman_wander/หนังใหม่ประจำเดือน.html')">หนังใหม่ประจำเดือน</a>
-    <a class="menu-link" onclick="openIframe('https://udzaa2238.github.io/oldman_wander/หนังใหม่.html')">หนังใหม่</a>
-    <a class="menu-link" onclick="openIframe('https://udzaa2238.github.io/oldman_wander/หนังจีน.html')">หนังจีน</a>
-    <a class="menu-link" onclick="openIframe('https://udzaa2238.github.io/oldman_wander/หนังฝรั่ง.html')">หนังฝรั่ง</a>
-    <a class="menu-link" onclick="openIframe('https://udzaa2238.github.io/oldman_wander/หนังไทย.html')">หนังไทย</a>
-    <a class="menu-link" onclick="openIframe('https://udzaa2238.github.io/oldman_wander/หนังเกาหลี.html')">หนังเกาหลี</a>
-    <a class="menu-link" onclick="openIframe('https://udzaa2238.github.io/oldman_wander/หนังภาคต่อ.html')">หนังภาคต่อ</a>
-    <a class="menu-link" onclick="openIframe('https://udzaa2238.github.io/oldman_wander/หนังซูม.html')">หนังซูม</a>
-    <a class="menu-link" onclick="openIframe('https://udzaa2238.github.io/oldman_wander/หนังอินเดีย.html')">หนังอินเดีย</a>
-  </a>
+  <div class="menu-link" data-url="https://udzaa2238.github.io/oldman_wander/หนังใหม่ประจำเดือน.html">หนังใหม่ประจำเดือน</div>
+  <div class="menu-link" data-url="https://udzaa2238.github.io/oldman_wander/หนังใหม่.html">หนังใหม่</div>
+  <div class="menu-link" data-url="https://udzaa2238.github.io/oldman_wander/หนังจีน.html">หนังจีน</div>
+  <div class="menu-link" data-url="https://udzaa2238.github.io/oldman_wander/หนังฝรั่ง.html">หนังฝรั่ง</div>
+  <div class="menu-link" data-url="https://udzaa2238.github.io/oldman_wander/หนังไทย.html">หนังไทย</div>
+  <div class="menu-link" data-url="https://udzaa2238.github.io/oldman_wander/หนังเกาหลี.html">หนังเกาหลี</div>
+  <div class="menu-link" data-url="https://udzaa2238.github.io/oldman_wander/หนังภาคต่อ.html">หนังภาคต่อ</div>
+  <div class="menu-link" data-url="https://udzaa2238.github.io/oldman_wander/หนังซูม.html">หนังซูม</div>
+  <div class="menu-link" data-url="https://udzaa2238.github.io/oldman_wander/หนังอินเดีย.html">หนังอินเดีย</div>
 </div>
 
-<div class="menu-title series" onclick="toggleMenu('seriesMenu')">
-  <img src="https://img5.pic.in.th/file/secure-sv1/ChatGPT-Image-23-..-2569-11_57_17.png">
-  ซีรีส์
-</div>
+<!-- ซีรีส์ -->
+<div class="menu-title series" data-menu="seriesMenu">ซีรีส์</div>
 <div id="seriesMenu" class="submenu">
-    <a class="menu-link" onclick="openIframe('https://udzaa2238.github.io/oldman_wander/ซีรี่ย์จีน.html')">ซีรี่ย์จีน</a>
-    <a class="menu-link" onclick="openIframe('https://udzaa2238.github.io/oldman_wander/ซีรี่ย์ญี่ปุ่น.html')">ซีรี่ย์ญี่ปุ่น</a>
-    <a class="menu-link" onclick="openIframe('https://udzaa2238.github.io/oldman_wander/ซีรี่ย์ฝรั่ง.html')">ซีรี่ย์ฝรั่ง</a>
-    <a class="menu-link" onclick="openIframe('https://udzaa2238.github.io/oldman_wander/ซีรี่ย์เกาหลี.html')">ซีรี่ย์เกาหลี</a>
-    <a class="menu-link" onclick="openIframe('https://udzaa2238.github.io/oldman_wander/ซีรี่ย์ละครไทย.html')">ซีรี่ย์ละครไทย</a>
-    <a class="menu-link" onclick="openIframe('https://udzaa2238.github.io/oldman_wander/ซีรี่ย์ละครดิจิตอล.html')">ซีรี่ย์ละครดิจิตอล</a>
-    <a class="menu-link" onclick="openIframe('https://udzaa2238.github.io/oldman_wander/ละครไทยจักรวงศ์.html')">ละครไทยจักรวงศ์</a>
-    <a class="menu-link" onclick="openIframe('https://udzaa2238.github.io/oldman_wander/ซิทคอม.html')">ซิทคอม</a>
-  </a>
+  <div class="menu-link" data-url="https://udzaa2238.github.io/oldman_wander/ซีรี่ย์จีน.html">ซีรี่ย์จีน</div>
+  <div class="menu-link" data-url="https://udzaa2238.github.io/oldman_wander/ซีรี่ย์ญี่ปุ่น.html">ซีรี่ย์ญี่ปุ่น</div>
+  <div class="menu-link" data-url="https://udzaa2238.github.io/oldman_wander/ซีรี่ย์ฝรั่ง.html">ซีรี่ย์ฝรั่ง</div>
+  <div class="menu-link" data-url="https://udzaa2238.github.io/oldman_wander/ซีรี่ย์เกาหลี.html">ซีรี่ย์เกาหลี</div>
+  <div class="menu-link" data-url="https://udzaa2238.github.io/oldman_wander/ซีรี่ย์ละครไทย.html">ซีรี่ย์ละครไทย</div>
+  <div class="menu-link" data-url="https://udzaa2238.github.io/oldman_wander/ซีรี่ย์ละครดิจิตอล.html">ซีรี่ย์ละครดิจิตอล</div>
+  <div class="menu-link" data-url="https://udzaa2238.github.io/oldman_wander/ละครไทยจักรวงศ์.html">ละครไทยจักรวงศ์</div>
+  <div class="menu-link" data-url="https://udzaa2238.github.io/oldman_wander/ซิทคอม.html">ซิทคอม</div>
 </div>
 
-<div class="menu-title anime" onclick="toggleMenu('animeMenu')">
-  <img src="https://img5.pic.in.th/file/secure-sv1/ChatGPT-Image-23-..-2569-12_00_20.png">
-  อนิเมะ
-</div>
+<!-- อนิเมะ -->
+<div class="menu-title anime" data-menu="animeMenu">อนิเมะ</div>
 <div id="animeMenu" class="submenu">
-  <a class="menu-link" onclick="openIframe('https://udzaa2238.github.io/oldman_wander/การ์ตูนมูฟวี่.html')">การ์ตูนมูฟวี่</a>
-  <a class="menu-link" onclick="openIframe('https://udzaa2238.github.io/All_Anemi/All_Anime(1).html')">อะนิเมะ</a>
-  </a>
+  <div class="menu-link" data-url="https://udzaa2238.github.io/oldman_wander/การ์ตูนมูฟวี่.html">การ์ตูนมูฟวี่</div>
+  <div class="menu-link" data-url="https://udzaa2238.github.io/All_Anemi/All_Anime(1).html">อะนิเมะ</div>
 </div>
 
-<div class="menu-title m3u" onclick="toggleMenu('m3uMenu')">
-  <img src="https://img5.pic.in.th/file/secure-sv1/ChatGPT-Image-24-..-2569-11_49_26.png">
-  MOVIE M3U
-</div>
-
+<!-- M3U -->
+<div class="menu-title m3u" data-menu="m3uMenu">MOVIE M3U</div>
 <div id="m3uMenu" class="submenu">
-  <a class="menu-link" onclick="openIframe('https://nongakka.github.io/doofree/movie.html')">
-    M3U
-  </a>
+  <div class="menu-link" data-url="https://nongakka.github.io/doofree/movie.html">M3U</div>
 </div>
-
 
 </div>
 
 <div id="player-container">
   <div id="welcome">
-  <img src="https://img2.pic.in.th/ChatGPT-Image-23-..-2569-10_56_05.png" class="home-logo">
-  <div class="home-text">หรรมน้อย ออนไลน์</div>
+    <img src="https://img2.pic.in.th/ChatGPT-Image-23-..-2569-10_56_05.png">
+    <h1>หรรมน้อย ออนไลน์</h1>
+  </div>
+  <iframe id="iframePlayer" sandbox="allow-scripts allow-same-origin"></iframe>
 </div>
-  <iframe id="iframePlayer" class="hidden"></iframe>
-</div>
-
 
 <script>
-function toggleMenu(id){
-  const allMenus = document.querySelectorAll('.submenu');
-  allMenus.forEach(menu=>{
-    if(menu.id !== id){
-      menu.style.display="none";
-    }
+const menuTitles=document.querySelectorAll(".menu-title");
+const submenus=document.querySelectorAll(".submenu");
+const links=document.querySelectorAll(".menu-link");
+const iframe=document.getElementById("iframePlayer");
+const welcome=document.getElementById("welcome");
+const mobileToggle=document.getElementById("mobileToggle");
+const sidebar=document.getElementById("menu");
+const homeBtn=document.getElementById("homeBtn");
+
+menuTitles.forEach(title=>{
+  title.addEventListener("click",()=>{
+    const target=document.getElementById(title.dataset.menu);
+    submenus.forEach(menu=>{
+      if(menu!==target){menu.classList.remove("open");}
+    });
+    target.classList.toggle("open");
   });
+});
 
-  const el = document.getElementById(id);
-  if(!el) return; // กัน error ถ้า id ไม่เจอ
+links.forEach(link=>{
+  link.addEventListener("click",()=>{
+    iframe.src=link.dataset.url;
+    iframe.style.display="block";
+    welcome.style.display="none";
+    if(window.innerWidth<768){sidebar.classList.add("hidden");}
+  });
+});
 
-  el.style.display = el.style.display === "block" ? "none" : "block";
-}
-
-function toggleSidebar(){
-  document.getElementById("menu").classList.toggle("hidden");
-}
-
-function openIframe(url){
-  const iframe=document.getElementById("iframePlayer");
-  document.getElementById("welcome").style.display="none";
-  iframe.src=url;
-  iframe.classList.remove("hidden");
-  if(window.innerWidth<768) toggleSidebar();
-}
-
-function goHome(){
-  const iframe=document.getElementById("iframePlayer");
+homeBtn.addEventListener("click",()=>{
   iframe.src="";
-  iframe.classList.add("hidden");
-  document.getElementById("welcome").style.display="block";
-}
+  iframe.style.display="none";
+  welcome.style.display="block";
+});
 
-document.addEventListener("DOMContentLoaded",()=>{
-
-  
+mobileToggle.addEventListener("click",()=>{
+  sidebar.classList.toggle("hidden");
 });
 </script>
 
