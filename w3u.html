@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>W3U to M3U Online Generator</title>
+<style>
+body {
+    font-family: Arial;
+    background: #0d1117;
+    color: #fff;
+    padding: 20px;
+}
+h1 { color: #58a6ff; }
+input[type=file] {
+    margin: 10px 0;
+}
+button {
+    padding: 8px 15px;
+    background: #238636;
+    border: none;
+    color: white;
+    cursor: pointer;
+}
+button:hover { background: #2ea043; }
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+th, td {
+    border: 1px solid #30363d;
+    padding: 6px;
+    font-size: 14px;
+}
+th { background: #161b22; }
+</style>
+</head>
+<body>
+
+<h1>W3U → M3U Online Generator</h1>
+
+<input type="file" id="fileInput" accept=".json,.w3u">
+<button onclick="downloadM3U()">Download M3U</button>
+
+<table id="channelTable">
+<thead>
+<tr>
+<th>ชื่อช่อง</th>
+<th>หมวดหมู่</th>
+<th>URL</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+
+<script>
+let channelList = [];
+let generatedM3U = "";
+
+function extractStations(obj, parentGroup = "") {
+    let list = [];
+
+    if (obj.stations) {
+        obj.stations.forEach(st => {
+            list.push({
+                name: st.name,
+                url: st.url,
+                image: st.image || "",
+                group: parentGroup
+            });
+        });
+    }
+
+    if (obj.groups) {
+        obj.groups.forEach(group => {
+            const newPath = parentGroup
+                ? parentGroup + " | " + group.name
+                : group.name;
+            list = list.concat(extractStations(group, newPath));
+        });
+    }
+
+    return list;
+}
+
+function buildM3U(data) {
+    let result = "#EXTM3U\n\n";
+    data.forEach(ch => {
+        result += `#EXTINF:-1 tvg-name="${ch.name}" tvg-logo="${ch.image}" group-title="${ch.group}",${ch.name}\n`;
+        result += `${ch.url}\n\n`;
+    });
+    return result;
+}
+
+function renderTable(data) {
+    const tbody = document.querySelector("#channelTable tbody");
+    tbody.innerHTML = "";
+    data.forEach(ch => {
+        const row = `
+        <tr>
+            <td>${ch.name}</td>
+            <td>${ch.group}</td>
+            <td>${ch.url}</td>
+        </tr>`;
+        tbody.innerHTML += row;
+    });
+}
+
+document.getElementById("fileInput").addEventListener("change", function(e){
+    const reader = new FileReader();
+    reader.onload = function(event) {
+        try {
+            const jsonData = JSON.parse(event.target.result);
+            channelList = extractStations(jsonData);
+            generatedM3U = buildM3U(channelList);
+            renderTable(channelList);
+        } catch {
+            alert("ไฟล์ไม่ถูกต้อง");
+        }
+    };
+    reader.readAsText(e.target.files[0]);
+});
+
+function downloadM3U() {
+    if (!generatedM3U) {
+        alert("ยังไม่มีข้อมูล");
+        return;
+    }
+    const blob = new Blob([generatedM3U], { type: "application/x-mpegURL" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "playlist.m3u";
+    a.click();
+    URL.revokeObjectURL(url);
+}
+</script>
+
+</body>
+</html>
