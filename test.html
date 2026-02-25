@@ -13,7 +13,6 @@ jwplayer.key="XSuP4qMl+9tK17QNb+4+th2Pm9AWgMO/cYH8CI0HGGr7bdjo";
 </script>
 
 <style>
-/* ==== CSS เดิมของคุณทั้งหมด (ไม่เปลี่ยน) ==== */
 :root{
 --accent:#7b2cff;
 --bg:#0a0614;
@@ -29,7 +28,6 @@ background:#000;display:flex;justify-content:center;align-items:center;
 transition:.3s;z-index:1}
 #player-container.blur{filter:blur(10px) brightness(.4)}
 
-/* ===== FIX PLAYER FULLSCREEN SAFE ===== */
 #player-container{
 position:fixed;
 top:0;
@@ -40,7 +38,7 @@ background:#000;
 display:flex;
 justify-content:center;
 align-items:center;
-overflow:hidden; /* กันล้น */
+overflow:hidden;
 }
 
 #video{
@@ -54,18 +52,15 @@ align-items:center;
 #html5-player{
 width:100%;
 height:100%;
-object-fit:contain; /* ไม่ครอป */
+object-fit:contain;
 background:#000;
 }
 
-/* คุม JW ไม่ให้ล้น */
 .jwplayer{
 width:100% !important;
 height:100% !important;
 max-height:100vh !important;
 }
-
-.jwplayer{max-height:100vh!important}
 
 #overlay{position:fixed;top:0;left:0;width:100%;height:100%;
 background:rgba(0,0,0,.7);transition:.3s;z-index:8}
@@ -101,6 +96,13 @@ border-radius:6px;background:#ff3b3b;border:none;color:#fff;cursor:pointer}
 .channel{display:flex;align-items:center;padding:6px;margin-bottom:6px;
 background:#1a142b;border-radius:8px;cursor:pointer;transition:.2s}
 .channel:hover{background:var(--accent)}
+
+/* ===== เพิ่มเฉพาะไฮไลท์ ===== */
+.channel.active{
+background:var(--accent);
+box-shadow:0 0 12px rgba(123,44,255,.8);
+}
+
 .channel img{width:32px;height:32px;object-fit:contain;margin-right:8px}
 
 #preview-left{position:absolute;top:50%;left:370px;
@@ -140,6 +142,9 @@ box-shadow:0 0 40px rgba(123,44,255,.6)}
 <script>
 let playlists=JSON.parse(localStorage.getItem("iptv_playlists"))||[];
 
+/* ===== เพิ่มตัวแปรไฮไลท์ ===== */
+let currentChannelElement=null;
+
 const menu=document.getElementById("menu");
 const overlay=document.getElementById("overlay");
 const player=document.getElementById("player-container");
@@ -148,6 +153,17 @@ const previewImg=document.getElementById("previewImg");
 
 function save(){
 localStorage.setItem("iptv_playlists",JSON.stringify(playlists));
+}
+
+/* ===== ฟังก์ชันตั้งไฮไลท์ ===== */
+function setActiveChannel(el){
+if(currentChannelElement){
+currentChannelElement.classList.remove("active");
+}
+if(el){
+el.classList.add("active");
+currentChannelElement=el;
+}
 }
 
 /* ===== PARSE M3U ===== */
@@ -185,7 +201,7 @@ return list;
 }
 
 /* ===== HYBRID PLAY + RETRY ===== */
-function play(channel){
+function play(channel,element){
 
 closeMenu();
 
@@ -210,10 +226,13 @@ drm:channel.keyId&&channel.key?{
 clearkey:{keyId:channel.keyId,key:channel.key}
 }:undefined
 });
+jwplayer("video").on("firstFrame",function(){
+setActiveChannel(element);
+});
 return;
 }
 
-/* M3U8 + Retry */
+/* M3U8 */
 if(channel.url.includes(".m3u8")){
 let retry=0,maxRetry=3;
 function tryPlay(){
@@ -224,6 +243,9 @@ html5.src=channel.url+(channel.url.includes("?")?"&":"?")+"t="+Date.now();
 html5.load();
 html5.play().catch(()=>{});
 }
+html5.onplaying=function(){
+setActiveChannel(element);
+};
 html5.onerror=function(){
 retry++;
 if(retry<maxRetry){
@@ -239,6 +261,9 @@ autostart:true,
 primary:"html5",
 hlshtml:true
 });
+jwplayer("video").on("firstFrame",function(){
+setActiveChannel(element);
+});
 }
 };
 tryPlay();
@@ -249,10 +274,13 @@ return;
 html5.style.display="block";
 html5.controls=true;
 html5.src=channel.url;
+html5.onplaying=function(){
+setActiveChannel(element);
+};
 html5.play();
 }
 
-/* ===== RENDER (ของเดิม) ===== */
+/* ===== RENDER ===== */
 function render(){
 const container=document.getElementById("playlistContainer");
 container.innerHTML="";
@@ -264,18 +292,11 @@ head.className="category-header";
 head.innerHTML=`<span>📂 ${pl.name}</span>
 <button onclick="event.stopPropagation();deletePlaylist(${i})">ลบ</button>`;
 head.onclick=()=>{
-
-/* ปิด playlist อื่นทั้งหมดก่อน */
 document.querySelectorAll("#playlistContainer .category")
 .forEach(el=>{
-if(el!==box){
-el.classList.remove("active");
-}
+if(el!==box){el.classList.remove("active");}
 });
-
-/* เปิด/ปิด อันที่กด */
 box.classList.toggle("active");
-
 };
 
 const content=document.createElement("div");
@@ -301,7 +322,7 @@ const div=document.createElement("div");
 div.className="channel";
 div.innerHTML=`${ch.logo?`<img src="${ch.logo}" onerror="this.style.display='none'">`:""}
 <span>${ch.title}</span>`;
-div.onclick=()=>play(ch);
+div.onclick=()=>play(ch,div); /* ส่ง element เข้า play */
 div.onmouseenter=()=>{if(ch.logo){previewImg.src=ch.logo;previewBox.classList.add("active");}};
 div.onmouseleave=()=>previewBox.classList.remove("active");
 return div;
