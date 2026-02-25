@@ -6,11 +6,8 @@
 <title>หรรมน้อย ออนไลน์</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
-
-<script src="https://ssl.p.jwpcdn.com/player/v/8.26.0/jwplayer.js"></script>
-<script>
-jwplayer.key="XSuP4qMl+9tK17QNb+4+th2Pm9AWgMO/cYH8CI0HGGr7bdjo";
-</script>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
 
 <style>
 :root{
@@ -21,115 +18,93 @@ jwplayer.key="XSuP4qMl+9tK17QNb+4+th2Pm9AWgMO/cYH8CI0HGGr7bdjo";
 }
 *{box-sizing:border-box}
 body{margin:0;font-family:'Kanit',sans-serif;background:#000;color:#fff;overflow:hidden}
-
-#player-container{
-position:fixed;top:0;left:0;width:100%;height:100vh;
-background:#000;display:flex;justify-content:center;align-items:center;
-transition:.3s;z-index:1}
+#player-container{position:fixed;top:0;left:0;width:100%;height:100%;background:#000;transition:.3s;z-index:1}
 #player-container.blur{filter:blur(10px) brightness(.4)}
+video{width:100%;height:100%;object-fit:contain;background:#000}
 
-#player-container{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100vh;
-background:#000;
-display:flex;
-justify-content:center;
-align-items:center;
-overflow:hidden;
-}
-
-#video{
-width:100%;
-height:100%;
-display:flex;
-justify-content:center;
-align-items:center;
-}
-
-#html5-player{
-width:100%;
-height:100%;
-object-fit:contain;
-background:#000;
-}
-
-.jwplayer{
-width:100% !important;
-height:100% !important;
-max-height:100vh !important;
-}
-
-#overlay{position:fixed;top:0;left:0;width:100%;height:100%;
-background:rgba(0,0,0,.7);transition:.3s;z-index:8}
+#overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);transition:.3s;z-index:8}
 #overlay.hide{opacity:0;visibility:hidden}
 
-#menu{position:fixed;top:0;left:0;width:360px;height:100%;
-background:var(--bg);border-right:1px solid var(--border);
-overflow-y:auto;transition:.4s;z-index:10}
+#menu{position:fixed;top:0;left:0;width:360px;height:100%;background:var(--bg);border-right:1px solid var(--border);overflow-y:auto;transition:.4s;z-index:10}
 #menu.hide{transform:translateX(-100%)}
 
 .control-box{padding:12px;border-bottom:1px solid var(--border)}
-.control-box input{width:100%;padding:6px;margin-bottom:6px;
-background:#111;border:1px solid var(--border);
-color:#fff;border-radius:6px}
-.control-box button{width:100%;padding:6px;margin-bottom:6px;
-background:var(--accent);border:none;
-color:#fff;border-radius:6px;cursor:pointer}
+.control-box input{width:100%;padding:6px;margin-bottom:6px;background:#111;border:1px solid var(--border);color:#fff;border-radius:6px}
+.control-box button{width:100%;padding:6px;margin-bottom:6px;background:var(--accent);border:none;color:#fff;border-radius:6px;cursor:pointer}
 
-.category{margin:10px;background:var(--card);
-border:1px solid var(--border);border-radius:10px}
-.category-header{padding:8px 12px;cursor:pointer;
-display:flex;justify-content:space-between;
-align-items:center;background:#1b1530;gap:8px}
-.category-header span{
-flex:1;min-width:0;white-space:nowrap;
-overflow:hidden;text-overflow:ellipsis}
-.category-header button{
-flex-shrink:0;padding:4px 10px;font-size:12px;
-border-radius:6px;background:#ff3b3b;border:none;color:#fff;cursor:pointer}
+.category{margin:10px;background:var(--card);border:1px solid var(--border);border-radius:10px}
+.category-header{padding:8px 12px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:#1b1530}
 .category-content{display:none;padding:6px}
 .category.active>.category-content{display:block}
 
-.channel{display:flex;align-items:center;padding:6px;margin-bottom:6px;
-background:#1a142b;border-radius:8px;cursor:pointer;transition:.2s}
-.channel:hover{background:var(--accent)}
-
-/* ===== เพิ่มเฉพาะไฮไลท์ ===== */
-.channel.active{
-background:var(--accent);
-box-shadow:0 0 12px rgba(123,44,255,.8);
+/* ===== FIX ชื่อ Playlist ยาวล้น ===== */
+.category-header span{
+flex:1;
+overflow:hidden;
+white-space:nowrap;
+text-overflow:ellipsis;
+margin-right:8px;
 }
 
+.category-header button{
+flex-shrink:0;
+}
+/* ===== END FIX ===== */
+.channel{display:flex;align-items:center;padding:6px;margin-bottom:6px;background:#1a142b;border-radius:8px;cursor:pointer;transition:.2s}
+.channel:hover{background:var(--accent)}
 .channel img{width:32px;height:32px;object-fit:contain;margin-right:8px}
 
-#preview-left{position:absolute;top:50%;left:370px;
-transform:translateY(-50%) scale(.95);width:280px;height:400px;
-background:#000;border-radius:14px;overflow:hidden;opacity:0;
-transition:.25s;z-index:9999;pointer-events:none;
-box-shadow:0 0 30px rgba(0,0,0,.7)}
+/* ===== ไฮไลท์ช่องที่กำลังเล่น ===== */
+.channel.active{
+background:var(--accent);
+box-shadow:0 0 15px rgba(123,44,255,.7);
+transform:scale(1.02);
+}
+.channel.active span{
+font-weight:600;
+}
+/* ===== จบไฮไลท์ ===== */
+
+#preview-left{
+position:absolute;
+top:50%;
+left:370px;
+transform:translateY(-50%) scale(.95);
+width:280px;
+height:400px;
+background:#000;
+border-radius:14px;
+overflow:hidden;
+opacity:0;
+transition:.25s;
+z-index:9999;
+pointer-events:none;
+box-shadow:0 0 30px rgba(0,0,0,.7);
+}
 #preview-left.active{
-opacity:1;transform:translateY(-50%) scale(1);
-box-shadow:0 0 40px rgba(123,44,255,.6)}
-#preview-left img{width:100%;height:100%;object-fit:contain}
+opacity:1;
+transform:translateY(-50%) scale(1);
+box-shadow:0 0 40px rgba(123,44,255,.6);
+}
+#preview-left img{
+width:100%;
+height:100%;
+object-fit:contain;
+}
 </style>
 </head>
 
 <body>
 
-<div id="player-container" class="blur">
-<div id="video">
-<video id="html5-player" playsinline></video>
-</div>
+<div id="player-container">
+<video id="video" controls autoplay></video>
 </div>
 
-<div id="overlay"></div>
+<div id="overlay" class="hide"></div>
 
-<div id="menu">
+<div id="menu" class="hide">
 <div class="control-box">
-<input type="file" id="fileInput" accept=".m3u">
+<input type="file" id="fileInput" accept=".m3u,.m3u8">
 <input type="text" id="urlInput" placeholder="วาง URL m3u">
 <button onclick="addURL()">เพิ่ม URL</button>
 <input type="text" id="search" placeholder="ค้นหา...">
@@ -140,35 +115,18 @@ box-shadow:0 0 40px rgba(123,44,255,.6)}
 <div id="preview-left"><img id="previewImg"></div>
 
 <script>
+
 let playlists=JSON.parse(localStorage.getItem("iptv_playlists"))||[];
-
-/* ===== เพิ่มตัวแปรไฮไลท์ ===== */
+let hls=null;
+let dashPlayer=null;
 let currentChannelElement=null;
-
-const menu=document.getElementById("menu");
-const overlay=document.getElementById("overlay");
-const player=document.getElementById("player-container");
-const previewBox=document.getElementById("preview-left");
-const previewImg=document.getElementById("previewImg");
 
 function save(){
 localStorage.setItem("iptv_playlists",JSON.stringify(playlists));
 }
 
-/* ===== ฟังก์ชันตั้งไฮไลท์ ===== */
-function setActiveChannel(el){
-if(currentChannelElement){
-currentChannelElement.classList.remove("active");
-}
-if(el){
-el.classList.add("active");
-currentChannelElement=el;
-}
-}
-
-/* ===== PARSE M3U ===== */
 function parseM3U(text){
-const lines=text.split("\n");
+const lines=text.replace(/\r/g,"").split("\n");
 let current={},list=[];
 for(let line of lines){
 line=line.trim();
@@ -176,141 +134,62 @@ if(line.startsWith("#EXTINF")){
 const name=line.match(/,(.*)$/);
 const logo=line.match(/tvg-logo="(.*?)"/);
 const group=line.match(/group-title="(.*?)"/);
-const sub=line.match(/tvg-id="(.*?)"/);
 current={
-title:name?name[1]:"ไม่มีชื่อ",
+title:name?name[1].trim():"ไม่มีชื่อ",
 logo:logo?logo[1]:"",
-group:group?group[1]:"อื่นๆ",
-subgroup:sub?sub[1]:null
+group:group?group[1]:"อื่นๆ"
 };
-}
-else if(line.includes("license_key=")){
-let keyData=line.split("license_key=")[1];
-if(keyData.includes(":")){
-let parts=keyData.split(":");
-current.keyId=parts[0].trim();
-current.key=parts[1].trim();
-}
-}
-else if(line && !line.startsWith("#")){
-current.url=line;
+}else if(line && !line.startsWith("#")){
+current.url=line.trim();
 list.push({...current});
 }
 }
 return list;
 }
 
-/* ===== HYBRID PLAY + RETRY ===== */
-function play(channel,element){
-
-closeMenu();
-
-const html5=document.getElementById("html5-player");
-try{jwplayer("video").remove();}catch(e){}
-
-html5.pause();
-html5.removeAttribute("src");
-html5.load();
-html5.style.display="none";
-
-/* MPD */
-if(channel.url.endsWith(".mpd")){
-jwplayer("video").setup({
-file:channel.url,
-type:"dash",
-width:"100%",
-aspectratio:"16:9",
-autostart:true,
-primary:"html5",
-drm:channel.keyId&&channel.key?{
-clearkey:{keyId:channel.keyId,key:channel.key}
-}:undefined
-});
-jwplayer("video").on("firstFrame",function(){
-setActiveChannel(element);
-});
-return;
-}
-
-/* M3U8 */
-if(channel.url.includes(".m3u8")){
-let retry=0,maxRetry=3;
-function tryPlay(){
-html5.style.display="block";
-html5.controls=true;
-html5.autoplay=true;
-html5.src=channel.url+(channel.url.includes("?")?"&":"?")+"t="+Date.now();
-html5.load();
-html5.play().catch(()=>{});
-}
-html5.onplaying=function(){
-setActiveChannel(element);
-};
-html5.onerror=function(){
-retry++;
-if(retry<maxRetry){
-setTimeout(()=>{tryPlay();},800);
-}else{
-html5.style.display="none";
-jwplayer("video").setup({
-file:channel.url,
-type:"hls",
-width:"100%",
-aspectratio:"16:9",
-autostart:true,
-primary:"html5",
-hlshtml:true
-});
-jwplayer("video").on("firstFrame",function(){
-setActiveChannel(element);
-});
-}
-};
-tryPlay();
-return;
-}
-
-/* อื่น ๆ */
-html5.style.display="block";
-html5.controls=true;
-html5.src=channel.url;
-html5.onplaying=function(){
-setActiveChannel(element);
-};
-html5.play();
-}
-
-/* ===== RENDER ===== */
 function render(){
 const container=document.getElementById("playlistContainer");
 container.innerHTML="";
 playlists.forEach((pl,i)=>{
 const box=document.createElement("div");
 box.className="category";
+
 const head=document.createElement("div");
 head.className="category-header";
 head.innerHTML=`<span>📂 ${pl.name}</span>
 <button onclick="event.stopPropagation();deletePlaylist(${i})">ลบ</button>`;
-head.onclick=()=>{
-document.querySelectorAll("#playlistContainer .category")
-.forEach(el=>{
-if(el!==box){el.classList.remove("active");}
-});
-box.classList.toggle("active");
-};
+head.onclick=()=>box.classList.toggle("active");
 
 const content=document.createElement("div");
 content.className="category-content";
+
 const groups={};
 pl.data.forEach(ch=>{
-if(!groups[ch.group])groups[ch.group]=[];
+if(!groups[ch.group]) groups[ch.group]=[];
 groups[ch.group].push(ch);
 });
+
 for(let g in groups){
+const mainGroup=document.createElement("div");
+mainGroup.className="category";
+
+const gHead=document.createElement("div");
+gHead.className="category-header";
+gHead.innerHTML=`<span>📁 ${g}</span>`;
+gHead.onclick=()=>mainGroup.classList.toggle("active");
+
+const gContent=document.createElement("div");
+gContent.className="category-content";
+
 groups[g].forEach(ch=>{
-content.appendChild(createChannel(ch));
+gContent.appendChild(createChannel(ch));
 });
+
+mainGroup.appendChild(gHead);
+mainGroup.appendChild(gContent);
+content.appendChild(mainGroup);
 }
+
 box.appendChild(head);
 box.appendChild(content);
 container.appendChild(box);
@@ -320,65 +199,107 @@ container.appendChild(box);
 function createChannel(ch){
 const div=document.createElement("div");
 div.className="channel";
-div.innerHTML=`${ch.logo?`<img src="${ch.logo}" onerror="this.style.display='none'">`:""}
+div.innerHTML=`
+${ch.logo?`<img src="${ch.logo}" onerror="this.style.display='none'">`:""}
 <span>${ch.title}</span>`;
-div.onclick=()=>play(ch,div); /* ส่ง element เข้า play */
-div.onmouseenter=()=>{if(ch.logo){previewImg.src=ch.logo;previewBox.classList.add("active");}};
-div.onmouseleave=()=>previewBox.classList.remove("active");
+
+div.onclick=()=>play(ch,div);
+
+/* Preview */
+const preview=document.getElementById("preview-left");
+const previewImg=document.getElementById("previewImg");
+
+div.addEventListener("mouseenter",()=>{
+if(ch.logo){
+previewImg.src=ch.logo;
+preview.classList.add("active");
+}
+});
+div.addEventListener("mouseleave",()=>{
+preview.classList.remove("active");
+});
+
 return div;
 }
 
 function deletePlaylist(i){
 if(confirm("ลบ Playlist นี้ใช่หรือไม่?")){
-playlists.splice(i,1);save();render();
-}
-}
-
-document.getElementById("fileInput").addEventListener("change",e=>{
-const file=e.target.files[0];
-if(!file)return;
-const reader=new FileReader();
-reader.onload=ev=>{
-playlists.push({name:file.name,data:parseM3U(ev.target.result)});
-save();render();
-};
-reader.readAsText(file);
-});
-
-async function addURL(){
-const url=document.getElementById("urlInput").value.trim();
-if(!url)return;
-const res=await fetch(url);
-const text=await res.text();
-playlists.push({name:url,data:parseM3U(text)});
+playlists.splice(i,1);
 save();render();
 }
+}
 
-document.getElementById("search").addEventListener("input",e=>{
-const k=e.target.value.toLowerCase();
-document.querySelectorAll(".channel").forEach(c=>{
-c.style.display=c.innerText.toLowerCase().includes(k)?"flex":"none";
-});
-});
+function play(channel,element){
 
-function openMenu(){
+if(currentChannelElement){
+currentChannelElement.classList.remove("active");
+}
+if(element){
+element.classList.add("active");
+currentChannelElement=element;
+}
+
+const video=document.getElementById("video");
+
+if(hls){try{hls.destroy()}catch(e){} hls=null;}
+if(dashPlayer){try{dashPlayer.reset()}catch(e){} dashPlayer=null;}
+
+video.pause();
+video.removeAttribute("src");
+video.load();
+
+if(channel.url.includes(".m3u8")){
+if(video.canPlayType("application/vnd.apple.mpegurl")){
+video.src=channel.url;
+video.play();
+}else if(Hls.isSupported()){
+hls=new Hls();
+hls.loadSource(channel.url);
+hls.attachMedia(video);
+hls.on(Hls.Events.MANIFEST_PARSED,()=>video.play());
+}
+}
+else if(channel.url.includes(".mpd")){
+dashPlayer=dashjs.MediaPlayer().create();
+dashPlayer.initialize(video,channel.url,true);
+}
+else{
+video.src=channel.url;
+video.play();
+}
+}
+
+/* ===== เมนู Auto Show / Hide ===== */
+
+const menu=document.getElementById("menu");
+let hideTimer=null;
+
+document.addEventListener("mousemove",function(e){
+if(e.clientX <= 10){
 menu.classList.remove("hide");
-overlay.classList.remove("hide");
-player.classList.add("blur");
+if(hideTimer){
+clearTimeout(hideTimer);
+hideTimer=null;
 }
-function closeMenu(){
-menu.classList.add("hide");
-overlay.classList.add("hide");
-player.classList.remove("blur");
 }
-document.addEventListener("mousemove",e=>{
-if(e.clientX<15)openMenu();
-if(e.clientX>420)closeMenu();
 });
-overlay.onclick=closeMenu;
 
+menu.addEventListener("mouseleave",function(){
+hideTimer=setTimeout(()=>{
+menu.classList.add("hide");
+},1500);
+});
+
+menu.addEventListener("mouseenter",function(){
+if(hideTimer){
+clearTimeout(hideTimer);
+hideTimer=null;
+}
+});
+
+menu.classList.remove("hide");
 render();
-</script>
 
+</script>
 </body>
 </html>
