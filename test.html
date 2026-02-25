@@ -3,207 +3,332 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Multi Stream Pro Player</title>
+<title>หรรมน้อย ออนไลน์</title>
 
-<link href="https://vjs.zencdn.net/7.20.3/video-js.css" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-<script src="https://vjs.zencdn.net/7.20.3/video.min.js"></script>
 
 <style>
-body{
-    margin:0;
-    font-family:Segoe UI,Tahoma;
-    background:#111;
-    color:#fff;
-    text-align:center;
+/* ===== ดีไซน์เดิมทั้งหมด (ไม่ตัดออก) ===== */
+:root{
+--accent:#7b2cff;
+--accent-soft:rgba(123,44,255,0.25);
+--accent-glow:0 0 18px rgba(123,44,255,0.7);
+--bg:radial-gradient(circle at 20% 20%,#140a1f,#0a0614 60%,#000);
+--glass:rgba(255,255,255,0.05);
+--border:rgba(255,255,255,0.12);
 }
-h2{
-    padding:15px;
-    background:#000;
-    margin:0;
-    color:#FFD700;
-}
-#player-wrapper{
-    width:100%;
-    max-width:1000px;
-    aspect-ratio:16/9;
-    background:#000;
-    margin:20px auto;
-    position:relative;
-}
-video{width:100%;height:100%;}
-.loading{
-    position:absolute;
-    inset:0;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    background:rgba(0,0,0,.7);
-    color:#FFD700;
-    font-size:18px;
-    z-index:10;
-}
-.controls{
-    display:flex;
-    flex-wrap:wrap;
-    justify-content:center;
-    gap:10px;
-    margin-bottom:15px;
-}
-button{
-    background:#FFD700;
-    border:none;
-    padding:8px 18px;
-    font-weight:bold;
-    cursor:pointer;
-    border-radius:5px;
-}
-button.active{
-    background:#d63031;
-    color:#fff;
-}
-.status{
-    margin:10px;
-    font-size:14px;
-    color:#aaa;
-}
+*{box-sizing:border-box;}
+body{margin:0;font-family:'Kanit',sans-serif;background:var(--bg);color:#fff;overflow:hidden;}
+#player-container{position:fixed;top:0;left:0;width:100%;height:100%;background:#000;transition:.4s;z-index:1;}
+#player-container.blur{filter:blur(10px) brightness(.4);}
+video{width:100%;height:100%;object-fit:contain;background:#000;}
+#overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(10,0,20,.75);opacity:1;visibility:visible;transition:.3s;z-index:8;}
+#overlay.hide{opacity:0;visibility:hidden;}
+#menu{position:fixed;top:0;left:0;width:340px;height:100%;background:rgba(20,10,35,.95);backdrop-filter:blur(25px);border-right:1px solid var(--accent-soft);overflow-y:auto;transition:.4s cubic-bezier(.4,0,.2,1);z-index:10;}
+#menu.hide{transform:translateX(-100%);}
+#search{width:85%;margin:20px auto;display:block;padding:10px 18px;border-radius:50px;border:1px solid var(--accent-soft);background:rgba(255,255,255,0.05);color:#fff;outline:none;font-size:14px;transition:.3s;}
+#search:focus{border:1px solid var(--accent);box-shadow:var(--accent-glow);}
+.category{margin:12px;border-radius:12px;overflow:hidden;border:1px solid var(--border);background:rgba(255,255,255,0.03);transition:.3s;}
+.category.active{border-left:3px solid var(--accent);box-shadow:var(--accent-glow);}
+.category-header{padding:10px 14px;cursor:pointer;display:flex;justify-content:space-between;font-size:14px;opacity:.9;}
+.category-content{display:none;}
+.category.active .category-content{display:block;}
+.channel{display:flex;align-items:center;margin:6px 10px;padding:8px;background:rgba(255,255,255,0.05);border-radius:8px;cursor:pointer;transition:.25s;font-size:14px;}
+.channel:hover{transform:translateX(6px);background:var(--accent-soft);box-shadow:var(--accent-glow);}
+.channel.active{background:var(--accent-soft);box-shadow:var(--accent-glow);border:1px solid var(--accent);}
+.channel img{width:36px;height:36px;object-fit:contain;border-radius:6px;margin-right:8px;background:#000;padding:3px;}
+#preview{position:fixed;top:50%;left:370px;transform:translateY(-50%) scale(.9);width:280px;height:400px;background:#111;border-radius:18px;box-shadow:0 0 40px rgba(0,0,0,.8);overflow:hidden;opacity:0;transition:.3s;z-index:15;}
+#preview.active{opacity:1;transform:translateY(-50%) scale(1);box-shadow:0 0 40px rgba(123,44,255,.7);}
+#preview img{width:100%;height:100%;object-fit:contain;background:#000;}
 </style>
 </head>
 
 <body>
 
-<h2>Multi Channel Streaming</h2>
-
-<div id="player-wrapper">
-    <div class="loading" id="loadingText">กำลังโหลด...</div>
+<div id="player-container" class="blur">
+<video id="video" controls autoplay></video>
 </div>
 
-<div class="controls" id="channelButtons"></div>
+<div id="overlay"></div>
 
-<div class="status" id="statusText">Ready</div>
+<div id="menu">
+<input type="text" id="search" placeholder="ค้นหาหนัง">
+<div id="channel-list"></div>
+</div>
+
+<div id="preview">
+<img id="previewImg">
+</div>
 
 <script>
 
-// ====== ใส่หลายสตรีมตรงนี้ ======
-const streams = [
-    {name:"Channel 1", url:"https://wandering-oldman.github.io/server2/server2-sport-nowpremier-1.m3u8"},
-    {name:"Channel 2", url:"https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8"},
-    {name:"Channel 3", url:"https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8"}
+/* ===== เมนูเดิมทั้งหมด ===== */
+const mainMenus = [
+{ name:"📺 หนังใหม่ประจำเดือน", url:"https://dl.dropbox.com/scl/fi/qazbt7kg8pbmqwpua3sum/.m3u?rlkey=p8mz84ucqgnl59ft52uz3xh06&dl=1" },
+{ name:"📺 หนังซูม1", url:"https://docs.google.com/uc?id=1JskYsfgja8R_QSJvW_ISgZpkJdf8_TMD" }
 ];
 
-const wrapper = document.getElementById("player-wrapper");
-const statusText = document.getElementById("statusText");
-const loadingText = document.getElementById("loadingText");
-const channelButtons = document.getElementById("channelButtons");
+let channels=[],grouped={},hls=null;
+let closeTimer=null,currentChannelElement=null;
 
-let hlsInstance=null;
-let videojsPlayer=null;
-let currentStream=null;
+const menu=document.getElementById("menu");
+const overlay=document.getElementById("overlay");
+const player=document.getElementById("player-container");
+const preview=document.getElementById("preview");
+const previewImg=document.getElementById("previewImg");
 
-// สร้างปุ่มช่อง
-streams.forEach((stream,index)=>{
-    const btn=document.createElement("button");
-    btn.innerText=stream.name;
-    btn.onclick=()=>playStream(index,btn);
-    channelButtons.appendChild(btn);
+/* ===== MENU CONTROL เดิม ===== */
+function openMenu(){clearTimeout(closeTimer);menu.classList.remove("hide");overlay.classList.remove("hide");player.classList.add("blur");}
+function closeMenuSmooth(){clearTimeout(closeTimer);closeTimer=setTimeout(()=>{menu.classList.add("hide");overlay.classList.add("hide");player.classList.remove("blur");},400);}
+document.addEventListener("mousemove",(e)=>{if(e.clientX<=15){openMenu();}});
+menu.addEventListener("mouseleave",closeMenuSmooth);
+menu.addEventListener("mouseenter",()=>clearTimeout(closeTimer));
+overlay.addEventListener("click",()=>{menu.classList.add("hide");overlay.classList.add("hide");player.classList.remove("blur");});
+
+/* ===== PREVIEW เดิม ===== */
+function showPreview(img){if(!img)return;previewImg.src=img;preview.classList.add("active");}
+function hidePreview(){preview.classList.remove("active");}
+
+/* ===== ตรวจ URL วิดีโอ ===== */
+function isValidVideoURL(url){
+const clean=url.split("?")[0].toLowerCase();
+return clean.endsWith(".m3u8")||clean.endsWith(".mp4");
+}
+
+async function loadPlaylist(originalUrl){
+
+if(!originalUrl) return [];
+
+let finalUrl = originalUrl;
+
+/* ==============================
+   1. ตรวจจับ Google Drive
+================================*/
+if(originalUrl.includes("drive.google.com")){
+
+const idMatch = originalUrl.match(/id=([^&]+)/);
+
+if(idMatch){
+
+const fileId = idMatch[1];
+
+const direct = `https://drive.google.com/uc?export=download&id=${fileId}`;
+
+/* ใช้ proxy กัน CORS */
+finalUrl = "https://api.allorigins.win/raw?url=" + encodeURIComponent(direct);
+
+}else{
+console.error("หา File ID ไม่เจอ");
+return [];
+}
+
+}
+
+/* ==============================
+   2. โหลดไฟล์
+================================*/
+try{
+
+const res = await fetch(finalUrl);
+
+if(!res.ok){
+console.error("HTTP Error:", res.status);
+return [];
+}
+
+const text = await res.text();
+
+/* ถ้าได้ HTML แปลว่าไม่ใช่ playlist */
+if(text.includes("<html")){
+console.error("ได้ HTML แทน playlist");
+return [];
+}
+
+const lines = text.split(/\r?\n/);
+
+let current = {};
+let list = [];
+
+for(let line of lines){
+
+line = line.trim();
+if(!line) continue;
+
+/* ===== M3U / W3U ===== */
+if(line.startsWith("#EXTINF")){
+
+const name = line.match(/,(.*)$/);
+const logo = line.match(/tvg-logo="(.*?)"/);
+const group = line.match(/group-title="(.*?)"/);
+
+current = {
+title: name ? name[1].trim() : "ไม่มีชื่อ",
+logo: logo ? logo[1].trim() : "",
+group: group ? group[1].trim() : "อื่นๆ"
+};
+
+continue;
+}
+
+/* ===== TXT แบบ | ===== */
+if(line.includes("|")){
+
+const parts = line.split("|");
+
+if(parts.length >= 2){
+list.push({
+title: parts[0].trim(),
+url: parts[1].trim(),
+logo: parts[2] ? parts[2].trim() : "",
+group: parts[3] ? parts[3].trim() : "อื่นๆ"
+});
+}
+
+continue;
+}
+
+/* ===== URL ปกติ ===== */
+if(line.startsWith("http")){
+
+current.url = line;
+list.push({...current});
+
+}
+
+}
+
+console.log("โหลดสำเร็จ:", list.length, "รายการ");
+return list;
+
+}catch(err){
+console.error("Fetch Error:", err);
+return [];
+}
+
+}
+
+/* ===== ที่เหลือเหมือนเดิม ===== */
+function groupChannels(){
+grouped={};
+channels.forEach(c=>{
+if(!grouped[c.group]) grouped[c.group]=[];
+grouped[c.group].push(c);
+});
+}
+
+function renderGroups(container){
+container.innerHTML="";
+for(let group in grouped){
+
+const cat=document.createElement("div");
+cat.className="category";
+
+const header=document.createElement("div");
+header.className="category-header";
+header.innerHTML=`<span>${group}</span><span>+</span>`;
+header.onclick=()=>cat.classList.toggle("active");
+
+const content=document.createElement("div");
+content.className="category-content";
+
+grouped[group].forEach(ch=>{
+const div=document.createElement("div");
+div.className="channel";
+div.innerHTML=`
+${ch.logo?`<img src="${ch.logo}" onerror="this.style.display='none'">`:""}
+<span>${ch.title}</span>
+`;
+div.onclick=()=>{
+playChannel(ch);
+if(currentChannelElement) currentChannelElement.classList.remove("active");
+div.classList.add("active");
+currentChannelElement=div;
+};
+div.onmouseenter=()=>showPreview(ch.logo);
+div.onmouseleave=hidePreview;
+content.appendChild(div);
 });
 
-// เคลียร์ player
-function clearPlayer(){
-    if(hlsInstance){
-        hlsInstance.destroy();
-        hlsInstance=null;
-    }
-    if(videojsPlayer){
-        videojsPlayer.dispose();
-        videojsPlayer=null;
-    }
-    wrapper.innerHTML='<div class="loading" id="loadingText">กำลังโหลด...</div>';
+cat.appendChild(header);
+cat.appendChild(content);
+container.appendChild(cat);
+}
 }
 
-// เล่นสตรีม
-function playStream(index,btn){
-    const stream=streams[index];
-    currentStream=stream.url;
+function playChannel(channel){
+const video=document.getElementById("video");
+if(hls){hls.destroy();hls=null;}
+video.pause();
+video.removeAttribute("src");
+video.load();
 
-    document.querySelectorAll(".controls button")
-        .forEach(b=>b.classList.remove("active"));
-    btn.classList.add("active");
+const clean=channel.url.split("?")[0].toLowerCase();
 
-    clearPlayer();
-    statusText.innerText="Trying HLS.js...";
-    loadHLS(stream.url);
+if(clean.endsWith(".m3u8")){
+if(video.canPlayType('application/vnd.apple.mpegurl')){
+video.src=channel.url;
+video.play();
+}else if(Hls.isSupported()){
+hls=new Hls();
+hls.loadSource(channel.url);
+hls.attachMedia(video);
+hls.on(Hls.Events.MANIFEST_PARSED,()=>video.play());
+}
+}else{
+video.src=channel.url;
+video.play();
 }
 
-function hideLoading(){
-    const loader=document.getElementById("loadingText");
-    if(loader) loader.remove();
+closeMenuSmooth();
 }
 
-function loadHLS(url){
-    const video=document.createElement("video");
-    video.controls=true;
-    video.autoplay=true;
-    wrapper.appendChild(video);
+function renderMainMenus(){
+const container=document.getElementById("channel-list");
+container.innerHTML="";
+mainMenus.forEach(menuItem=>{
+const cat=document.createElement("div");
+cat.className="category";
 
-    if(Hls.isSupported()){
-        hlsInstance=new Hls();
-        hlsInstance.loadSource(url);
-        hlsInstance.attachMedia(video);
+const header=document.createElement("div");
+header.className="category-header";
+header.innerHTML=`<span>${menuItem.name}</span><span>+</span>`;
 
-        hlsInstance.on(Hls.Events.MANIFEST_PARSED,()=>{
-            hideLoading();
-            statusText.innerText="Playing with HLS.js";
-        });
+const content=document.createElement("div");
+content.className="category-content";
 
-        hlsInstance.on(Hls.Events.ERROR,(event,data)=>{
-            if(data.fatal){
-                loadVideoJS(url);
-            }
-        });
+header.onclick=async()=>{
+document.querySelectorAll("#channel-list > .category").forEach(c=>{
+if(c!==cat) c.classList.remove("active");
+});
+cat.classList.toggle("active");
 
-    }else if(video.canPlayType('application/vnd.apple.mpegurl')){
-        video.src=url;
-        video.addEventListener("loadedmetadata",()=>{
-            hideLoading();
-            statusText.innerText="Playing (Native HLS)";
-        });
-    }else{
-        loadVideoJS(url);
-    }
+if(content.innerHTML==="" && menuItem.url){
+channels=await loadPlaylist(menuItem.url);
+if(channels.length===0){
+content.innerHTML="<div style='padding:15px;color:#ff7777'>โหลดไฟล์ไม่ได้ หรือไฟล์ไม่ถูกต้อง</div>";
+return;
+}
+groupChannels();
+renderGroups(content);
+}
+};
+
+cat.appendChild(header);
+cat.appendChild(content);
+container.appendChild(cat);
+});
 }
 
-function loadVideoJS(url){
-    clearPlayer();
-    statusText.innerText="Switching to Video.js...";
+document.getElementById("search").addEventListener("input",e=>{
+const keyword=e.target.value.toLowerCase();
+document.querySelectorAll(".channel").forEach(ch=>{
+ch.style.display=ch.innerText.toLowerCase().includes(keyword)?"flex":"none";
+});
+});
 
-    const videoEl=document.createElement("video");
-    videoEl.id="videojs-player";
-    videoEl.className="video-js";
-    videoEl.controls=true;
-    wrapper.appendChild(videoEl);
-
-    videojsPlayer=videojs("videojs-player",{
-        autoplay:true,
-        fluid:true,
-        sources:[{src:url,type:"application/x-mpegURL"}]
-    });
-
-    videojsPlayer.ready(()=>{
-        hideLoading();
-        statusText.innerText="Playing with Video.js";
-    });
-
-    videojsPlayer.on("error",()=>{
-        hideLoading();
-        statusText.innerText="Stream failed to load";
-    });
-}
-
-// เล่นช่องแรกอัตโนมัติ
-playStream(0,channelButtons.children[0]);
+renderMainMenus();
 
 </script>
-
 </body>
 </html>
