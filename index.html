@@ -82,8 +82,10 @@ body{
   cursor:pointer;
   font-weight:600;
   margin:12px 0 6px;
-  transition:0.3s;
+  transition:0.3s ease;
+
 }
+  
 .menu-title:hover{transform:scale(1.05);}
 
 .premium{background:linear-gradient(90deg,#ff512f,#dd2476);}
@@ -100,6 +102,14 @@ body{
 }
 .submenu.open{max-height:1000px;}
 
+/* ACTIVE MENU TITLE */
+.menu-title.active-title{
+  box-shadow: 0 0 20px rgba(255,255,255,0.4);
+  transform: scale(1.05);
+  border:2px solid #fff;
+}
+
+
 /* LINKS */
 .menu-link{
   display:block;
@@ -113,6 +123,15 @@ body{
   background:#e94560;
   transform:translateX(6px);
 }
+
+/* ACTIVE MENU LINK */
+.menu-link.active{
+  background: linear-gradient(90deg,#ff512f,#dd2476);
+  box-shadow: 0 0 15px rgba(255,0,150,0.7);
+  transform: translateX(6px);
+  font-weight: bold;
+}
+
 
 /* PLAYER */
 #main-player{
@@ -174,14 +193,14 @@ iframe{
 <!-- หนัง -->
 <div class="menu-title movie" data-menu="movieMenu">หนัง</div>
 <div id="movieMenu" class="submenu">
-  <div class="menu-link" data-url="https://udzaa2238.github.io/oldman_wander/หนังใหม่ประจำเดือน.html">หนังใหม่ประจำเดือน</div>
+  <div class="menu-link" data-url="https://udzaa2238.github.io/oldman_wander/หนังซูม.html">หนังซูม</div>
+  <div class="menu-link" data-url="https://udzaa2238.github.io/oldman_wander/หนังใหม่ประจำเดือน.html">หนังรายเดือน</div>
   <div class="menu-link" data-url="https://udzaa2238.github.io/oldman_wander/หนังใหม่.html">หนังใหม่</div>
   <div class="menu-link" data-url="https://udzaa2238.github.io/oldman_wander/หนังจีน.html">หนังจีน</div>
   <div class="menu-link" data-url="https://udzaa2238.github.io/oldman_wander/หนังฝรั่ง.html">หนังฝรั่ง</div>
   <div class="menu-link" data-url="https://udzaa2238.github.io/oldman_wander/หนังไทย.html">หนังไทย</div>
   <div class="menu-link" data-url="https://udzaa2238.github.io/oldman_wander/หนังเกาหลี.html">หนังเกาหลี</div>
   <div class="menu-link" data-url="https://udzaa2238.github.io/oldman_wander/หนังภาคต่อ.html">หนังภาคต่อ</div>
-  <div class="menu-link" data-url="https://udzaa2238.github.io/oldman_wander/หนังซูม.html">หนังซูม</div>
   <div class="menu-link" data-url="https://udzaa2238.github.io/oldman_wander/หนังอินเดีย.html">หนังอินเดีย</div>
 </div>
 
@@ -202,7 +221,7 @@ iframe{
 <div class="menu-title anime" data-menu="animeMenu">อนิเมะ</div>
 <div id="animeMenu" class="submenu">
   <div class="menu-link" data-url="https://udzaa2238.github.io/oldman_wander/การ์ตูนมูฟวี่.html">การ์ตูนมูฟวี่</div>
-  <div class="menu-link" data-url="https://udzaa2238.github.io/All_Anemi/All_Anime(1).html">อะนิเมะ</div>
+  <div class="menu-link" data-url="https://udzaa2238.github.io/All_Anemi/All_Anime(1).html">อนิเมะ</div>
 </div>
 
 <!-- M3U -->
@@ -234,20 +253,48 @@ const homeBtn=document.getElementById("homeBtn");
 
 menuTitles.forEach(title=>{
   title.addEventListener("click",()=>{
+
+    // ลบ active-title ทั้งหมดก่อน
+    menuTitles.forEach(t=>t.classList.remove("active-title"));
+    title.classList.add("active-title");
+
     const target=document.getElementById(title.dataset.menu);
+
     submenus.forEach(menu=>{
       if(menu!==target){menu.classList.remove("open");}
     });
+
     target.classList.toggle("open");
   });
 });
-
 links.forEach(link=>{
   link.addEventListener("click",()=>{
-    iframe.src=link.dataset.url;
+
+    // ลบ active เมนูย่อยทั้งหมด
+    links.forEach(l=>l.classList.remove("active"));
+    link.classList.add("active");
+
+    // ลบ active หัวข้อทั้งหมด
+    menuTitles.forEach(t=>t.classList.remove("active-title"));
+
+    // หา submenu ที่ parent อยู่
+    const parentSubmenu = link.closest(".submenu");
+
+    // หา menu-title ที่ควบคุม submenu นี้
+    menuTitles.forEach(title=>{
+      if(title.dataset.menu === parentSubmenu.id){
+        title.classList.add("active-title");
+        parentSubmenu.classList.add("open"); // เปิดเมนูให้แน่ใจว่าแสดงอยู่
+      }
+    });
+
+    iframe.src = link.dataset.url;
     iframe.style.display="block";
     welcome.style.display="none";
-    if(window.innerWidth<768){sidebar.classList.add("hidden");}
+
+    if(window.innerWidth<768){
+      sidebar.classList.add("hidden");
+    }
   });
 });
 
@@ -255,11 +302,18 @@ homeBtn.addEventListener("click",()=>{
   iframe.src="";
   iframe.style.display="none";
   welcome.style.display="block";
+
+  links.forEach(l=>l.classList.remove("active"));
+  menuTitles.forEach(t=>t.classList.remove("active-title"));
+  submenus.forEach(menu=>menu.classList.remove("open")); // เพิ่มบรรทัดนี้
 });
 
 mobileToggle.addEventListener("click",()=>{
   sidebar.classList.toggle("hidden");
 });
+
+
+
 </script>
 
 </body>
