@@ -308,6 +308,8 @@ function generatePlaylistName(data, source){
 }
 
 
+
+
 /* ===== PLAY ===== */
 function play(channel){
 
@@ -370,33 +372,98 @@ function play(channel){
     }
 
     // ===== 2) DASH (.mpd) =====
-    else if(url.includes(".mpd")){
+else if(url.includes(".mpd")){
+
+    jwDiv.style.display = "block";
+
+    let config = {
+        file: channel.url,
+        width: "100%",
+        height: "100%",
+        autostart: true
+    };
+
+    if(channel.drm){
+
+        if(channel.drm.type === "clearkey"){
+
+            const keyData = channel.drm.licenseServer.split("|")[0];
+
+            if(keyData.includes(":")){
+                const [keyId, key] = keyData.split(":");
+
+                config.drm = {
+                    clearkey: {
+                        keyId: keyId,
+                        key: key
+                    }
+                };
+            }
+        }
+
+        if(channel.drm.type === "widevine"){
+            config.drm = {
+                widevine: {
+                    url: channel.drm.licenseServer
+                }
+            };
+        }
+    }
+
+    jwInstance = jwplayer("jw-player").setup(config);
+
+    jwInstance.on("setupError error", function(e){
+
+        console.log("JW FAIL → fallback dash.js", e);
+
+        jwInstance.remove();
+        jwInstance = null;
 
         video.style.display = "block";
 
         dashPlayer = dashjs.MediaPlayer().create();
 
-        if(channel.drm && channel.drm.licenseServer){
+        if(channel.drm){
 
-            const parts = channel.drm.licenseServer.split("|");
-            const serverURL = parts[0];
+            if(channel.drm.type === "clearkey"){
 
-            dashPlayer.setProtectionData({
-                [channel.drm.type || "com.widevine.alpha"]: {
-                    serverURL: serverURL
-                }
-            });
+                const keyData = channel.drm.licenseServer.split("|")[0];
+                const [keyId, key] = keyData.split(":");
+
+                dashPlayer.setProtectionData({
+                    "org.w3.clearkey": {
+                        clearkeys: {
+                            [keyId]: key
+                        }
+                    }
+                });
+            }
+
+            if(channel.drm.type === "widevine"){
+                dashPlayer.setProtectionData({
+                    "com.widevine.alpha": {
+                        serverURL: channel.drm.licenseServer
+                    }
+                });
+            }
         }
 
         dashPlayer.initialize(video, channel.url, true);
-    }
+    });
+}
 
+        
     // ===== 3) JW Player =====
     else if(channel.engine === "jw"){
 
         jwDiv.style.display = "block";
 
-        jwInstance = jwplayer("jw-player").setup({
+console.log("==== DEBUG ====");
+console.log("Title:", channel.title);
+console.log("URL:", channel.url);
+console.log("DRM:", channel.drm);
+        
+jwInstance = jwplayer("jw-player").setup({
             file: channel.url,
             width: "100%",
             height: "100%",
@@ -628,7 +695,7 @@ function addURL(){
 
 function parseM3U(data,name){
 
-    const lines = data.split("\n");
+    const lines = data.split(/\r?\n/);
     const list = [];
 
     let current = null;
@@ -640,7 +707,7 @@ function parseM3U(data,name){
         // ===== EXTINF =====
         if(line.startsWith("#EXTINF")){
 
-            const title = line.split(",")[1] || "ไม่ทราบชื่อ";
+            const title = line.substring(line.indexOf(",")+1) || "ไม่ทราบชื่อ";
             const group = (line.match(/group-title="(.*?)"/)||[])[1] || "อื่นๆ";
             const logo = (line.match(/tvg-logo="(.*?)"/)||[])[1] || "";
 
@@ -651,20 +718,29 @@ function parseM3U(data,name){
         // ===== DRM License Type =====
         else if(line.includes("license_type=")){
     if(!pendingDRM) pendingDRM = {};
+
     const match = line.match(/license_type=(.*)/);
     if(match){
-        pendingDRM.type = match[1].trim();
+        const type = match[1].trim().toLowerCase();
+
+        if(type.includes("widevine")){
+            pendingDRM.type = "widevine";
+        }
+        else if(type.includes("clearkey")){
+            pendingDRM.type = "clearkey";
+        }
     }
 }
 
         // ===== DRM License Key =====
-        else if(line.includes("license_key")){
-            if(!pendingDRM) pendingDRM = {};
-            const keyMatch = line.match(/license_key=(.*)/);
-            if(keyMatch){
-                pendingDRM.licenseServer = keyMatch[1].trim();
-            }
-        }
+else if(line.includes("license_key")){
+    if(!pendingDRM) pendingDRM = {};
+
+    const keyMatch = line.match(/license_key=(.*)/);
+    if(keyMatch){
+        pendingDRM.licenseServer = keyMatch[1].trim();
+    }
+}
 
         // ===== Stream URL =====
         else if(line && !line.startsWith("#") && current){
@@ -713,7 +789,7 @@ function refreshPlaylist(index){
 
     const lines = text.split("\n");
     const list = [];
-
+    
     let current = null;
     let pendingDRM = null;
 
@@ -730,13 +806,22 @@ function refreshPlaylist(index){
         }
 
         else if(line.includes("license_type=")){
-            if(!pendingDRM) pendingDRM = {};
-            const match = line.match(/license_type=(.*)/);
-            if(match){
-                pendingDRM.type = match[1].trim();
-            }
-        }
+    if(!pendingDRM) pendingDRM = {};
 
+    const match = line.match(/license_type=(.*)/);
+    if(match){
+        const type = match[1].trim().toLowerCase();
+
+        if(type.includes("widevine")){
+            pendingDRM.type = "widevine";
+        }
+        else if(type.includes("clearkey")){
+            pendingDRM.type = "clearkey";
+        }
+    }
+}
+
+// ===== DRM License Key =====
         else if(line.includes("license_key")){
             if(!pendingDRM) pendingDRM = {};
             const keyMatch = line.match(/license_key=(.*)/);
