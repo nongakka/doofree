@@ -370,43 +370,48 @@ function play(channel){
     }
 
     // ===== 2) DASH (.mpd) =====
-   else if(url.includes(".mpd")){
+else if(url.includes(".mpd")){
 
     video.style.display = "block";
+
     dashPlayer = dashjs.MediaPlayer().create();
 
-    if(channel.drm){
+    // ถ้ามี DRM
+    if(channel.drm && channel.drm.type === "clearkey"){
 
-        if(channel.drm.type === "widevine"){
+        const parts = channel.drm.licenseServer.split(":");
+
+        if(parts.length === 2){
+
+            const kidHex = parts[0].trim();
+            const keyHex = parts[1].trim();
+
+            function hexToBase64(hex){
+                const bytes = new Uint8Array(
+                    hex.match(/.{1,2}/g).map(b => parseInt(b,16))
+                );
+                let binary = '';
+                bytes.forEach(b => binary += String.fromCharCode(b));
+                return btoa(binary);
+            }
+
+            const kidBase64 = hexToBase64(kidHex);
+            const keyBase64 = hexToBase64(keyHex);
 
             dashPlayer.setProtectionData({
-                "com.widevine.alpha": {
-                    serverURL: channel.drm.licenseServer
+                "org.w3.clearkey": {
+                    clearkeys: {
+                        [kidBase64]: keyBase64
+                    }
                 }
             });
-
-        }
-        else if(channel.drm.type === "clearkey"){
-
-            const parts = channel.drm.licenseServer.split(":");
-
-            if(parts.length === 2){
-                const kid = parts[0].trim();
-                const key = parts[1].trim();
-
-                dashPlayer.setProtectionData({
-                    "org.w3.clearkey": {
-                        clearkeys: {
-                            [kid]: key
-                        }
-                    }
-                });
-            }
         }
     }
 
     dashPlayer.initialize(video, channel.url, true);
 }
+
+        
     // ===== 3) JW Player =====
     else if(channel.engine === "jw"){
 
