@@ -679,12 +679,59 @@ if(!e.target.files[0]) return;
 reader.readAsText(e.target.files[0]);
 });
 
+function convertGoogleDriveLink(input){
+
+    input = input.trim();
+
+    // ถ้าเป็นแค่ FILE ID ล้วน ๆ
+    if(/^[a-zA-Z0-9_-]{25,}$/.test(input)){
+        return `https://drive.google.com/uc?export=download&id=${input}`;
+    }
+
+    // file/d/FILE_ID/view
+    const fileMatch = input.match(/\/file\/d\/([^\/]+)/);
+    if(fileMatch){
+        return `https://drive.google.com/uc?export=download&id=${fileMatch[1]}`;
+    }
+
+    // open?id=FILE_ID
+    const openMatch = input.match(/[?&]id=([^&]+)/);
+    if(openMatch){
+        return `https://drive.google.com/uc?export=download&id=${openMatch[1]}`;
+    }
+
+    // ถ้าเป็น uc อยู่แล้ว
+    if(input.includes("drive.google.com/uc")){
+        return input;
+    }
+
+    return input;
+}
+
+
 function addURL(){
-    const url = document.getElementById("urlInput").value.trim();
+    let url = document.getElementById("urlInput").value.trim();
     if(!url) return;
 
+    // 🔥 auto convert Google Drive
+    url = convertGoogleDriveLink(url);
+
     fetch(url)
-    .then(r => r.text())
+    .then(async r => {
+        const text = await r.text();
+
+        // 🔍 ตรวจว่าเป็นหน้า confirm ของ Google Drive
+        if(text.includes("confirm=")){
+            const confirmMatch = text.match(/confirm=([0-9A-Za-z_]+)&/);
+            if(confirmMatch){
+                const confirmToken = confirmMatch[1];
+                const newUrl = url + "&confirm=" + confirmToken;
+                return fetch(newUrl).then(r2 => r2.text());
+            }
+        }
+
+        return text;
+    })
     .then(text => {
         parseM3U(text, url);
     })
@@ -875,4 +922,3 @@ render();
 </script>
 </body>
 </html>
-
