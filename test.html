@@ -372,43 +372,59 @@ function play(channel){
     // ===== 2) DASH (.mpd) =====
 else if(url.includes(".mpd")){
 
-    video.style.display = "block";
+    jwDiv.style.display = "block";
 
-    dashPlayer = dashjs.MediaPlayer().create();
+    jwInstance = jwplayer("jw-player").setup({
+        file: channel.url,
+        width: "100%",
+        height: "100%",
+        autostart: true,
+        drm: channel.drm ? {
+            clearkey: {
+                keyId: channel.drm.licenseServer.split("|")[0]?.split(":")[0],
+                key: channel.drm.licenseServer.split("|")[0]?.split(":")[1]
+            }
+        } : undefined
+    });
 
-    // ถ้ามี DRM
-    if(channel.drm && channel.drm.type === "clearkey"){
+    // 🔥 ถ้า JW เล่นไม่ได้ → fallback dash.js
+    jwInstance.on("error", function(){
 
-        const parts = channel.drm.licenseServer.split(":");
+        console.log("JW เล่นไม่ได้ → fallback dash.js");
 
-        if(parts.length === 2){
+        jwInstance.remove();
+        jwInstance = null;
 
-            const kidHex = parts[0].trim();
-            const keyHex = parts[1].trim();
+        video.style.display = "block";
+
+        dashPlayer = dashjs.MediaPlayer().create();
+
+        if(channel.drm && channel.drm.licenseServer){
+
+            const keyData = channel.drm.licenseServer.split("|")[0];
+            const keyId = keyData.split(":")[0];
+            const key = keyData.split(":")[1];
 
             function hexToBase64(hex){
                 const bytes = new Uint8Array(
                     hex.match(/.{1,2}/g).map(b => parseInt(b,16))
                 );
-                let binary = '';
-                bytes.forEach(b => binary += String.fromCharCode(b));
+                let binary="";
+                bytes.forEach(b=>binary+=String.fromCharCode(b));
                 return btoa(binary);
             }
-
-            const kidBase64 = hexToBase64(kidHex);
-            const keyBase64 = hexToBase64(keyHex);
 
             dashPlayer.setProtectionData({
                 "org.w3.clearkey": {
                     clearkeys: {
-                        [kidBase64]: keyBase64
+                        [hexToBase64(keyId)]: hexToBase64(key)
                     }
                 }
             });
         }
-    }
 
-    dashPlayer.initialize(video, channel.url, true);
+        dashPlayer.initialize(video, channel.url, true);
+    });
 }
 
         
