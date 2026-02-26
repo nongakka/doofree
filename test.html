@@ -6,328 +6,820 @@
 <title>หรรมน้อย ออนไลน์</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://ssl.p.jwpcdn.com/player/v/8.26.0/jwplayer.js"></script>
+<script>jwplayer.key="XSuP4qMl+9tK17QNb+4+th2Pm9AWgMO/cYH8CI0HGGr7bdjo";</script>
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
 
 <style>
-/* ===== ดีไซน์เดิมทั้งหมด (ไม่ตัดออก) ===== */
 :root{
 --accent:#7b2cff;
---accent-soft:rgba(123,44,255,0.25);
---accent-glow:0 0 18px rgba(123,44,255,0.7);
---bg:radial-gradient(circle at 20% 20%,#140a1f,#0a0614 60%,#000);
---glass:rgba(255,255,255,0.05);
---border:rgba(255,255,255,0.12);
+--bg:#0a0614;
+--card:#141022;
+--border:#2a1f44;
 }
-*{box-sizing:border-box;}
-body{margin:0;font-family:'Kanit',sans-serif;background:var(--bg);color:#fff;overflow:hidden;}
-#player-container{position:fixed;top:0;left:0;width:100%;height:100%;background:#000;transition:.4s;z-index:1;}
-#player-container.blur{filter:blur(10px) brightness(.4);}
-video{width:100%;height:100%;object-fit:contain;background:#000;}
-#overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(10,0,20,.75);opacity:1;visibility:visible;transition:.3s;z-index:8;}
-#overlay.hide{opacity:0;visibility:hidden;}
-#menu{position:fixed;top:0;left:0;width:340px;height:100%;background:rgba(20,10,35,.95);backdrop-filter:blur(25px);border-right:1px solid var(--accent-soft);overflow-y:auto;transition:.4s cubic-bezier(.4,0,.2,1);z-index:10;}
-#menu.hide{transform:translateX(-100%);}
-#search{width:85%;margin:20px auto;display:block;padding:10px 18px;border-radius:50px;border:1px solid var(--accent-soft);background:rgba(255,255,255,0.05);color:#fff;outline:none;font-size:14px;transition:.3s;}
-#search:focus{border:1px solid var(--accent);box-shadow:var(--accent-glow);}
-.category{margin:12px;border-radius:12px;overflow:hidden;border:1px solid var(--border);background:rgba(255,255,255,0.03);transition:.3s;}
-.category.active{border-left:3px solid var(--accent);box-shadow:var(--accent-glow);}
-.category-header{padding:10px 14px;cursor:pointer;display:flex;justify-content:space-between;font-size:14px;opacity:.9;}
-.category-content{display:none;}
-.category.active .category-content{display:block;}
-.channel{display:flex;align-items:center;margin:6px 10px;padding:8px;background:rgba(255,255,255,0.05);border-radius:8px;cursor:pointer;transition:.25s;font-size:14px;}
-.channel:hover{transform:translateX(6px);background:var(--accent-soft);box-shadow:var(--accent-glow);}
-.channel.active{background:var(--accent-soft);box-shadow:var(--accent-glow);border:1px solid var(--accent);}
-.channel img{width:36px;height:36px;object-fit:contain;border-radius:6px;margin-right:8px;background:#000;padding:3px;}
-#preview{position:fixed;top:50%;left:370px;transform:translateY(-50%) scale(.9);width:280px;height:400px;background:#111;border-radius:18px;box-shadow:0 0 40px rgba(0,0,0,.8);overflow:hidden;opacity:0;transition:.3s;z-index:15;}
-#preview.active{opacity:1;transform:translateY(-50%) scale(1);box-shadow:0 0 40px rgba(123,44,255,.7);}
-#preview img{width:100%;height:100%;object-fit:contain;background:#000;}
+
+*{box-sizing:border-box}
+body{margin:0;font-family:'Kanit',sans-serif;background:#000;color:#fff;overflow:hidden}
+
+/* PLAYER */
+#player-container{
+position:fixed;top:0;left:0;width:100%;height:100vh;
+background:#000;display:flex;justify-content:center;align-items:center;
+transition:.3s;z-index:1}
+
+
+#html5-player{width:100%;height:100%;object-fit:contain;background:#000}
+
+/* MENU */
+#menu{
+position:fixed;top:0;left:0;width:300px;height:100%;
+background:var(--bg);border-right:1px solid var(--border);
+overflow-y:auto;transition:.4s;z-index:10}
+#menu.hide{transform:translateX(-100%)}
+
+.control-box{padding:12px;border-bottom:1px solid var(--border)}
+.control-box input{width:100%;padding:6px;margin-bottom:6px;background:#111;border:1px solid var(--border);color:#fff;border-radius:6px}
+.control-box button{width:100%;padding:6px;background:var(--accent);border:none;color:#fff;border-radius:6px;cursor:pointer}
+
+/* PLAYLIST */
+.category{margin:10px;background:var(--card);border:1px solid var(--border);border-radius:10px}
+.category-header{
+padding:8px 12px;
+cursor:pointer;
+background:#1b1530;
+display:flex;
+justify-content:space-between;
+align-items:center;
+gap:8px;
+}
+
+.category-title{
+flex:1;
+min-width:0;        /* ⭐ เพิ่มตัวนี้ */
+overflow:hidden;
+white-space:nowrap;
+text-overflow:ellipsis;
+}
+
+.category-content{display:none;padding:6px}
+.category.active>.category-content{display:block}
+
+/* GROUP */
+.group-box{margin-bottom:8px;border:1px solid var(--border);border-radius:8px;background:#120d20}
+
+.group-header{
+display:flex;
+align-items:center;
+justify-content:space-between;
+padding:6px 10px;
+background:#201735;
+cursor:pointer;
+border-radius:8px;
+overflow:hidden;        /* ⭐ กันล้น */
+}
+
+.group-header span:first-child{
+flex:1;
+min-width:0;            /* ⭐ สำคัญมาก */
+overflow:hidden;
+white-space:nowrap;
+text-overflow:ellipsis;
+}
+
+.group-header:hover{background:var(--accent)}
+.group-content{display:none;padding:6px}
+.group-box.active>.group-content{display:block}
+
+/* CHANNEL */
+
+.channel:hover{background:var(--accent)}
+
+.channel.active{background:var(--accent);box-shadow:0 0 10px rgba(123,44,255,.6)}
+
+.channel{
+display:flex;
+align-items:center;
+padding:6px;
+margin-bottom:6px;
+background:#1a142b;
+border-radius:8px;
+cursor:pointer;
+transition:.2s;
+
+width:100%;          /* ⭐ บังคับเต็มความกว้าง */
+overflow:hidden;     /* ⭐ กันล้น */
+}
+
+.channel img{
+width:32px;
+height:32px;
+margin-right:8px;
+object-fit:contain;
+flex-shrink:0;       /* ⭐ กันรูปบีบ */
+}
+
+.channel span{
+flex:1;
+min-width:0;
+overflow:hidden;
+white-space:nowrap;
+text-overflow:ellipsis;
+font-weight:300;
+font-size:14px;
+}
+
+.category-header{
+font-weight:500;
+}
+
+.group-header{
+font-weight:400;
+}
+
+.refresh-btn{
+background:#00c853;
+border:none;
+color:#fff;
+padding:4px 8px;
+border-radius:6px;
+cursor:pointer;
+font-size:12px;
+margin-right:4px;
+}
+
+.refresh-btn:hover{
+background:#00a844;
+}
+
+/* PREVIEW (ข้างเมนู) */
+#previewBox{
+position:fixed;
+top:50%;
+left:370px;
+transform:translateY(-50%);
+width:320px;
+height:320px;
+background:#000;
+border:1px solid var(--border);
+border-radius:10px;
+display:flex;
+justify-content:center;
+align-items:center;
+opacity:0;
+transition:.3s;
+z-index:11}
+#previewBox.active{opacity:1}
+#previewBox img{max-width:100%;max-height:100%;object-fit:contain}
+.delete-btn{
+background:#ff3b3b;
+border:none;
+color:#fff;
+padding:4px 8px;
+border-radius:6px;
+cursor:pointer;
+font-size:12px;
+flex-shrink:0;
+}
+
+.delete-btn:hover{
+background:#ff0000;
+}
+
+#searchInput{
+width:100%;
+padding:6px;
+margin-top:6px;
+background:#111;
+border:1px solid var(--border);
+color:#fff;
+border-radius:6px;
+}
+
+
 </style>
 </head>
 
 <body>
 
-<div id="player-container" class="blur">
-<video id="video" controls autoplay></video>
-</div>
+<div id="player-container">
 
-<div id="overlay"></div>
+<video id="html5-player" playsinline controls style="width:100%;height:100%"></video>
+<div id="jw-player" style="width:100%;height:100%;display:none;"></div>
+
+</div>
 
 <div id="menu">
-<input type="text" id="search" placeholder="ค้นหาหนัง">
-<div id="channel-list"></div>
+<div class="control-box">
+<input type="file" id="fileInput" accept=".m3u">
+<input type="text" id="urlInput" placeholder="วาง URL m3u">
+<button onclick="addURL()">เพิ่ม URL</button>
+<input type="text" id="searchInput" placeholder="🔎 ค้นหาช่อง...">
+</div>
+<div id="playlistContainer"></div>
 </div>
 
-<div id="preview">
-<img id="previewImg">
-</div>
+<div id="previewBox"><img id="previewImg"></div>
 
 <script>
 
-/* ===== เมนูเดิมทั้งหมด ===== */
-const mainMenus = [
-{ name:"📺 หนังใหม่ประจำเดือน", url:"https://dl.dropbox.com/scl/fi/qazbt7kg8pbmqwpua3sum/.m3u?rlkey=p8mz84ucqgnl59ft52uz3xh06&dl=1" },
-{ name:"📺 หนังซูม1", url:"https://docs.google.com/uc?id=1JskYsfgja8R_QSJvW_ISgZpkJdf8_TMD" }
-];
+let hls = null;
+let dashPlayer = null;
+let jwInstance = null;
 
-let channels=[],grouped={},hls=null;
-let closeTimer=null,currentChannelElement=null;
+let playlists=JSON.parse(localStorage.getItem("iptv_playlists"))||[];
+let currentChannelData=null;
+let currentChannelElement=null;
 
 const menu=document.getElementById("menu");
-const overlay=document.getElementById("overlay");
 const player=document.getElementById("player-container");
-const preview=document.getElementById("preview");
+const previewBox=document.getElementById("previewBox");
 const previewImg=document.getElementById("previewImg");
 
-/* ===== MENU CONTROL เดิม ===== */
-function openMenu(){clearTimeout(closeTimer);menu.classList.remove("hide");overlay.classList.remove("hide");player.classList.add("blur");}
-function closeMenuSmooth(){clearTimeout(closeTimer);closeTimer=setTimeout(()=>{menu.classList.add("hide");overlay.classList.add("hide");player.classList.remove("blur");},400);}
-document.addEventListener("mousemove",(e)=>{if(e.clientX<=15){openMenu();}});
-menu.addEventListener("mouseleave",closeMenuSmooth);
-menu.addEventListener("mouseenter",()=>clearTimeout(closeTimer));
-overlay.addEventListener("click",()=>{menu.classList.add("hide");overlay.classList.add("hide");player.classList.remove("blur");});
+let closeTimer=null;
 
-/* ===== PREVIEW เดิม ===== */
-function showPreview(img){if(!img)return;previewImg.src=img;preview.classList.add("active");}
-function hidePreview(){preview.classList.remove("active");}
-
-/* ===== ตรวจ URL วิดีโอ ===== */
-function isValidVideoURL(url){
-const clean=url.split("?")[0].toLowerCase();
-return clean.endsWith(".m3u8")||clean.endsWith(".mp4");
+/* ===== MENU AUTO SYSTEM ===== */
+function openMenu(){
+clearTimeout(closeTimer);
+menu.classList.remove("hide");
 }
 
-async function loadPlaylist(originalUrl){
+function closeMenuDelay(){
+closeTimer=setTimeout(()=>{
 
-if(!originalUrl) return [];
+menu.classList.add("hide");
 
-let finalUrl = originalUrl;
-
-/* ==============================
-   1. ตรวจจับ Google Drive
-================================*/
-if(originalUrl.includes("drive.google.com")){
-
-const idMatch = originalUrl.match(/id=([^&]+)/);
-
-if(idMatch){
-
-const fileId = idMatch[1];
-
-const direct = `https://drive.google.com/uc?export=download&id=${fileId}`;
-
-/* ใช้ proxy กัน CORS */
-finalUrl = "https://api.allorigins.win/raw?url=" + encodeURIComponent(direct);
-
-}else{
-console.error("หา File ID ไม่เจอ");
-return [];
+if(menu.classList.contains("hide")){
+    previewBox.classList.remove("active");
 }
 
+},1500);
 }
 
-/* ==============================
-   2. โหลดไฟล์
-================================*/
-try{
+/* เปิดครั้งแรก */
+openMenu();
 
-const res = await fetch(finalUrl);
-
-if(!res.ok){
-console.error("HTTP Error:", res.status);
-return [];
+/* เลื่อนเมาส์ชิดซ้าย */
+document.addEventListener("mousemove",e=>{
+if(e.clientX<20){
+openMenu();
 }
-
-const text = await res.text();
-
-/* ถ้าได้ HTML แปลว่าไม่ใช่ playlist */
-if(text.includes("<html")){
-console.error("ได้ HTML แทน playlist");
-return [];
-}
-
-const lines = text.split(/\r?\n/);
-
-let current = {};
-let list = [];
-
-for(let line of lines){
-
-line = line.trim();
-if(!line) continue;
-
-/* ===== M3U / W3U ===== */
-if(line.startsWith("#EXTINF")){
-
-const name = line.match(/,(.*)$/);
-const logo = line.match(/tvg-logo="(.*?)"/);
-const group = line.match(/group-title="(.*?)"/);
-
-current = {
-title: name ? name[1].trim() : "ไม่มีชื่อ",
-logo: logo ? logo[1].trim() : "",
-group: group ? group[1].trim() : "อื่นๆ"
-};
-
-continue;
-}
-
-/* ===== TXT แบบ | ===== */
-if(line.includes("|")){
-
-const parts = line.split("|");
-
-if(parts.length >= 2){
-list.push({
-title: parts[0].trim(),
-url: parts[1].trim(),
-logo: parts[2] ? parts[2].trim() : "",
-group: parts[3] ? parts[3].trim() : "อื่นๆ"
 });
-}
 
-continue;
-}
-
-/* ===== URL ปกติ ===== */
-if(line.startsWith("http")){
-
-current.url = line;
-list.push({...current});
-
-}
-
-}
-
-console.log("โหลดสำเร็จ:", list.length, "รายการ");
-return list;
-
-}catch(err){
-console.error("Fetch Error:", err);
-return [];
-}
-
-}
-
-/* ===== ที่เหลือเหมือนเดิม ===== */
-function groupChannels(){
-grouped={};
-channels.forEach(c=>{
-if(!grouped[c.group]) grouped[c.group]=[];
-grouped[c.group].push(c);
+/* เมาส์ออกจากเมนู */
+menu.addEventListener("mouseleave",()=>{
+closeMenuDelay();
 });
+
+/* เมาส์กลับเข้าเมนู */
+menu.addEventListener("mouseenter",()=>{
+clearTimeout(closeTimer);
+});
+
+/* ===== SAVE ===== */
+function save(){
+localStorage.setItem("iptv_playlists",JSON.stringify(playlists));
 }
 
-function renderGroups(container){
-container.innerHTML="";
-for(let group in grouped){
+function generatePlaylistName(data, source){
 
-const cat=document.createElement("div");
-cat.className="category";
+    // 1️⃣ ตรวจสอบชื่อจาก #EXTM3U
+    const headerMatch = data.match(/#EXTM3U.*name="(.*?)"/i);
+    if(headerMatch && headerMatch[1]){
+        return headerMatch[1].trim();
+    }
 
-const header=document.createElement("div");
-header.className="category-header";
-header.innerHTML=`<span>${group}</span><span>+</span>`;
-header.onclick=()=>cat.classList.toggle("active");
+    // 2️⃣ ถ้าเป็น URL
+    if(source && source.startsWith("http")){
+        const parts = source.split("/");
+        let fileName = parts[parts.length - 1];
+        fileName = fileName.split("?")[0]; // ตัด query
+        fileName = fileName.replace(/\.m3u8?$/i,"");
+        return fileName || "Playlist";
+    }
 
-const content=document.createElement("div");
-content.className="category-content";
+    // 3️⃣ ถ้าเป็นไฟล์โหลด
+    if(source && source !== "ไฟล์โหลด"){
+        return source.replace(".m3u","").replace(".m3u8","");
+    }
 
-grouped[group].forEach(ch=>{
+    // 4️⃣ fallback
+    return "Playlist " + (playlists.length + 1);
+}
+
+
+/* ===== PLAY ===== */
+function play(channel){
+
+    if(currentChannelElement){
+        currentChannelElement.classList.remove("active");
+    }
+
+    currentChannelData = channel;
+
+    const video = document.getElementById("html5-player");
+    const jwDiv = document.getElementById("jw-player");
+
+    if(!channel.url) return;
+    const url = channel.url.toLowerCase();
+
+    // ===== reset players =====
+    if(hls){
+        hls.destroy();
+        hls = null;
+    }
+
+    if(dashPlayer){
+        dashPlayer.reset();
+        dashPlayer = null;
+    }
+
+    if(jwInstance){
+        jwInstance.remove();
+        jwInstance = null;
+    }
+
+    video.pause();
+    video.removeAttribute("src");
+    video.load();
+
+    video.style.display = "none";
+    jwDiv.style.display = "none";
+
+    // ===== 1) HLS (.m3u8) =====
+    if(url.includes(".m3u8")){
+
+        video.style.display = "block";
+
+        if(video.canPlayType("application/vnd.apple.mpegurl")){
+            video.src = channel.url;
+            video.play();
+        }
+        else if(Hls.isSupported()){
+            hls = new Hls();
+            hls.loadSource(channel.url);
+            hls.attachMedia(video);
+            hls.on(Hls.Events.MANIFEST_PARSED, function(){
+                video.play();
+            });
+        }
+        else{
+            video.src = channel.url;
+            video.play();
+        }
+    }
+
+    // ===== 2) DASH (.mpd) =====
+   else if(url.includes(".mpd")){
+
+    video.style.display = "block";
+    dashPlayer = dashjs.MediaPlayer().create();
+
+    if(channel.drm){
+
+        if(channel.drm.type === "widevine"){
+
+            dashPlayer.setProtectionData({
+                "com.widevine.alpha": {
+                    serverURL: channel.drm.licenseServer
+                }
+            });
+
+        }
+        else if(channel.drm.type === "clearkey"){
+
+            const parts = channel.drm.licenseServer.split(":");
+
+            if(parts.length === 2){
+                const kid = parts[0].trim();
+                const key = parts[1].trim();
+
+                dashPlayer.setProtectionData({
+                    "org.w3.clearkey": {
+                        clearkeys: {
+                            [kid]: key
+                        }
+                    }
+                });
+            }
+        }
+    }
+
+    dashPlayer.initialize(video, channel.url, true);
+}
+    // ===== 3) JW Player =====
+    else if(channel.engine === "jw"){
+
+        jwDiv.style.display = "block";
+
+        jwInstance = jwplayer("jw-player").setup({
+            file: channel.url,
+            width: "100%",
+            height: "100%",
+            autostart: true
+        });
+    }
+
+    // ===== 4) HTML5 ปกติ =====
+    else{
+        video.style.display = "block";
+        video.src = channel.url;
+        video.play();
+    }
+}
+
+    
+
+/* ===== CHANNEL ===== */
+function createChannel(ch){
 const div=document.createElement("div");
 div.className="channel";
-div.innerHTML=`
-${ch.logo?`<img src="${ch.logo}" onerror="this.style.display='none'">`:""}
-<span>${ch.title}</span>
-`;
+div.innerHTML=`${ch.logo?`<img src="${ch.logo}" onerror="this.style.display='none'">`:""}<span title="${ch.title}">${ch.title}</span>`;
+
 div.onclick=()=>{
-playChannel(ch);
-if(currentChannelElement) currentChannelElement.classList.remove("active");
+play(ch);
 div.classList.add("active");
 currentChannelElement=div;
 };
-div.onmouseenter=()=>showPreview(ch.logo);
-div.onmouseleave=hidePreview;
-content.appendChild(div);
-});
 
-cat.appendChild(header);
-cat.appendChild(content);
-container.appendChild(cat);
-}
-}
-
-function playChannel(channel){
-const video=document.getElementById("video");
-if(hls){hls.destroy();hls=null;}
-video.pause();
-video.removeAttribute("src");
-video.load();
-
-const clean=channel.url.split("?")[0].toLowerCase();
-
-if(clean.endsWith(".m3u8")){
-if(video.canPlayType('application/vnd.apple.mpegurl')){
-video.src=channel.url;
-video.play();
-}else if(Hls.isSupported()){
-hls=new Hls();
-hls.loadSource(channel.url);
-hls.attachMedia(video);
-hls.on(Hls.Events.MANIFEST_PARSED,()=>video.play());
-}
-}else{
-video.src=channel.url;
-video.play();
-}
-
-closeMenuSmooth();
-}
-
-function renderMainMenus(){
-const container=document.getElementById("channel-list");
-container.innerHTML="";
-mainMenus.forEach(menuItem=>{
-const cat=document.createElement("div");
-cat.className="category";
-
-const header=document.createElement("div");
-header.className="category-header";
-header.innerHTML=`<span>${menuItem.name}</span><span>+</span>`;
-
-const content=document.createElement("div");
-content.className="category-content";
-
-header.onclick=async()=>{
-document.querySelectorAll("#channel-list > .category").forEach(c=>{
-if(c!==cat) c.classList.remove("active");
-});
-cat.classList.toggle("active");
-
-if(content.innerHTML==="" && menuItem.url){
-channels=await loadPlaylist(menuItem.url);
-if(channels.length===0){
-content.innerHTML="<div style='padding:15px;color:#ff7777'>โหลดไฟล์ไม่ได้ หรือไฟล์ไม่ถูกต้อง</div>";
-return;
-}
-groupChannels();
-renderGroups(content);
+div.onmouseenter=()=>{
+if(ch.logo){
+previewImg.src=ch.logo;
+previewBox.classList.add("active");
 }
 };
 
-cat.appendChild(header);
-cat.appendChild(content);
-container.appendChild(cat);
+div.onmouseleave=()=>{
+previewBox.classList.remove("active");
+};
+
+return div;
+}
+
+function deletePlaylist(index){
+if(!confirm("ต้องการลบ Playlist นี้หรือไม่?")) return;
+
+playlists.splice(index,1);
+save();
+render();
+}
+
+/* ===== SEARCH SYSTEM ===== */
+
+const searchInput = document.getElementById("searchInput");
+
+searchInput.addEventListener("input", function(){
+    const keyword = this.value.toLowerCase().trim();
+    const allChannels = document.querySelectorAll(".channel");
+    
+
+    allChannels.forEach(ch => {
+        const text = ch.textContent.toLowerCase();
+        const match = text.includes(keyword);
+
+        ch.style.display = match ? "flex" : "none";
+
+        if(match){
+            
+
+            // เปิด group และ playlist อัตโนมัติ
+            const groupBox = ch.closest(".group-box");
+            const category = ch.closest(".category");
+
+            if(groupBox) groupBox.classList.add("active");
+            if(category) category.classList.add("active");
+        }
+    });
+
+    // ซ่อน group ที่ไม่มีช่องแสดง
+    document.querySelectorAll(".group-box").forEach(group=>{
+    const visibleChannels = Array.from(group.querySelectorAll(".channel"))
+    .filter(ch => ch.style.display !== "none");
+        group.style.display = visibleChannels.length ? "block" : "none";
+    });
+
+    // ซ่อน playlist ที่ไม่มี group แสดง
+    document.querySelectorAll(".category").forEach(cat=>{
+        const visibleGroups = cat.querySelectorAll(".group-box[style*='block']");
+        cat.style.display = visibleGroups.length ? "block" : "none";
+    });
+
+    // ถ้าค้นหาว่าง → reset
+    if(keyword === ""){
+        resetSearch();
+    }
+});
+
+function resetSearch(){
+    document.querySelectorAll(".channel").forEach(ch=>{
+        ch.style.display="flex";
+    });
+    document.querySelectorAll(".group-box").forEach(g=>{
+    g.style.display="block";
+    });
+    document.querySelectorAll(".category").forEach(c=>{
+        c.style.display="block";
+        c.classList.remove("active");
+    });
+}
+
+/* ===== RENDER ===== */
+function render(){
+const container=document.getElementById("playlistContainer");
+container.innerHTML="";
+
+playlists.forEach((pl,i)=>{
+const box=document.createElement("div");
+box.className="category";
+
+const head=document.createElement("div");
+head.className="category-header";
+head.innerHTML=`
+<span class="category-title" title="${pl.name}">📂 ${pl.name}</span>
+${pl.source ? `<button class="refresh-btn">รีเฟรช</button>` : ""}
+<button class="delete-btn">ลบ</button>
+`;
+
+head.querySelector(".delete-btn").onclick=(e)=>{
+e.stopPropagation();
+deletePlaylist(i);
+};
+
+const refreshBtn = head.querySelector(".refresh-btn");
+if(refreshBtn){
+    refreshBtn.onclick = (e)=>{
+        e.stopPropagation();
+        refreshPlaylist(i);
+    };
+}
+
+head.onclick=()=>{
+
+// ปิด playlist อื่นทั้งหมด
+document.querySelectorAll(".category").forEach(el=>{
+if(el!==box){
+el.classList.remove("active");
+}
+});
+
+// toggle อันที่กด
+box.classList.toggle("active");
+
+};
+const content=document.createElement("div");
+content.className="category-content";
+
+const groups={};
+pl.data.forEach(ch=>{
+if(!groups[ch.group])groups[ch.group]=[];
+groups[ch.group].push(ch);
+});
+
+for(let g in groups){
+const groupBox=document.createElement("div");
+groupBox.className="group-box";
+
+const groupHeader=document.createElement("div");
+groupHeader.className="group-header";
+
+groupHeader.innerHTML = `
+<span title="${g}">📁 ${g}</span>
+<span>(${groups[g].length})</span>
+`;
+
+groupHeader.onclick = () => {
+
+    // ปิด group อื่นใน playlist เดียวกัน
+    content.querySelectorAll(".group-box").forEach(el=>{
+        if(el !== groupBox){
+            el.classList.remove("active");
+        }
+    });
+
+    // toggle group ที่กด
+    groupBox.classList.toggle("active");
+};
+
+const groupContent=document.createElement("div");
+groupContent.className="group-content";
+
+groups[g].forEach(ch=>{
+groupContent.appendChild(createChannel(ch));
+});
+
+groupBox.appendChild(groupHeader);
+groupBox.appendChild(groupContent);
+content.appendChild(groupBox);
+}
+
+box.appendChild(head);
+box.appendChild(content);
+container.appendChild(box);
 });
 }
 
-document.getElementById("search").addEventListener("input",e=>{
-const keyword=e.target.value.toLowerCase();
-document.querySelectorAll(".channel").forEach(ch=>{
-ch.style.display=ch.innerText.toLowerCase().includes(keyword)?"flex":"none";
-});
+/* ===== LOAD M3U ===== */
+document.getElementById("fileInput").addEventListener("change",e=>{
+const reader=new FileReader();
+reader.onload=function(){
+parseM3U(reader.result,"ไฟล์โหลด");
+};
+if(!e.target.files[0]) return;
+reader.readAsText(e.target.files[0]);
 });
 
-renderMainMenus();
+function addURL(){
+    const url = document.getElementById("urlInput").value.trim();
+    if(!url) return;
+
+    fetch(url)
+    .then(r => r.text())
+    .then(text => {
+        parseM3U(text, url);
+    })
+    .catch(() => {
+        alert("โหลด URL ไม่สำเร็จ");
+    });
+}
+
+function parseM3U(data,name){
+
+    const lines = data.split("\n");
+    const list = [];
+
+    let current = null;
+    let pendingDRM = null;
+
+    lines.forEach(line=>{
+        line = line.trim();
+
+        // ===== EXTINF =====
+        if(line.startsWith("#EXTINF")){
+
+            const title = line.split(",")[1] || "ไม่ทราบชื่อ";
+            const group = (line.match(/group-title="(.*?)"/)||[])[1] || "อื่นๆ";
+            const logo = (line.match(/tvg-logo="(.*?)"/)||[])[1] || "";
+
+            current = { title, group, logo };
+            pendingDRM = null;
+        }
+
+        // ===== DRM License Type =====
+        else if(line.includes("license_type=")){
+    if(!pendingDRM) pendingDRM = {};
+
+    const match = line.match(/license_type=(.*)/);
+    if(match){
+        const type = match[1].trim().toLowerCase();
+
+        if(type.includes("widevine")){
+            pendingDRM.type = "widevine";
+        }
+        else if(type.includes("clearkey")){
+            pendingDRM.type = "clearkey";
+        }
+    }
+}
+
+        // ===== DRM License Key =====
+else if(line.includes("license_key")){
+    if(!pendingDRM) pendingDRM = {};
+
+    const keyMatch = line.match(/license_key=(.*)/);
+    if(keyMatch){
+        pendingDRM.licenseServer = keyMatch[1].trim();
+    }
+}
+
+        // ===== Stream URL =====
+        else if(line && !line.startsWith("#") && current){
+
+            current.url = line;
+
+            // ถ้ามี DRM
+           if(pendingDRM && pendingDRM.licenseServer){
+    current.drm = {
+        licenseServer: pendingDRM.licenseServer,
+        type: pendingDRM.type
+    };
+}
+            list.push(current);
+            current = null;
+            pendingDRM = null;
+        }
+    });
+
+    const smartName = generatePlaylistName(data, name);
+
+playlists.push({
+    name: smartName,
+    data: list,
+    source: name.startsWith("http") ? name : null   // ⭐ เพิ่มบรรทัดนี้
+});
+
+    save();
+    render();
+}
+
+function refreshPlaylist(index){
+
+    const pl = playlists[index];
+
+    if(!pl.source){
+        alert("รีเฟรชได้เฉพาะ Playlist ที่มาจาก URL");
+        return;
+    }
+
+    if(!confirm("ต้องการรีเฟรช Playlist นี้หรือไม่?")) return;
+
+    fetch(pl.source + "?t=" + Date.now())
+.then(r=>r.text())
+.then(text=>{
+
+    const lines = text.split("\n");
+    const list = [];
+
+    let current = null;
+    let pendingDRM = null;
+
+    lines.forEach(line=>{
+        line = line.trim();
+
+        if(line.startsWith("#EXTINF")){
+            const title = line.split(",")[1] || "ไม่ทราบชื่อ";
+            const group = (line.match(/group-title="(.*?)"/)||[])[1] || "อื่นๆ";
+            const logo = (line.match(/tvg-logo="(.*?)"/)||[])[1] || "";
+
+            current = { title, group, logo };
+            pendingDRM = null;
+        }
+
+        else if(line.includes("license_type=")){
+    if(!pendingDRM) pendingDRM = {};
+
+    const match = line.match(/license_type=(.*)/);
+    if(match){
+        const type = match[1].trim().toLowerCase();
+
+        if(type.includes("widevine")){
+            pendingDRM.type = "widevine";
+        }
+        else if(type.includes("clearkey")){
+            pendingDRM.type = "clearkey";
+        }
+    }
+}
+
+// ===== DRM License Key =====
+        else if(line.includes("license_key")){
+            if(!pendingDRM) pendingDRM = {};
+            const keyMatch = line.match(/license_key=(.*)/);
+            if(keyMatch){
+                pendingDRM.licenseServer = keyMatch[1].trim();
+            }
+        }
+
+        else if(line && !line.startsWith("#") && current){
+
+            current.url = line;
+
+            if(pendingDRM && pendingDRM.licenseServer){
+                current.drm = {
+                    licenseServer: pendingDRM.licenseServer,
+                    type: pendingDRM.type
+                };
+            }
+
+            list.push(current);
+            current = null;
+            pendingDRM = null;
+        }
+    });
+
+    playlists[index].data = list;
+
+    // ⭐ เช็คว่าช่องที่กำลังดูยังมีอยู่ไหม
+    if(currentChannelData){
+        const stillExists = list.find(c => c.url === currentChannelData.url);
+        if(!stillExists){
+            currentChannelData = null;
+            currentChannelElement = null;
+        }
+    }
+
+    save();
+    render();
+
+    alert("รีเฟรชสำเร็จ ✅");
+})
+.catch(()=>{
+    alert("รีเฟรชไม่สำเร็จ ❌");
+});
+
+}
+render();
+
+
 
 </script>
 </body>
