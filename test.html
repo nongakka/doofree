@@ -308,14 +308,7 @@ function generatePlaylistName(data, source){
 }
 
 
-function hexToBase64(hex){
-    const bytes = new Uint8Array(
-        hex.match(/.{1,2}/g).map(b => parseInt(b,16))
-    );
-    let binary="";
-    bytes.forEach(b=>binary+=String.fromCharCode(b));
-    return btoa(binary);
-}
+
 
 /* ===== PLAY ===== */
 function play(channel){
@@ -379,39 +372,37 @@ function play(channel){
     }
 
     // ===== 2) DASH (.mpd) =====
-
-// ===== 2) DASH (.mpd) =====
 else if(url.includes(".mpd")){
 
     jwDiv.style.display = "block";
 
-    
-    let jwDrm = undefined;
+    let config = {
+        file: channel.url,
+        width: "100%",
+        height: "100%",
+        autostart: true
+    };
 
-    if(channel.drm && channel.drm.licenseServer){
+    if(channel.drm){
 
         if(channel.drm.type === "clearkey"){
 
-    const keyData = channel.drm.licenseServer.split("|")[0];
+            const keyData = channel.drm.licenseServer.split("|")[0];
 
-    if(keyData.includes(":")){
-        const parts = keyData.split(":");
-        const keyIdHex = parts[0];
-        const keyHex = parts[1];
+            if(keyData.includes(":")){
+                const [keyId, key] = keyData.split(":");
 
-        jwDrm = {
-            clearkey: {
-                keyId: hexToBase64(keyIdHex),
-                key: hexToBase64(keyHex)
+                config.drm = {
+                    clearkey: {
+                        keyId: keyId,
+                        key: key
+                    }
+                };
             }
-        };
-    }
-}
+        }
 
-            
         if(channel.drm.type === "widevine"){
-
-            jwDrm = {
+            config.drm = {
                 widevine: {
                     url: channel.drm.licenseServer
                 }
@@ -419,46 +410,42 @@ else if(url.includes(".mpd")){
         }
     }
 
-    jwInstance = jwplayer("jw-player").setup({
-        file: channel.url,
-        width: "100%",
-        height: "100%",
-        autostart: true,
-        drm: jwDrm
-    });
+    jwInstance = jwplayer("jw-player").setup(config);
 
-    jwInstance.on("error", function(){
+    jwInstance.on("setupError error", function(e){
 
-        console.log("JW เล่นไม่ได้ → fallback dash.js");
+        console.log("JW FAIL → fallback dash.js", e);
 
         jwInstance.remove();
         jwInstance = null;
 
         video.style.display = "block";
+
         dashPlayer = dashjs.MediaPlayer().create();
 
-        if(channel.drm && channel.drm.type === "clearkey"){
+        if(channel.drm){
 
-            const keyData = channel.drm.licenseServer.split("|")[0];
-            const keyId = keyData.split(":")[0];
-            const key = keyData.split(":")[1];
+            if(channel.drm.type === "clearkey"){
 
-            dashPlayer.setProtectionData({
-                "org.w3.clearkey": {
-                    clearkeys: {
-                        [hexToBase64(keyId)]: hexToBase64(key)
+                const keyData = channel.drm.licenseServer.split("|")[0];
+                const [keyId, key] = keyData.split(":");
+
+                dashPlayer.setProtectionData({
+                    "org.w3.clearkey": {
+                        clearkeys: {
+                            [keyId]: key
+                        }
                     }
-                }
-            });
-        }
+                });
+            }
 
-        if(channel.drm && channel.drm.type === "widevine"){
-
-            dashPlayer.setProtectionData({
-                "com.widevine.alpha": {
-                    serverURL: channel.drm.licenseServer
-                }
-            });
+            if(channel.drm.type === "widevine"){
+                dashPlayer.setProtectionData({
+                    "com.widevine.alpha": {
+                        serverURL: channel.drm.licenseServer
+                    }
+                });
+            }
         }
 
         dashPlayer.initialize(video, channel.url, true);
@@ -471,7 +458,12 @@ else if(url.includes(".mpd")){
 
         jwDiv.style.display = "block";
 
-        jwInstance = jwplayer("jw-player").setup({
+console.log("==== DEBUG ====");
+console.log("Title:", channel.title);
+console.log("URL:", channel.url);
+console.log("DRM:", channel.drm);
+        
+jwInstance = jwplayer("jw-player").setup({
             file: channel.url,
             width: "100%",
             height: "100%",
@@ -703,7 +695,7 @@ function addURL(){
 
 function parseM3U(data,name){
 
-    const lines = data.split("\n");
+    const lines = data.split(/\r?\n/);
     const list = [];
 
     let current = null;
@@ -715,7 +707,7 @@ function parseM3U(data,name){
         // ===== EXTINF =====
         if(line.startsWith("#EXTINF")){
 
-            const title = line.split(",")[1] || "ไม่ทราบชื่อ";
+            const title = line.substring(line.indexOf(",")+1) || "ไม่ทราบชื่อ";
             const group = (line.match(/group-title="(.*?)"/)||[])[1] || "อื่นๆ";
             const logo = (line.match(/tvg-logo="(.*?)"/)||[])[1] || "";
 
@@ -797,7 +789,7 @@ function refreshPlaylist(index){
 
     const lines = text.split("\n");
     const list = [];
-
+    
     let current = null;
     let pendingDRM = null;
 
@@ -883,3 +875,4 @@ render();
 </script>
 </body>
 </html>
+
