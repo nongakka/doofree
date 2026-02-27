@@ -204,11 +204,10 @@ border-radius:6px;color:#fff;cursor:pointer;margin-top:8px;
 <div class="sidebar">
 
 <div class="sidebar-section">
-<h2>📺 หรรมน้อย ออนไลน์</h2>
+<h2>หรรมน้อย ออนไลน์</h2>
 </div>
 
 <div class="sidebar-section">
-<h3>📥 Import Playlist</h3>
 <input type="file" id="fileInput" accept=".m3u,.m3u8">
 <input type="text" id="urlInput" placeholder="วาง URL m3u">
 <button onclick="loadURL()">โหลด URL</button>
@@ -271,6 +270,9 @@ playlistUI.innerHTML="";
 
 playlists.forEach((pl,index)=>{
 
+// ป้องกัน playlist เสีย
+if(!pl.channels) pl.channels = [];
+
 const div=document.createElement("div");
 div.className="playlist-box";
 
@@ -291,6 +293,7 @@ style="background:red;">✕</button>
 if(index===activePlaylistIndex){
     div.classList.add("active");
 }
+
 
 div.onclick=()=>{
 activePlaylistIndex=index;
@@ -367,43 +370,56 @@ lines.forEach(line=>{
 line=line.trim();
 
 if(line.startsWith("#EXTINF")){
-const title=line.substring(line.lastIndexOf(",")+1).trim() || "ไม่ทราบชื่อ";
-const group=(line.match(/group-title="(.*?)"/)||[])[1]||"อื่นๆ";
-const logo=(line.match(/tvg-logo="(.*?)"/)||[])[1]||"";
-current={title,group,logo};
-pendingDRM=null;
+    const title=line.substring(line.lastIndexOf(",")+1).trim() || "ไม่ทราบชื่อ";
+    const group=(line.match(/group-title="(.*?)"/)||[])[1]||"อื่นๆ";
+    const logo=(line.match(/tvg-logo="(.*?)"/)||[])[1]||"";
+    current={title,group,logo};
+    pendingDRM=null;
 }
+
 else if(line.includes("license_type=")){
-pendingDRM=pendingDRM||{};
-if(line.toLowerCase().includes("widevine")) pendingDRM.type="widevine";
-if(line.toLowerCase().includes("clearkey")) pendingDRM.type="clearkey";
+    pendingDRM=pendingDRM||{};
+    if(line.toLowerCase().includes("widevine")) pendingDRM.type="widevine";
+    if(line.toLowerCase().includes("clearkey")) pendingDRM.type="clearkey";
 }
+
 else if(line.includes("license_key=")){
-pendingDRM=pendingDRM||{};
-pendingDRM.licenseServer=line.split("=")[1].trim();
+    pendingDRM=pendingDRM||{};
+    pendingDRM.licenseServer=line.split("=")[1].trim();
 }
+
 else if(line && !line.startsWith("#") && current){
-current.url=line;
-if(pendingDRM) current.drm=pendingDRM;
-channels.push(current);
-current=null;
+
+    // กรองเฉพาะไฟล์สตรีมจริง
+    if(
+        line.includes(".m3u8") ||
+        line.includes(".mp4") ||
+        line.includes(".mpd")
+    ){
+        current.url=line;
+        if(pendingDRM) current.drm=pendingDRM;
+        channels.push(current);
+    }
+
+    current=null;
 }
+
 });
 
 document.getElementById("searchInput").value="";
 
 const playlistData={
-name:fileName || source || "Local File",
-source:source,
-channels:channels
+    name:fileName || source || "Local File",
+    source:source,
+    channels:channels
 };
 
 if(indexOverride!==null){
-playlists[indexOverride]=playlistData;
-activePlaylistIndex=indexOverride;
+    playlists[indexOverride]=playlistData;
+    activePlaylistIndex=indexOverride;
 }else{
-playlists.push(playlistData);
-activePlaylistIndex=playlists.length-1;
+    playlists.push(playlistData);
+    activePlaylistIndex=playlists.length-1;
 }
 
 savePlaylists();
