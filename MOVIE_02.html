@@ -335,6 +335,22 @@ z-index:1200;        /* มากกว่า player */
   background:#ff4444;
 }
 
+.back-btn{
+  background:#ff512f;
+  border:none;
+  padding:8px 14px;
+  border-radius:8px;
+  color:#fff;
+  font-weight:600;
+  cursor:pointer;
+  margin-bottom:20px;
+  transition:.2s;
+}
+
+.back-btn:hover{
+  background:#dd2476;
+}
+
 </style>
 </head>
 
@@ -371,6 +387,8 @@ z-index:1200;        /* มากกว่า player */
 
 </div>
 <div class="main">
+
+<button id="backHome" class="back-btn">← กลับหน้าหลัก</button>
 
 <div class="movie-grid" id="movieGrid"></div>
 
@@ -438,6 +456,9 @@ themeToggle.onclick=()=>{
     }
 };
 
+document.getElementById("backHome").onclick = () => {
+    window.location.href = "https://nongakka.github.io/doofree/index.html"; 
+};
 
 /* RENDER PLAYLIST UI */
 function renderPlaylists(){
