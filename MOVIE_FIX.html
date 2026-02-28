@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>หรรมน้อย ออนไลน์</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
+
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
+<script src="https://ssl.p.jwpcdn.com/player/v/8.26.0/jwplayer.js"></script>
+<script>jwplayer.key="XSuP4qMl+9tK17QNb+4+th2Pm9AWgMO/cYH8CI0HGGr7bdjo";</script>
+
+<style>
+:root{
+--bg:#0f0f0f;
+--card:#1b1b1b;
+--accent:#f5c518;
+}
+*{box-sizing:border-box}
+body{
+margin:0;
+font-family:'Kanit',sans-serif;
+background:#0b0b0b;
+color:#fff;
+display:flex;
+}
+
+.playlist-box{
+background:#222;
+padding:8px;
+margin-bottom:6px;
+border-radius:6px;
+cursor:pointer;
+display:flex;
+justify-content:space-between;
+align-items:center;
+gap:6px;
+}
+
+.playlist-name{
+flex:1;
+white-space:nowrap;
+overflow:hidden;
+text-overflow:ellipsis;
+font-size:13px;
+}
+
+.playlist-actions{
+display:flex;
+gap:4px;
+}
+
+.playlist-actions button{
+border:none;
+padding:3px 6px;
+border-radius:4px;
+color:#fff;
+cursor:pointer;
+font-size:12px;
+}
+
+.playlist-box.active{
+background:#333;
+border-left:3px solid var(--accent);
+}
+
+/* SIDEBAR */
+.sidebar{
+  width:280px;
+  background:#0f0f0f;
+  height:100vh;
+  padding:5px 20px 20px 20px; /* ลด padding-top */
+  position:fixed;
+  left:0;
+  top:0;
+  border-right:1px solid #222;
+  overflow-y:auto;
+  transition:.3s;
+  z-index:100;
+}
+
+
+/* ปุ่ม */
+
+.sidebar-section{
+  margin:12px 0;
+  padding-bottom:15px;
+  border-bottom:1px solid #1f1f1f;
+  text-align:center;
+}
+
+.sidebar-section:last-child{
+border-bottom:none;
+}
+
+
+
+.sidebar h3{
+font-size:14px;
+margin-bottom:5px;
+color:#aaa;
+text-transform:uppercase;
+letter-spacing:.5px;
+}
+
+.sidebar input{
+width:100%;
+margin-bottom:8px;
+padding:8px;
+background:#1c1c1c;
+border:1px solid #222;
+color:#fff;
+border-radius:6px;
+}
+
+.sidebar button{
+width:100%;
+padding:8px;
+margin-bottom:4px;
+background:var(--accent);
+border:none;
+border-radius:6px;
+cursor:pointer;
+font-weight:600;
+}
+
+.sidebar ul{
+list-style:none;
+padding:0;
+margin:0;
+}
+
+#themeToggle{
+  margin-bottom:6px;
+}
+
+.sidebar-section:first-of-type{
+  margin-top:6px;
+}
+
+/* ===== CATEGORY MENU MODERN ===== */
+
+#categoryList{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+#categoryList li{
+  list-style:none;
+  padding:10px 14px;
+  border-radius:10px;
+  cursor:pointer;
+  font-size:13px;
+  font-weight:400;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background:#1a1a1a;
+  transition:all .25s ease;
+  border:1px solid #222;
+}
+
+#categoryList li:hover{
+  background:#242424;
+  transform:translateX(4px);
+}
+
+#categoryList li.active{
+  background:linear-gradient(90deg,#3b82f6,#6366f1);
+  border:none;
+  box-shadow:0 5px 15px rgba(59,130,246,.25);
+}
+
+#categoryList li.active span{
+  background:rgba(255,255,255,.2);
+}
+
+/* badge ตัวเลข */
+.category-count{
+  background:#333;
+  padding:3px 8px;
+  border-radius:20px;
+  font-size:11px;
+  font-weight:600;
+}
+
+.sidebar-section h2{
+  font-size:18px;
+  font-weight:600;
+  letter-spacing:1px;
+  margin:0;
+  position:relative;
+  display:inline-block;
+  padding-bottom:8px;
+}
+
+/* เส้นไล่สีใต้หัวข้อ */
+.sidebar-section h2::after{
+  content:"";
+  position:absolute;
+  left:50%;
+  transform:translateX(-50%);
+  bottom:0;
+  width:60%;
+  height:3px;
+  border-radius:10px;
+  background:linear-gradient(90deg,#ff512f,#dd2476);
+}
+
+/* ให้หัวข้ออยู่กลาง */
+.sidebar-section h2,
+.sidebar-section h3{
+  text-align:center;
+}
+
+/* แต่รายการ playlist ชิดซ้าย */
+#playlistContainer{
+  text-align:left;
+}
+
+/* แต่รายการหมวดหมู่ชิดซ้าย */
+#categoryList{
+  text-align:left;
+}
+
+/* ให้ li ชิดซ้ายชัดเจน */
+#categoryList li{
+  text-align:left;
+}
+
+/* LIGHT MODE - Soft Eye Comfort */
+
+body.light{
+  background:#dde2e7;      /* เทาอ่อนนุ่ม ลดแสง */
+  color:#1e293b;
+}
+
+body.light .main{
+  background:#e3e7ec;
+}
+
+body.light .sidebar{
+  background:#e7ebf0;      /* ไม่ขาว */
+  border-right:1px solid #cfd6dd;
+  color:#1f2937;
+}
+
+/* หมวดหมู่ */
+body.light #categoryList li{
+  background:#eef2f6;
+  color:#1f2937;
+  border:1px solid #d8dee6;
+}
+
+body.light #categoryList li:hover{
+  background:#e2e8f0;
+}
+
+body.light #categoryList li.active{
+  background:#3b82f6;
+  color:#fff;
+}
+
+/* badge */
+body.light .category-count{
+  background:#d6dbe1;
+  color:#334155;
+}
+
+body.light #categoryList li.active .category-count{
+  background:rgba(255,255,255,.25);
+  color:#fff;
+}
+
+/* การ์ด */
+body.light .movie-card{
+  background:#f0f3f7;
+  box-shadow:0 6px 15px rgba(0,0,0,.05);
+}
+
+/* ทำให้ตัวหนังสือเมนูอ่านง่าย */
+body.light #categoryList li{
+  color:#1f2937;          /* เทาเข้ม อ่านง่าย */
+  background:#eef2f6;     /* พื้นหลังอ่อน */
+  border:1px solid #d8dee6;
+}
+
+body.light #categoryList li:hover{
+  background:#e2e8f0;
+}
+
+body.light #categoryList li.active{
+  background:#3b82f6;     /* น้ำเงินสุภาพ */
+  color:#fff;
+}
+
+body.light .category-count{
+  background:#cfd6dd;
+  color:#333;
+}
+
+body.light #categoryList li.active .category-count{
+  background:rgba(255,255,255,.25);
+  color:#fff;
+}
+
+/* MAIN */
+.main{
+  margin-left:280px;
+  padding:30px;
+  width:100%;
+  overflow-y:auto;
+  height:100vh;
+  
+}
+
+.movie-grid{
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+gap:20px; /* ลดช่องว่างนิดให้บาลานซ์ */
+}
+.movie-card{
+  background:#1b1b1b;
+  border-radius:14px;
+  cursor:pointer;
+  transition:.3s;
+  overflow:hidden;
+  box-shadow:0 8px 20px rgba(0,0,0,.4);
+}
+
+.movie-card img{
+  width:90%;              /* ไม่เต็มกรอบ */
+  height:220px;           /* ลดความสูงลง */
+  object-fit:cover;
+  display:block;
+  margin:15px auto 10px;  /* จัดกลาง + เว้นบนล่าง */
+  border-radius:10px;
+}
+
+.movie-card:hover{
+transform:translateY(-6px);
+box-shadow:0 20px 40px rgba(0,0,0,.6);
+}
+
+.movie-title{
+  padding:5px 12px 14px;
+  font-size:13.5px;      /* ลดขนาดจาก 13px */
+  font-weight:300;     /* บางลง (ปกติ) */
+  line-height:1.4em;
+  text-align:center;
+
+  white-space:normal;      /* ให้ขึ้นบรรทัดใหม่ได้ */
+  overflow:visible;        /* ไม่ซ่อนข้อความ */
+  word-break:break-word;   /* กันคำยาวล้น */
+}
+
+/* PLAYER */
+#overlay{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,.8);
+backdrop-filter:blur(8px);
+opacity:0;
+pointer-events:none;
+transition:.3s;
+z-index:1000;   /* แก้ตรงนี้ */
+}
+
+/* วางตรงนี้ */
+#overlay.active{
+  opacity:1;
+  pointer-events:auto;
+}
+
+#player-container{
+position:fixed;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%) scale(.9);
+width:80%;
+max-width:1100px;
+height:75vh;
+background:#000;
+border-radius:16px;
+overflow:hidden;
+box-shadow:0 40px 100px rgba(0,0,0,.8);
+opacity:0;
+pointer-events:none;
+transition:.3s;
+z-index:1100;   
+
+}
+
+#player-container.active{
+opacity:1;
+transform:translate(-50%,-50%) scale(1);
+pointer-events:auto;
+position:fixed;
+}
+video,#jw-player{width:100%;height:100%}
+.refresh-btn{
+background:#00c853;
+border:none;
+padding:6px;
+border-radius:6px;
+color:#fff;cursor:pointer;margin-top:8px;
+}
+
+.close-btn{
+position:fixed;      /* ใช้ fixed แทน absolute */
+top:20px;
+right:20px;
+background:red;
+color:#fff;
+border:none;
+border-radius:50%;
+width:40px;
+height:40px;
+font-size:18px;
+cursor:pointer;
+z-index:1200;        /* มากกว่า player */
+}
+
+.close-btn:hover{
+  background:#ff4444;
+}
+
+.back-btn{
+  background:#ff512f;
+  border:none;
+  padding:8px 14px;
+  border-radius:8px;
+  color:#fff;
+  font-weight:600;
+  cursor:pointer;
+  margin-bottom:20px;
+  transition:.2s;
+}
+
+.back-btn:hover{
+  background:#dd2476;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="sidebar">
+
+<div class="sidebar-section">
+<h2>หรรมน้อย ออนไลน์</h2>
+</div>
+
+
+<button id="themeToggle">🌙 โหมดมืด</button>
+
+<div class="sidebar-section">
+<h3>🔎 ค้นหา</h3>
+<input type="text" id="searchInput" placeholder="พิมพ์ชื่อช่อง...">
+</div>
+
+<div class="sidebar-section">
+<h3>📁 หมวดหมู่</h3>
+<ul id="categoryList"></ul>
+</div>
+
+</div>
+<div class="main">
+
+<button id="backHome" class="back-btn">← กลับหน้าหลัก</button>
+
+<div class="movie-grid" id="movieGrid"></div>
+
+</div>
+
+<div id="overlay"></div>
+
+<div id="player-container">
+<button id="closePlayer" class="close-btn">✕</button>
+<video id="videoPlayer" controls playsinline></video>
+<div id="jw-player" style="display:none;"></div>
+</div>
+
+<script>
+
+let allChannels = [];
+let currentCategory = "ทั้งหมด";
+let playlistCounts = {};   // 👈 วางตรงนี้
+
+let hls=null;
+let dashPlayer=null;
+let jwInstance=null;
+
+const grid=document.getElementById("movieGrid");
+const categoryList=document.getElementById("categoryList");
+const video=document.getElementById("videoPlayer");
+const overlay=document.getElementById("overlay");
+const playerContainer=document.getElementById("player-container");
+const closeBtn = document.getElementById("closePlayer");
+
+closeBtn.addEventListener("click", () => {
+    overlay.classList.remove("active");
+    playerContainer.classList.remove("active");
+    resetPlayers();
+});
+
+playerContainer.addEventListener("click", e => {
+    e.stopPropagation();
+});
+
+/* ================= PLAYLIST CONFIG ================= */
+
+const PLAYLISTS = [
+
+
+{
+    name: "หนังออนไลน์ (URL)",
+    type: "url",
+    url: "https://dl.dropboxusercontent.com/scl/fi/2expfgxgnyrt9hp2be62s/.m3u?rlkey=q3f35bazvid9b0c7ce4v1xxr6&dl=1"
+},
+
+{
+    name: "ซีรีย์ออนไลน์ (URL)",
+    type: "url",
+    url: "https://dl.dropboxusercontent.com/scl/fi/j8w9kgqn0gfmf22tob56k/.m3u?rlkey=h7trc6tsisnhijdg7tc9105oj&dl=1"
+}
+
+];
+
+function parseM3U(data, playlistName){
+
+let channels=[];
+const lines=data.split(/\r?\n/);
+let current=null;
+let pendingDRM=null;
+
+lines.forEach(line=>{
+line=line.trim();
+
+if(line.startsWith("#EXTINF")){
+    const title=line.substring(line.lastIndexOf(",")+1).trim() || "ไม่ทราบชื่อ";
+    const logo=(line.match(/tvg-logo="(.*?)"/)||[])[1]||"";
+    current={title,group:playlistName,logo};
+    pendingDRM=null;
+}
+else if(line.includes("license_type=")){
+    pendingDRM=pendingDRM||{};
+    if(line.toLowerCase().includes("widevine")) pendingDRM.type="widevine";
+    if(line.toLowerCase().includes("clearkey")) pendingDRM.type="clearkey";
+}
+else if(line.includes("license_key=")){
+    pendingDRM=pendingDRM||{};
+    pendingDRM.licenseServer=line.split("=")[1].trim();
+}
+else if(line && !line.startsWith("#") && current){
+
+    if(line.startsWith("http"))
+
+{
+        current.url=line;
+        if(pendingDRM) current.drm=pendingDRM;
+        channels.push(current);
+    }
+
+    current=null;
+}
+
+});
+
+return channels;
+}
+
+
+
+
+/* CATEGORY */
+function buildCategories(){
+
+categoryList.innerHTML="";
+playlistCounts = {};
+
+// 🔹 นับจำนวนช่องแต่ละหมวด
+allChannels.forEach(ch=>{
+    if(!playlistCounts[ch.group]){
+        playlistCounts[ch.group] = 0;
+    }
+    playlistCounts[ch.group]++;
+});
+
+
+// 🔹 สร้างรายการหมวด
+const groups = Object.keys(playlistCounts);
+
+groups.forEach((g,i)=>{
+
+    const li=document.createElement("li");
+    li.innerHTML = `
+    <span>${g}</span>
+    <span class="category-count">${playlistCounts[g]}</span>
+`;
+
+    if(i===0){
+    li.classList.add("active");
+    currentCategory = groups[0];
+}
+
+    li.onclick=()=>{
+        categoryList.querySelectorAll("li")
+        .forEach(el=>el.classList.remove("active"));
+
+        li.classList.add("active");
+        currentCategory=g;
+        renderGrid();
+    };
+
+    categoryList.appendChild(li);
+
+});
+
+}
+
+
+
+/* SEARCH */
+document.getElementById("searchInput").addEventListener("input",renderGrid);
+
+/* GRID */
+function renderGrid(){
+grid.innerHTML="";
+const keyword=document.getElementById("searchInput").value.toLowerCase();
+const filtered=allChannels.filter(c=>{
+return (!currentCategory || c.group===currentCategory)
+&& c.title.toLowerCase().includes(keyword);
+});
+filtered.forEach(ch=>{
+const card=document.createElement("div");
+card.className="movie-card";
+card.innerHTML=`<img loading="lazy" src="${ch.logo||'https://via.placeholder.com/300x450?text=No+Image'}"><div class="movie-title">${ch.title}</div>`;
+card.onclick=()=>playStream(ch);
+grid.appendChild(card);
+});
+}
+
+/* PLAYER RESET */
+function resetPlayers(){
+if(hls){hls.destroy();hls=null;}
+if(dashPlayer){dashPlayer.reset();dashPlayer=null;}
+if(jwInstance){
+    jwInstance.remove();
+    document.getElementById("jw-player").innerHTML="";  // 👈 เพิ่มบรรทัดนี้
+    jwInstance=null;
+}
+video.pause();
+video.removeAttribute("src");
+video.load();
+document.getElementById("jw-player").style.display="none";
+video.style.display="block";
+}
+
+/* PLAY */
+function playStream(channel){
+overlay.classList.add("active");
+playerContainer.classList.add("active");
+resetPlayers();
+
+/* 👇 เพิ่มตรงนี้ */
+video.volume = 0.3;     // กำหนดเสียง 30%
+video.muted = false;    // ให้แน่ใจว่าไม่ mute
+
+if(!channel.url) return;
+
+const url = channel.url.toLowerCase();
+
+if(url.includes(".m3u8")){
+
+    if(video.canPlayType("application/vnd.apple.mpegurl")){
+        video.src = channel.url;
+        video.play().catch(()=>{});
+    } 
+    else if(typeof Hls !== "undefined" && Hls.isSupported()){
+        hls = new Hls();
+        hls.loadSource(channel.url);
+        hls.attachMedia(video);
+        hls.once(Hls.Events.MANIFEST_PARSED, ()=>{
+            video.play().catch(()=>{});
+        });
+    }
+
+}
+else if(url.includes(".mpd")){
+    dashPlayer=dashjs.MediaPlayer().create();
+
+    if(channel.drm){
+
+        if(channel.drm.type==="widevine" && channel.drm.licenseServer){
+            dashPlayer.setProtectionData({
+                "com.widevine.alpha":{
+                    serverURL:channel.drm.licenseServer
+                }
+            });
+        }
+
+        if(channel.drm.type==="clearkey" && channel.drm.licenseServer){
+            const parts = channel.drm.licenseServer.split(":");
+
+            if(parts.length === 2){
+                const keyId = parts[0];
+                const key = parts[1];
+
+                dashPlayer.setProtectionData({
+                    "org.w3.clearkey":{
+                        clearkeys:{ [keyId]: key }
+                    }
+                });
+            }
+        }
+    }
+
+    dashPlayer.initialize(video,channel.url,true);
+video.play().catch(()=>{});
+}
+else{
+video.style.display="none";
+document.getElementById("jw-player").style.display="block";
+jwInstance=jwplayer("jw-player").setup({
+file:channel.url,
+width:"100%",
+height:"100%",
+autostart:true
+});
+}
+}
+
+/* CLOSE */
+overlay.onclick=()=>{
+overlay.classList.remove("active");
+playerContainer.classList.remove("active");
+resetPlayers();
+};
+
+/* ================= INIT ================= */
+
+async function loadAllPlaylists(){
+
+let mergedChannels=[];
+
+const promises = PLAYLISTS.map(async pl => {
+
+    try{
+
+        if(pl.type==="inline"){
+            return parseM3U(pl.data,pl.name);
+        }
+
+        if(pl.type==="url"){
+            const res=await fetch(pl.url,{cache:"no-store"});
+            const text=await res.text();
+            return parseM3U(text,pl.name);
+        }
+
+    }catch(e){
+        console.warn("โหลด playlist ไม่สำเร็จ:",pl.name);
+        return [];
+    }
+
+});
+
+const results = await Promise.all(promises);
+
+results.forEach(arr=>{
+    mergedChannels=mergedChannels.concat(arr);
+});
+
+allChannels=mergedChannels;
+buildCategories();
+renderGrid();
+
+document.getElementById("backHome").disabled = false;
+
+if(allChannels.length === 0){
+    grid.innerHTML = "<p style='text-align:center'>ไม่พบรายการ</p>";
+}
+
+}
+
+document.getElementById("backHome").disabled = true;
+
+loadAllPlaylists();
+
+
+document.getElementById("backHome").addEventListener("click", () => {
+
+    document.getElementById("searchInput").value = "";
+
+    const groups = Object.keys(playlistCounts);
+currentCategory = groups.length ? groups[0] : "";
+
+    categoryList.querySelectorAll("li").forEach((li,i)=>{
+        li.classList.remove("active");
+        if(i===0) li.classList.add("active");
+    });
+
+    renderGrid();
+});
+
+document.addEventListener("keydown", e => {
+    if(e.key === "Escape"){
+        overlay.classList.remove("active");
+        playerContainer.classList.remove("active");
+        resetPlayers();
+    }
+});
+
+/* THEME TOGGLE + SAVE */
+const themeBtn = document.getElementById("themeToggle");
+
+// โหลดค่าที่เคยเลือก
+if(localStorage.getItem("theme")==="light"){
+    document.body.classList.add("light");
+}
+
+updateThemeText();
+
+themeBtn.addEventListener("click", () => {
+    document.body.classList.toggle("light");
+
+    if(document.body.classList.contains("light")){
+        localStorage.setItem("theme","light");
+    } else {
+        localStorage.setItem("theme","dark");
+    }
+
+    updateThemeText();
+});
+
+function updateThemeText(){
+    if(document.body.classList.contains("light")){
+        themeBtn.textContent = "🌙 โหมดมืด";
+    } else {
+        themeBtn.textContent = "☀️ โหมดสว่าง";
+    }
+}
+
+</script>
+
+</body>
+</html>
