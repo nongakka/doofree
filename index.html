@@ -185,39 +185,72 @@ iframe{
 <!-- ทีวี -->
 <div class="menu-title premium" data-menu="tvMenu">ทีวีออนไลน์</div>
 <div id="tvMenu" class="submenu">
-  <div class="menu-link" data-url="https://nongakka.github.io/doofree/iptv.html">ดิจิตอลทีวี</div>
-  <div class="menu-link" data-url="https://nongakka.github.io/doofree/inwhd.html">INW HD</div>
+
+<div class="menu-link"
+     data-url="https://nongakka.github.io/doofree/iptv.html"
+     data-type="page">3BB
+     
+</div>
+  
+<div class="menu-link"
+     data-url="https://nongakka.github.io/doofree/inwhd.html"
+     data-type="page">INW HD
+     
+</div>
+
   
 </div>
 
 <!-- หนัง -->
 <div class="menu-title movie" data-menu="movieMenu">หนัง</div>
 <div id="movieMenu" class="submenu">
-  <div class="menu-link" data-url="https://nongakka.github.io/doofree/m3u2.html">ผู้เฒ่าพเนจร</div>
+  
+<div class="menu-link"
+     data-url="https://nongakka.github.io/doofree/m3u2.html"
+     data-type="page">ผู้เฒ่าพเนจร
+            
+</div>
   
 </div>
 
 <!-- ซีรีส์ -->
 <div class="menu-title series" data-menu="seriesMenu">ซีรีส์</div>
 <div id="seriesMenu" class="submenu">
-  <div class="menu-link" data-url="https://nongakka.github.io/doofree/serie_m3u.html">ผู้เฒ่าพเนจร</div>
-  
+
+<div class="menu-link"
+     data-url="https://nongakka.github.io/doofree/serie_m3u.html"
+     data-type="page">ผู้เฒ่าพเนจร
+</div>
+
 </div>
 
 <!-- อนิเมะ -->
 <div class="menu-title anime" data-menu="animeMenu">อนิเมะ</div>
 <div id="animeMenu" class="submenu">
-  <div class="menu-link" data-url="https://udzaa2238.github.io/oldman_wander/การ์ตูนมูฟวี่.html">การ์ตูนมูฟวี่</div>
-  <div class="menu-link" data-url="https://udzaa2238.github.io/All_Anemi/All_Anime(1).html">อนิเมะ</div>
+  
+<div class="menu-link"
+     data-url="https://udzaa2238.github.io/oldman_wander/การ์ตูนมูฟวี่.html"
+     data-type="iframe">การ์ตูนมูฟวี่
+</div>
+
+<div class="menu-link"
+     data-url="https://udzaa2238.github.io/All_Anemi/All_Anime(1).html"
+     data-type="iframe">อนิเมะ
+</div>
+
+  
 </div>
 
 <!-- M3U -->
 <div class="menu-title m3u" data-menu="m3uMenu">MOVIE M3U</div>
 <div id="m3uMenu" class="submenu">
-  <div class="menu-link" data-url="https://nongakka.github.io/doofree/MOVIE_02.html">เพิ่ม M3U เอง</div>
-
+  
+<div class="menu-link"
+     data-url="https://nongakka.github.io/doofree/MOVIE_02.html"
+     data-type="page">เพิ่ม M3U เอง
 </div>
 
+</div>
 </div>
 
 <div id="main-player">
@@ -254,30 +287,28 @@ menuTitles.forEach(title=>{
     target.classList.toggle("open");
   });
 });
+
 links.forEach(link=>{
   link.addEventListener("click",()=>{
 
-    // ลบ active เมนูย่อยทั้งหมด
     links.forEach(l=>l.classList.remove("active"));
     link.classList.add("active");
 
-    // ลบ active หัวข้อทั้งหมด
-    menuTitles.forEach(t=>t.classList.remove("active-title"));
+    const url = link.dataset.url;
+    const type = link.dataset.type || "iframe"; // ค่าเริ่มต้น
 
-    // หา submenu ที่ parent อยู่
-    const parentSubmenu = link.closest(".submenu");
-
-    // หา menu-title ที่ควบคุม submenu นี้
-    menuTitles.forEach(title=>{
-      if(title.dataset.menu === parentSubmenu.id){
-        title.classList.add("active-title");
-        parentSubmenu.classList.add("open"); // เปิดเมนูให้แน่ใจว่าแสดงอยู่
-      }
-    });
-
-    iframe.src = link.dataset.url;
-    iframe.style.display="block";
-    welcome.style.display="none";
+    // 🔥 เลือกการเปิดตามประเภท
+    if(type === "iframe"){
+        iframe.src = url;
+        iframe.style.display="block";
+        welcome.style.display="none";
+    }
+    else if(type === "page"){
+        window.location.href = url;
+    }
+    else if(type === "blank"){
+        window.open(url, "_blank");
+    }
 
     if(window.innerWidth<768){
       sidebar.classList.add("hidden");
