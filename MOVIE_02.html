@@ -584,24 +584,37 @@ else if(line.includes("license_type=")){
 }
 
 else if(line.includes("license_key=")){
-    pendingDRM=pendingDRM||{};
-    pendingDRM.licenseServer=line.split("=")[1].trim();
+    pendingDRM = pendingDRM || {};
+    const value = line.substring(line.indexOf("license_key=") + 12).trim();
+
+    if(value.startsWith("http")){
+        // Widevine license server
+        pendingDRM.type = "widevine";
+        pendingDRM.licenseServer = value;
+    }else{
+        // ClearKey
+        const parts = value.split(":");
+        if(parts.length === 2){
+            pendingDRM.type = "clearkey";
+            pendingDRM.keyId = parts[0].trim();
+            pendingDRM.key = parts[1].trim();
+        }
+    }
 }
 
 else if(line && !line.startsWith("#") && current){
 
-    // กรองเฉพาะไฟล์สตรีมจริง
-    if(
-        line.includes(".m3u8") ||
-        line.includes(".mp4") ||
-        line.includes(".mpd")
-    ){
-        current.url=line;
-        if(pendingDRM) current.drm=pendingDRM;
+    // รับทุก URL ที่เป็น http
+    if(line.startsWith("http")){
+
+        current.url = line;
+
+        if(pendingDRM) current.drm = pendingDRM;
+
         channels.push(current);
     }
 
-    current=null;
+    current = null;
 }
 
 });
@@ -692,67 +705,67 @@ document.getElementById("jw-player").style.display="none";
 video.style.display="block";
 }
 
+
+function hexToBase64(hex){
+    if(!hex) return "";
+    const bytes = hex.match(/.{1,2}/g).map(b => parseInt(b,16));
+    return btoa(String.fromCharCode(...bytes));
+}
+
 /* PLAY */
+
 function playStream(channel){
-overlay.classList.add("active");
-playerContainer.classList.add("active");
-resetPlayers();
 
-const url=channel.url.toLowerCase();
+    overlay.classList.add("active");
+    playerContainer.classList.add("active");
+    resetPlayers();
 
-if(url.includes(".m3u8")){
-if(video.canPlayType("application/vnd.apple.mpegurl")){
-video.src=channel.url;
-video.play();
-}else if(Hls.isSupported()){
-hls=new Hls();
-hls.loadSource(channel.url);
-hls.attachMedia(video);
-hls.on(Hls.Events.MANIFEST_PARSED,()=>video.play());
-}
-}
-else if(url.includes(".mpd")){
-    dashPlayer=dashjs.MediaPlayer().create();
+    video.style.display = "none";
+    document.getElementById("jw-player").style.display = "block";
+
+    let setupConfig = {
+        file: channel.url,
+        width: "100%",
+        height: "100%",
+        autostart: true,
+        primary: "html5"
+    };
+
+    if(channel.url.includes(".mpd")){
+        setupConfig.type = "dash";
+    }
+
+    if(channel.url.includes(".m3u8")){
+        setupConfig.type = "hls";
+    }
 
     if(channel.drm){
 
-        if(channel.drm.type==="widevine" && channel.drm.licenseServer){
-            dashPlayer.setProtectionData({
-                "com.widevine.alpha":{
-                    serverURL:channel.drm.licenseServer
+        setupConfig.type = "dash";
+
+        if(channel.drm.type === "widevine"){
+            setupConfig.drm = {
+                widevine: {
+                    url: channel.drm.licenseServer
                 }
-            });
+            };
         }
 
-        if(channel.drm.type==="clearkey" && channel.drm.licenseServer){
-            const parts = channel.drm.licenseServer.split(":");
+        if(channel.drm.type === "clearkey"){
 
-            if(parts.length === 2){
-                const keyId = parts[0];
-                const key = parts[1];
-
-                dashPlayer.setProtectionData({
-                    "org.w3.clearkey":{
-                        clearkeys:{ [keyId]: key }
-                    }
-                });
-            }
+    setupConfig.drm = {
+        clearkey: {
+            keyId: channel.drm.keyId,
+            key: channel.drm.key
         }
+    };
+}
     }
 
-    dashPlayer.initialize(video,channel.url,true);
+    // ✅ ต้องอยู่นอก if(drm)
+    jwInstance = jwplayer("jw-player").setup(setupConfig);
 }
-else{
-video.style.display="none";
-document.getElementById("jw-player").style.display="block";
-jwInstance=jwplayer("jw-player").setup({
-file:channel.url,
-width:"100%",
-height:"100%",
-autostart:true
-});
-}
-}
+    
 
 /* CLOSE */
 overlay.onclick=()=>{
