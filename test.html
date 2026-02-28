@@ -793,47 +793,40 @@ function resetPlayers(){
 
     console.log("Reset Players");
 
-    /* ===== HLS ===== */
     if(hls){
-        try{
-            hls.destroy();
-        }catch(e){}
+        try{ hls.destroy(); }catch(e){}
         hls = null;
     }
 
-    /* ===== DASH ===== */
     if(dashPlayer){
-        try{
-            dashPlayer.reset();
-        }catch(e){}
+        try{ dashPlayer.reset(); }catch(e){}
         dashPlayer = null;
     }
 
-    /* ===== JW ===== */
-    if(window.jwplayer && jwplayer("jwContainer")){
-        try{
-            jwplayer("jwContainer").remove();
-        }catch(e){}
+    if(window.jwplayer){
+        try{ jwplayer("jw-player").remove(); }catch(e){}
     }
 
-    /* ===== VIDEO HARD RESET ===== */
-const oldVideo = document.getElementById("videoPlayer");
+    const oldVideo = document.getElementById("videoPlayer");
 
-if(oldVideo){
+    if(oldVideo){
 
-    oldVideo.pause();
-    oldVideo.removeAttribute("src");
-    oldVideo.load();
+        oldVideo.pause();
+        oldVideo.removeAttribute("src");
+        oldVideo.load();
 
-    const newVideo = oldVideo.cloneNode(true);
-    oldVideo.parentNode.replaceChild(newVideo, oldVideo);
+        const newVideo = oldVideo.cloneNode(true);
+        oldVideo.parentNode.replaceChild(newVideo, oldVideo);
 
-    // ⭐ สำคัญมาก
-    video = newVideo;
-}
+        video = newVideo;
+
+        video.style.display = "block";
+        document.getElementById("jw-player").style.display = "none";
+    }
 
     setPlayerLabel("Auto");
 }
+
 /* PLAY */
 function playStream(channel){
 
