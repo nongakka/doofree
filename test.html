@@ -495,6 +495,21 @@ z-index:1200;        /* มากกว่า player */
 <div id="player-container">
 <button id="closePlayer" class="close-btn">✕</button>
 
+<!-- 🔽 วางตรงนี้ -->
+<div id="player-type-label"
+     style="position:absolute;
+            top:15px;
+            right:80px;
+            background:rgba(0,0,0,.6);
+            padding:6px 12px;
+            border-radius:20px;
+            font-size:13px;
+            font-weight:500;
+            z-index:1200;">
+    ไม่มีการเล่น
+</div>
+<!-- 🔼 จบตรงนี้ -->
+
 <!-- 🔽 วางปุ่มตรงนี้ -->
 <div style="position:absolute;top:20px;left:20px;z-index:1200;">
 <button id="switchPlayerBtn"
@@ -521,9 +536,15 @@ let jwInstance=null;
 let currentChannel = null;
 let forcedPlayer = null; // null = auto | "html5" | "jw"
 
+function setPlayerLabel(text){
+    const label = document.getElementById("player-type-label");
+    if(label){
+        label.textContent = "ตัวเล่น: " + text;
+    }
+}
 const grid=document.getElementById("movieGrid");
 const categoryList=document.getElementById("categoryList");
-const video=document.getElementById("videoPlayer");
+let video=document.getElementById("videoPlayer");
 const overlay=document.getElementById("overlay");
 const playerContainer=document.getElementById("player-container");
 const closeBtn = document.getElementById("closePlayer");
@@ -770,32 +791,49 @@ grid.appendChild(card);
 /* PLAYER RESET */
 function resetPlayers(){
 
-if(hls){
-    hls.destroy();
-    hls = null;
+    console.log("Reset Players");
+
+    /* ===== HLS ===== */
+    if(hls){
+        try{
+            hls.destroy();
+        }catch(e){}
+        hls = null;
+    }
+
+    /* ===== DASH ===== */
+    if(dashPlayer){
+        try{
+            dashPlayer.reset();
+        }catch(e){}
+        dashPlayer = null;
+    }
+
+    /* ===== JW ===== */
+    if(window.jwplayer && jwplayer("jwContainer")){
+        try{
+            jwplayer("jwContainer").remove();
+        }catch(e){}
+    }
+
+    /* ===== VIDEO HARD RESET ===== */
+const oldVideo = document.getElementById("videoPlayer");
+
+if(oldVideo){
+
+    oldVideo.pause();
+    oldVideo.removeAttribute("src");
+    oldVideo.load();
+
+    const newVideo = oldVideo.cloneNode(true);
+    oldVideo.parentNode.replaceChild(newVideo, oldVideo);
+
+    // ⭐ สำคัญมาก
+    video = newVideo;
 }
 
-if(dashPlayer){
-    dashPlayer.reset();
-    dashPlayer = null;
+    setPlayerLabel("Auto");
 }
-
-if(jwInstance){
-    jwInstance.remove();
-    document.getElementById("jw-player").innerHTML="";
-    jwInstance=null;
-}
-
-/* 🔥 reset video ให้ล้างจริง */
-video.pause();
-video.removeAttribute("src");
-video.src = "";
-video.load();
-
-video.style.display="block";
-document.getElementById("jw-player").style.display="none";
-}
-
 /* PLAY */
 function playStream(channel){
 
@@ -825,14 +863,29 @@ if(forcedPlayer === "jw"){
     return;
 }
 
+
 /* ===== ถ้าเป็น m3u8 ===== */
 if(url.includes(".m3u8") && forcedPlayer !== "jw"){
 
+    /* ===== Native HLS ===== */
     if(video.canPlayType("application/vnd.apple.mpegurl")){
+
+        setPlayerLabel("HTML5 Native HLS");
         video.src = channel.url;
+
         video.play().catch(()=>{});
-    } 
+
+        video.addEventListener("error", function(){
+            console.log("Video error → fallback JW");
+            setPlayerLabel("JWPlayer (fallback)");
+            startJW(channel);
+        }, { once: true });
+    }
+
+    /* ===== HLS.js ===== */
     else if(typeof Hls !== "undefined" && Hls.isSupported()){
+
+        setPlayerLabel("HLS.js");
 
         hls = new Hls({
             enableWorker: true,
@@ -843,36 +896,55 @@ if(url.includes(".m3u8") && forcedPlayer !== "jw"){
         hls.attachMedia(video);
 
         hls.on(Hls.Events.MANIFEST_PARSED, function(){
+
             video.play().catch(()=>{});
+
+            video.addEventListener("error", function(){
+                console.log("Video element error → fallback JW");
+                setPlayerLabel("JWPlayer (fallback)");
+                startJW(channel);
+            }, { once: true });
+
         });
 
-        /* 🔥 ถ้า error ให้ fallback ไป JW */
         hls.on(Hls.Events.ERROR, function(event, data){
             if(data.fatal){
-                console.log("HLS error → switch to JW");
-                forcedPlayer = "jw";
-                playStream(channel);
+                console.log("HLS fatal → fallback JW");
+                setPlayerLabel("JWPlayer (fallback)");
+                startJW(channel);
             }
         });
     }
 }
-
 /* ===== ถ้าเป็น mpd ===== */
 else if(url.includes(".mpd") && forcedPlayer !== "jw"){
 
-    dashPlayer = dashjs.MediaPlayer().create();
+    setPlayerLabel("MPEG-DASH (dash.js)");
 
-    dashPlayer.initialize(video, channel.url, true);
+    dashPlayer = dashjs.MediaPlayer().create();
+    dashPlayer.initialize(video, channel.url, false);
+
+    dashPlayer.on("streamInitialized", function(){
+
+        video.play().catch(()=>{});
+
+        video.addEventListener("error", function(){
+            console.log("Video element error → fallback JW");
+            setPlayerLabel("JWPlayer (fallback)");
+            startJW(channel);
+        }, { once: true });
+
+    });
 
     dashPlayer.on("error", function(){
-        console.log("DASH error → switch to JW");
-        forcedPlayer = "jw";
-        playStream(channel);
+        console.log("DASH error → fallback JW");
+        setPlayerLabel("JWPlayer (fallback)");
+        startJW(channel);
     });
 }
-
 /* ===== fallback JW ===== */
 else{
+    setPlayerLabel("JWPlayer");
     video.style.display="none";
     document.getElementById("jw-player").style.display="block";
     jwInstance=jwplayer("jw-player").setup({
