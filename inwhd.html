@@ -61,6 +61,49 @@ animation: pop .3s ease;
 from{transform:scale(.8);opacity:0}
 to{transform:scale(1);opacity:1}
 }
+
+.back-home{
+  position:fixed;
+  top:15px;
+  left:15px;   /* 🔥 เปลี่ยนจาก right เป็น left */
+  padding:10px 18px;
+  border-radius:50px;
+  font-weight:600;
+  cursor:pointer;
+  z-index:9999;
+
+  /* Glass Effect */
+  background:rgba(255,255,255,0.15);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+
+  border:1px solid rgba(255,255,255,0.3);
+  color:#fff;
+
+  box-shadow:0 8px 25px rgba(0,0,0,0.3);
+  transition:0.3s ease;
+}
+
+.back-home:hover{
+  background:linear-gradient(90deg,#ff512f,#dd2476);
+  transform:scale(1.05);
+  box-shadow:0 10px 30px rgba(255,0,150,0.6);
+}
+
+/* Mobile */
+@media(max-width:768px){
+  .back-home{
+    padding:8px 14px;
+    font-size:14px;
+    top:10px;
+    left:10px; /* 🔥 มือถือก็ซ้าย */
+  }
+}
+
+#playerModal{
+transition: opacity .3s ease;
+}
+
 </style>
 </head>
 <body class="text-white min-h-screen">
@@ -70,6 +113,9 @@ to{transform:scale(1);opacity:1}
 หรรมน้อย ออนไลน์
 </h1>
 
+<div class="back-home" onclick="goHome()">
+  ⬅ กลับหน้าหลัก
+</div>
 <div class="flex justify-center gap-4 flex-wrap">
 <button onclick="switchCategory('SPORTS')" id="btn-SPORTS" class="menu-btn">SPORTS</button>
 <button onclick="switchCategory('DIGITAL')" id="btn-DIGITAL" class="menu-btn">DIGITAL</button>
@@ -86,7 +132,11 @@ class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50 backdro
 
 <div class="modal-box w-11/12 md:w-3/4 lg:w-1/2 rounded-2xl p-4 relative">
 <button onclick="forceClose()" class="absolute top-3 right-4 text-red-400 text-2xl hover:text-red-600">✖</button>
-<iframe id="playerFrame" class="w-full h-72 md:h-96 rounded-xl" allowfullscreen></iframe>
+<iframe id="playerFrame"
+class="w-full h-72 md:h-96 rounded-xl"
+allowfullscreen
+sandbox="allow-scripts allow-same-origin allow-forms">
+</iframe>
 </div>
 
 </div>
@@ -217,11 +267,21 @@ if(e.target.id==="playerModal"){ forceClose(); }
 }
 
 function forceClose(){
+const modal = document.getElementById("playerModal");
 document.getElementById("playerFrame").src="";
-document.getElementById("playerModal").classList.add("hidden");
+modal.classList.add("hidden");
+modal.classList.remove("flex");
 }
 
 switchCategory("SPORTS");
+
+function goHome(){
+  if(document.referrer !== ""){
+      history.back();
+  }else{
+      window.location.href = "https://nongakka.github.io/doofree/index.html";
+  }
+}
 
 </script>
 </body>
