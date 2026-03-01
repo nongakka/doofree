@@ -57,29 +57,45 @@ th { background: #161b22; }
 let channelList = [];
 let generatedM3U = "";
 
-function extractStations(obj, parentGroup = "") {
+function extractStations(obj) {
     let list = [];
 
-    if (obj.stations) {
-        obj.stations.forEach(st => {
-            list.push({
-                name: st.name,
-                url: st.url,
-                image: st.image || "",
-                group: parentGroup
-            });
+    function walk(node, parentGroup = "") {
+        if (!node || typeof node !== "object") return;
+
+        let currentGroup = parentGroup;
+
+        // ถ้าเป็น group
+        if (node.name && !node.url) {
+            currentGroup = parentGroup
+                ? parentGroup + " | " + node.name
+                : node.name;
+        }
+
+        // ถ้าเป็นรายการ
+        if (node.name && typeof node.url === "string") {
+
+            let cleanUrl = node.url.trim();
+
+            // กรองเฉพาะ .m3u8
+            if (/\.m3u8(\?|$)/i.test(cleanUrl)) {
+
+                list.push({
+                    name: node.name.trim(),
+                    url: cleanUrl,
+                    image: node.image || "",
+                    group: currentGroup || "Default"
+                });
+
+            }
+        }
+
+        Object.values(node).forEach(value => {
+            walk(value, currentGroup);
         });
     }
 
-    if (obj.groups) {
-        obj.groups.forEach(group => {
-            const newPath = parentGroup
-                ? parentGroup + " | " + group.name
-                : group.name;
-            list = list.concat(extractStations(group, newPath));
-        });
-    }
-
+    walk(obj);
     return list;
 }
 
@@ -91,34 +107,106 @@ function buildM3U(data) {
     });
     return result;
 }
+function parseM3U(text) {
+    let list = [];
+    const lines = text.split("\n");
+
+    let currentName = "";
+    let currentGroup = "Default";
+    let currentLogo = "";
+
+    lines.forEach(line => {
+        line = line.trim();
+
+        if (line.startsWith("#EXTINF")) {
+
+            // ดึงชื่อ
+            const nameSplit = line.split(",");
+            currentName = nameSplit.length > 1 ? nameSplit[1].trim() : "Unknown";
+
+            // ดึง group
+            const groupMatch = line.match(/group-title="([^"]+)"/);
+            currentGroup = groupMatch ? groupMatch[1] : "Default";
+
+            // ดึง logo
+            const logoMatch = line.match(/tvg-logo="([^"]+)"/);
+            currentLogo = logoMatch ? logoMatch[1] : "";
+
+        } 
+        else if (line && !line.startsWith("#")) {
+
+            if (/\.m3u8(\?|$)/i.test(line)) {
+                list.push({
+                    name: currentName,
+                    url: line,
+                    image: currentLogo,
+                    group: currentGroup
+                });
+            }
+        }
+    });
+
+    return list;
+}
 
 function renderTable(data) {
     const tbody = document.querySelector("#channelTable tbody");
     tbody.innerHTML = "";
+
     data.forEach(ch => {
-        const row = `
-        <tr>
-            <td>${ch.name}</td>
-            <td>${ch.group}</td>
-            <td>${ch.url}</td>
-        </tr>`;
-        tbody.innerHTML += row;
+        const tr = document.createElement("tr");
+
+        const tdName = document.createElement("td");
+        tdName.textContent = ch.name;
+
+        const tdGroup = document.createElement("td");
+        tdGroup.textContent = ch.group;
+
+        const tdUrl = document.createElement("td");
+        tdUrl.textContent = ch.url;
+
+        tr.appendChild(tdName);
+        tr.appendChild(tdGroup);
+        tr.appendChild(tdUrl);
+
+        tbody.appendChild(tr);
     });
 }
 
 document.getElementById("fileInput").addEventListener("change", function(e){
+    const file = e.target.files[0];
     const reader = new FileReader();
+
     reader.onload = function(event) {
+
+        const text = event.target.result.replace(/^\uFEFF/, "").trim();
+
         try {
-            const jsonData = JSON.parse(event.target.result);
-            channelList = extractStations(jsonData);
+            // 🔎 ถ้าเป็น JSON
+            if (text.startsWith("{") || text.startsWith("[")) {
+                const jsonData = JSON.parse(text);
+                channelList = extractStations(jsonData);
+            } 
+            // 🔎 ถ้าเป็น W3U/M3U text
+            else if (text.startsWith("#EXTM3U")) {
+                channelList = parseM3U(text);
+            } 
+            else {
+                throw new Error("Unknown format");
+            }
+
             generatedM3U = buildM3U(channelList);
             renderTable(channelList);
-        } catch {
-            alert("ไฟล์ไม่ถูกต้อง");
+
+            console.log("จำนวนรายการ:", channelList.length);
+
+        } catch (err) {
+            console.error(err);
+            alert("ไฟล์ไม่ถูกต้อง หรือ format ไม่รองรับ");
         }
     };
-    reader.readAsText(e.target.files[0]);
+
+    reader.readAsText(file);
 });
 
 function downloadM3U() {
