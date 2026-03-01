@@ -837,31 +837,46 @@ if(url.includes(".m3u8") && forcedPlayer !== "jw"){
     }
 }
 /* ===== ถ้าเป็น mpd ===== */
-else if(url.includes(".mpd") && forcedPlayer !== "jw"){
+else if(url.includes(".mpd")){
 
-    setPlayerLabel("MPEG-DASH (dash.js)");
+    /* 🔒 ถ้าเป็น ClearKey → บังคับ JWPlayer */
+    if(channel.drm && channel.drm.type === "clearkey"){
+        console.log("ClearKey → ใช้ JW เท่านั้น");
+        setPlayerLabel("JWPlayer (ClearKey DRM)");
+        startJW(channel);
+        return;
+    }
 
-    dashPlayer = dashjs.MediaPlayer().create();
-    dashPlayer.initialize(video, channel.url, false);
+    /* ===== DASH ปกติ (ไม่มี DRM หรือ Widevine) ===== */
+    if(forcedPlayer !== "jw"){
 
-    dashPlayer.on("streamInitialized", function(){
+        setPlayerLabel("MPEG-DASH (dash.js)");
 
-        video.play().catch(()=>{});
+        dashPlayer = dashjs.MediaPlayer().create();
 
-        video.addEventListener("error", function(){
-            console.log("Video element error → fallback JW");
+        if(channel.drm && channel.drm.type === "widevine" && channel.drm.licenseServer){
+
+            dashPlayer.setProtectionData({
+                "com.widevine.alpha": {
+                    serverURL: channel.drm.licenseServer
+                }
+            });
+        }
+
+        dashPlayer.initialize(video, channel.url, false);
+
+        dashPlayer.on("streamInitialized", function(){
+            video.play().catch(()=>{});
+        });
+
+        dashPlayer.on("error", function(){
             setPlayerLabel("JWPlayer (fallback)");
             startJW(channel);
-        }, { once: true });
-
-    });
-
-    dashPlayer.on("error", function(){
-        console.log("DASH error → fallback JW");
-        setPlayerLabel("JWPlayer (fallback)");
-        startJW(channel);
-    });
+        });
+    }
 }
+
+
 /* ===== fallback JW ===== */
 else{
     setPlayerLabel("JWPlayer (Fallback)");
