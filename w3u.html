@@ -37,7 +37,9 @@ textarea {
 <input type="text" id="searchBox" placeholder="ค้นหาชื่อ...">
 <button onclick="copyM3U()">Copy M3U</button>
 <button onclick="downloadM3U()">Download M3U</button>
+<button onclick="exportByDomain()">Export แยกตาม Domain</button>
 <button onclick="resetAll()" style="background:#8b0000;">Reset</button>
+
 <div id="dropZone">ลากไฟล์มาวางที่นี่</div>
 
 <div class="stats">
@@ -49,7 +51,7 @@ textarea {
 <thead>
 <tr>
 <th>ชื่อ</th>
-<th>หมวดหมู่</th>
+<th>Domain</th>
 <th>URL</th>
 </tr>
 </thead>
@@ -60,9 +62,10 @@ textarea {
 
 <script>
 let channelList = [];
+let groupedData = {};
 let generatedM3U = "";
 
-// 🔥 ดึง domain จาก URL
+// ===== Utility =====
 function getDomain(url){
   try{
     return new URL(url).hostname.replace("www.","");
@@ -71,12 +74,11 @@ function getDomain(url){
   }
 }
 
-// 🔥 Ultra Extract + Group by Domain
+// ===== Ultra Extract =====
 function ultraExtract(text){
 
   const results = [];
   const seen = new Set();
-
   const blockRegex = /{[^{}]*}/g;
   const blocks = text.match(blockRegex) || [];
 
@@ -92,13 +94,11 @@ function ultraExtract(text){
       if(seen.has(url)) return;
       seen.add(url);
 
-      const domain = getDomain(url);
-
       results.push({
         name: nameMatch ? nameMatch[1].trim() : "Unknown",
         image: imageMatch ? imageMatch[2].trim() : "",
         url: url,
-        group: domain
+        domain: getDomain(url)
       });
     }
   });
@@ -106,66 +106,157 @@ function ultraExtract(text){
   return results;
 }
 
-function handleFile(text){
+// ===== Grouping =====
+function groupByDomain(data){
 
-  text = text.replace(/^\uFEFF/, "").trim();
+  groupedData = {};
 
-  if(!text){
-    alert("ไฟล์ว่าง");
-    return;
-  }
+  data.forEach(ch=>{
+    if(!groupedData[ch.domain])
+      groupedData[ch.domain] = [];
+    groupedData[ch.domain].push(ch);
+  });
 
-  channelList = ultraExtract(text);
-
-  if(channelList.length === 0){
-    alert("ไม่พบลิงก์ .m3u8");
-    return;
-  }
-
-  document.getElementById("totalCount").textContent = channelList.length;
-  document.getElementById("showCount").textContent = channelList.length;
-
-  renderTable(channelList);
-  buildPreview(channelList);
+  // เรียง domain
+  groupedData = Object.fromEntries(
+    Object.entries(groupedData).sort((a,b)=>a[0].localeCompare(b[0]))
+  );
 }
+function applySearchFilter(){
 
-function renderTable(data){
+  const keyword = document.getElementById("searchBox").value.toLowerCase();
+
+  if(!keyword){
+    groupByDomain(channelList);
+  }else{
+    const filtered = channelList.filter(ch =>
+      ch.name.toLowerCase().includes(keyword) ||
+      ch.domain.toLowerCase().includes(keyword)
+    );
+    groupByDomain(filtered);
+  }
+
+  renderTable();
+  buildPreview();
+}
+// ===== Render Table =====
+function renderTable(){
 
   const tbody = document.getElementById("tableBody");
   tbody.innerHTML = "";
 
-  data.forEach(ch=>{
-    const tr = document.createElement("tr");
+  Object.keys(groupedData).forEach(domain=>{
 
-    const tdName = document.createElement("td");
-    tdName.textContent = ch.name;
+    // Header Row
+    const header = document.createElement("tr");
+    header.style.background="#161b22";
+    header.innerHTML = `
+      <td colspan="3" style="cursor:pointer;">
+        ▶ ${domain} (${groupedData[domain].length})
+      </td>
+    `;
 
-    const tdGroup = document.createElement("td");
-    tdGroup.textContent = ch.group;
+    let collapsed = true;
 
-    const tdUrl = document.createElement("td");
-    tdUrl.textContent = ch.url;
+    header.onclick = ()=>{
+      collapsed = !collapsed;
+      rows.forEach(r=>r.style.display = collapsed ? "none" : "");
+      header.cells[0].innerHTML =
+        `${collapsed ? "▶" : "▼"} ${domain} (${groupedData[domain].length})`;
+    };
 
-    tr.appendChild(tdName);
-    tr.appendChild(tdGroup);
-    tr.appendChild(tdUrl);
+    tbody.appendChild(header);
 
-    tbody.appendChild(tr);
+    const rows = [];
+
+    groupedData[domain].forEach(ch=>{
+      const tr = document.createElement("tr");
+      tr.style.display = "none";
+
+      tr.innerHTML = `
+        <td>${ch.name}</td>
+        <td>${domain}</td>
+        <td>${ch.url}</td>
+      `;
+
+      rows.push(tr);
+      tbody.appendChild(tr);
+    });
   });
 }
 
-function buildPreview(data){
+// ===== Build M3U =====
+function buildPreview(){
 
   generatedM3U = "#EXTM3U\n\n";
 
-  data.forEach(ch=>{
-    generatedM3U += `#EXTINF:-1 tvg-name="${ch.name}" tvg-logo="${ch.image}" group-title="${ch.group}",${ch.name}\n`;
-    generatedM3U += `${ch.url}\n\n`;
+  Object.keys(groupedData).forEach(domain=>{
+    groupedData[domain].forEach(ch=>{
+      generatedM3U +=
+        `#EXTINF:-1 tvg-name="${ch.name}" tvg-logo="${ch.image}" group-title="${domain}",${ch.name}\n`;
+      generatedM3U += `${ch.url}\n\n`;
+    });
   });
 
   document.getElementById("preview").value = generatedM3U;
 }
 
+// ===== Export Separate by Domain =====
+function exportByDomain(){
+
+  Object.keys(groupedData).forEach(domain=>{
+
+    let m3u = "#EXTM3U\n\n";
+
+    groupedData[domain].forEach(ch=>{
+      m3u +=
+        `#EXTINF:-1 tvg-name="${ch.name}" tvg-logo="${ch.image}" group-title="${domain}",${ch.name}\n`;
+      m3u += `${ch.url}\n\n`;
+    });
+
+    const blob = new Blob([m3u], {type:"application/x-mpegURL"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = domain + ".m3u";
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+}
+
+// ===== File Handler =====
+function handleFile(text){
+
+  text = text.replace(/^\uFEFF/, "").trim();
+  if(!text) return alert("ไฟล์ว่าง");
+
+  channelList = ultraExtract(text);
+  if(channelList.length === 0)
+    return alert("ไม่พบลิงก์ .m3u8");
+
+  document.getElementById("totalCount").textContent = channelList.length;
+  document.getElementById("showCount").textContent = channelList.length;
+
+  groupByDomain(channelList);
+  renderTable();
+  buildPreview();
+}
+
+// ===== Reset =====
+function resetAll(){
+
+  channelList = [];
+  groupedData = {};
+  generatedM3U = "";
+
+  document.getElementById("tableBody").innerHTML="";
+  document.getElementById("preview").value="";
+  document.getElementById("totalCount").textContent=0;
+  document.getElementById("showCount").textContent=0;
+  document.getElementById("fileInput").value="";
+}
+
+// ===== Download Combined =====
 function downloadM3U(){
   if(!generatedM3U) return alert("ไม่มีข้อมูล");
 
@@ -173,37 +264,18 @@ function downloadM3U(){
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = "playlist_by_domain.m3u";
+  a.download = "enterprise_playlist.m3u";
   a.click();
   URL.revokeObjectURL(url);
 }
 
-function copyM3U(){
-  if(!generatedM3U) return alert("ไม่มีข้อมูล");
-  navigator.clipboard.writeText(generatedM3U);
-  alert("Copy สำเร็จ");
-}
-
-// 🔥 ปุ่มรีเซต
-function resetAll(){
-  channelList = [];
-  generatedM3U = "";
-
-  document.getElementById("tableBody").innerHTML = "";
-  document.getElementById("preview").value = "";
-  document.getElementById("totalCount").textContent = 0;
-  document.getElementById("showCount").textContent = 0;
-  document.getElementById("fileInput").value = "";
-}
-
-// File Input
+// ===== Events =====
 document.getElementById("fileInput").addEventListener("change",e=>{
   const reader = new FileReader();
   reader.onload = ev => handleFile(ev.target.result);
   reader.readAsText(e.target.files[0]);
 });
 
-// Drag Drop
 document.getElementById("dropZone").addEventListener("dragover",e=>e.preventDefault());
 document.getElementById("dropZone").addEventListener("drop",e=>{
   e.preventDefault();
@@ -211,6 +283,8 @@ document.getElementById("dropZone").addEventListener("drop",e=>{
   reader.onload = ev => handleFile(ev.target.result);
   reader.readAsText(e.dataTransfer.files[0]);
 });
+document.getElementById("searchBox")
+  .addEventListener("input", applySearchFilter);
 </script>
 
 </body>
