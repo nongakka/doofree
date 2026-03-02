@@ -8,8 +8,9 @@
     <script>
         jwplayer.key = 'XSuP4qMl+9tK17QNb+4+th2Pm9AWgMO/cYH8CI0HGGr7bdjo';
     </script>
-
-    <style>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    
+<style>
         body {
             margin: 0;
             padding: 0;
@@ -21,12 +22,23 @@
             align-items: center;
         }
 
-        #player {
-            width: 60%;
-            max-width: 1200px;
-            aspect-ratio: 16/9;
-            margin-top: 10px;
-        }
+        #player-container {
+    width: 60%;
+    max-width: 1200px;
+    margin: 10px auto;
+    position: relative;
+    aspect-ratio: 16 / 9;
+    background: black;
+}
+
+#jw-player,
+#html5-player {
+    width: 100% !important;
+    height: 100% !important;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
 
         #channel-list {
             margin: 10px auto;
@@ -155,7 +167,16 @@
 </div>
 	<h2 style="color:orange; text-align:center;">หรรมน้อย IPTV</h2>
 	
-    <div id="player"></div>
+    <div id="player-container">
+    <div id="jw-player"></div>
+    <video id="html5-player"
+    controls
+    autoplay
+    muted
+    playsinline
+    style="width:100%; display:none; background:black;">
+</video>
+</div>
 
 	<h2 style="color:orange; text-align:center;">ทีวีออนไลน์</h2>
 
@@ -461,12 +482,23 @@
             	},
 		
 				{
-                name: "Monomax2",
-                logo: "https://www.fileinwtv.site/postor/20250830165343Mono2.jpg",
-                file: "https://ww.dooballfree.vip/live/monomax-2/playlist.m3u8",
+                name: "Monomax1",
+                logo: "https://www.fileinwtv.site/postor/20250830165328Mono1.jpg",
+                file: "https://love.r95lvvlb9o.workers.dev:443/lx-origin/th-monomax01_720/chunks.m3u8",
                 drm: false
             	},	
-		
+		{
+                name: "Monomax2",
+                logo: "https://www.fileinwtv.site/postor/20250830165343Mono2.jpg",
+                file: "https://love.r95lvvlb9o.workers.dev:443/lx-origin/th-monomax02_720/chunks.m3u8",
+                drm: false
+            	},
+		{
+                name: "Monomax3",
+                logo: "https://www.fileinwtv.site/postor/20250830165408Mono3.jpg",
+                file: "https://love.r95lvvlb9o.workers.dev:443/lx-origin/th-monomax03_720/chunks.m3u8",
+                drm: false
+            	},
 				{
              	name: "SPOTV",
                 logo: "https://www.fileinwtv.site/postor/20240418193126SPOTV.jpg",
@@ -548,31 +580,91 @@
 
 
     // โหลดช่อง + ตั้งค่า player
-    function loadChannel(channel, element) {
+    let currentHls = null;
 
-        document.querySelectorAll('.channel').forEach(ch => ch.classList.remove('active'));
-        if (element) element.classList.add('active');
+function loadChannel(channel, element) {
 
-        jwplayer("player").setup({
-            file: channel.file,
-            drm: channel.drm ? {
-                clearkey: {
-                    keyId: channel.keyId,
-                    key: channel.key
-                }
-            } : undefined,
-            width: "60%",
-            aspectratio: "16:9",
-            autostart: true,
-            volume: 25    // <<< เสียงเริ่ม 25%
-        });
+    document.querySelectorAll('.channel')
+        .forEach(ch => ch.classList.remove('active'));
+    if (element) element.classList.add('active');
+
+    const jwContainer = document.getElementById("jw-player");
+    const html5Video = document.getElementById("html5-player");
+
+    // รีเซ็ตของเก่า
+    if (currentHls) {
+        currentHls.destroy();
+        currentHls = null;
     }
+
+    try {
+        jwplayer("jw-player").remove();
+    } catch (e) {}
+
+    html5Video.pause();
+    html5Video.src = "";
+    html5Video.style.display = "none";
+    jwContainer.style.display = "block";
+
+    // ---------------------------
+    // ✅ ให้ JW ลองเล่นก่อนเสมอ
+    // ---------------------------
+    const jwConfig = {
+        file: channel.file,
+        width: "100%",
+        aspectratio: "16:9",
+        autostart: true,
+        mute: true
+    };
+
+    // ถ้ามี DRM ใส่เพิ่ม
+    if (channel.drm) {
+        jwConfig.drm = {
+            clearkey: {
+                keyId: channel.keyId,
+                key: channel.key
+            }
+        };
+    }
+
+    const playerInstance = jwplayer("jw-player").setup(jwConfig);
+
+    let fallbackUsed = false;
+
+    // ---------------------------
+    // ❌ ถ้า JW error → สลับ HTML5
+    // ---------------------------
+    playerInstance.on("error", function () {
+        if (!fallbackUsed) {
+            fallbackUsed = true;
+            console.log("JW Error → Switch to HTML5");
+            useHTML5(channel.file);
+        }
+    });
+
+    // ---------------------------
+    // ⏳ ถ้าโหลดไม่ขึ้นใน 8 วิ → สลับ
+    // ---------------------------
+    setTimeout(() => {
+   const state = playerInstance.getState();
+
+   if (state !== "playing" && state !== "buffering" && !fallbackUsed) {
+       fallbackUsed = true;   // ❗ เพิ่มบรรทัดนี้
+       useHTML5(channel.file);
+   }
+
+}, 12000);
+}
+
+    // โหลดช่องแรกทันที
+    document.addEventListener("DOMContentLoaded", function () {
 
     const listContainer = document.getElementById("channel-list");
     let firstChannel = null;
     let firstElement = null;
 
     channels.forEach((ch, index) => {
+
         const div = document.createElement("div");
         div.className = "channel";
         div.innerHTML = `<img src="${ch.logo}"><span>${ch.name}</span>`;
@@ -586,35 +678,39 @@
         listContainer.appendChild(div);
     });
 
-    // โหลดช่องแรกทันที
-    window.onload = () => {
-        if (firstChannel) {
-            firstElement.classList.add("active");
-            loadChannel(firstChannel, firstElement);
-        }
-    };
+    // โหลดช่องแรกอัตโนมัติ
+    if (firstChannel && firstElement) {
+        firstElement.classList.add("active");
+        loadChannel(firstChannel, firstElement);
+    }
 
-</script>
+});
+function useHTML5(url) {
 
-<!-- 🔽 ตัวนับจำนวนผู้เข้าชม -->
-<p id="counter" style="margin:15px; color:#aaa; font-size:14px;">
-    กำลังโหลดจำนวนผู้เข้าชม...
-</p>
+    const jwContainer = document.getElementById("jw-player");
+    const html5Video = document.getElementById("html5-player");
 
-<!-- 🔽 ใส่ script ตรงนี้ (ก่อนปิด body) -->
-<script>
-let count = localStorage.getItem("visitCount");
+    jwContainer.style.display = "none";
+    html5Video.style.display = "block";
 
-if (count === null) {
-    count = 1;
-} else {
-    count = parseInt(count) + 1;
+    if (html5Video.canPlayType('application/vnd.apple.mpegurl')) {
+        html5Video.src = url;
+        html5Video.play();
+    } 
+    else if (Hls.isSupported()) {
+
+        currentHls = new Hls();
+        currentHls.loadSource(url);
+        currentHls.attachMedia(html5Video);
+
+        currentHls.on(Hls.Events.MANIFEST_PARSED, function () {
+            html5Video.play();
+        });
+    }
 }
-
-localStorage.setItem("visitCount", count);
-document.getElementById("counter").innerText =
-    "ผู้เข้าชมเว็บไซต์: " + count + " ครั้ง";
 </script>
+
+
 <script>
 function goHome(){
   window.location.href = "https://nongakka.github.io/doofree/index.html";
