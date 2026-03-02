@@ -538,7 +538,17 @@ let jwInstance=null;
 
 let currentChannel = null;
 let forcedPlayer = null; // null = auto | "html5" | "jw"
+function setDefaultVolumeHTML5(){
+    if(video){
+        video.volume = 0.25;   // 🔊 25%
+    }
+}
 
+function setDefaultVolumeJW(){
+    if(jwInstance){
+        jwInstance.setVolume(25); // 🔊 25% (JW ใช้ 0-100)
+    }
+}
 function setPlayerLabel(text){
     const label = document.getElementById("player-type-label");
     if(label){
@@ -1276,3 +1286,4 @@ playStream(currentChannel);
 </body>
 
 </html>
+
