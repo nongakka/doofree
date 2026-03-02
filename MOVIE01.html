@@ -1014,6 +1014,7 @@ function playStream(channel){
 
         }else{
             video.src = channel.url;
+			setDefaultVolumeHTML5();   // 🔊 25%
             video.play().catch(()=>{});
         }
 
@@ -1152,7 +1153,8 @@ return;
         let playTimeout;
 
         hls.on(Hls.Events.MANIFEST_PARSED, function(){
-            video.play().catch(()=>{});
+            setDefaultVolumeHTML5();   // 🔊 25%
+			video.play().catch(()=>{});
 
             playTimeout = setTimeout(()=>{
                 if(video.readyState < 2){
@@ -1294,5 +1296,6 @@ playStream(currentChannel);
 </body>
 
 </html>
+
 
 
