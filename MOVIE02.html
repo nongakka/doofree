@@ -476,7 +476,7 @@ z-index:1200;        /* มากกว่า player */
 </div>
 
 <div class="sidebar-section">
-<h3>รายการหนัง</h3>
+<h3>ซีรีย์ออนไลน์</h3>
 <div id="mainMenu" style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px;"></div>
 
 <hr style="margin:15px 0;">
@@ -538,7 +538,17 @@ let jwInstance=null;
 
 let currentChannel = null;
 let forcedPlayer = null; // null = auto | "html5" | "jw"
+function setDefaultVolumeHTML5(){
+    if(video){
+        video.volume = 0.25;   // 🔊 25%
+    }
+}
 
+function setDefaultVolumeJW(){
+    if(jwInstance){
+        jwInstance.setVolume(25); // 🔊 25% (JW ใช้ 0-100)
+    }
+}
 function setPlayerLabel(text){
     const label = document.getElementById("player-type-label");
     if(label){
@@ -565,6 +575,7 @@ playerContainer.addEventListener("click", e => {
 /* ================= PLAYLIST CONFIG ================= */
 
 const PLAYLISTS = [
+
 
 {
     name: "ซีรีย์จีน",
@@ -933,6 +944,9 @@ function startJW(channel){
         height: "100%",
         autostart: true
     });
+	jwInstance.on('ready', function(){
+    setDefaultVolumeJW();   // ✅ 25%
+});
 }
 
 /* PLAY */
@@ -983,11 +997,13 @@ function playStream(channel){
             hls.attachMedia(video);
 
             hls.on(Hls.Events.MANIFEST_PARSED,function(){
-                video.play().catch(()=>{});
-            });
+    setDefaultVolumeHTML5();   // ✅ เพิ่มบรรทัดนี้
+    video.play().catch(()=>{});
+});
 
         }else{
             video.src = channel.url;
+			setDefaultVolumeHTML5();   // 🔊 25%
             video.play().catch(()=>{});
         }
 
@@ -1037,6 +1053,9 @@ return;
         }
 
         jwInstance = jwplayer("jw-player").setup(config);
+		jwInstance.on('ready', function(){
+    setDefaultVolumeJW();   // 🔊 25%
+});
         return;
     }
 
@@ -1062,7 +1081,7 @@ return;
     }
 
     dashPlayer.initialize(video, channel.url, true);
-
+    setDefaultVolumeHTML5();
     dashPlayer.on(dashjs.MediaPlayer.events.ERROR, function(){
         try{ dashPlayer.reset(); }catch(e){}
         dashPlayer = null;
@@ -1089,6 +1108,7 @@ return;
         setPlayerLabel("Native HLS");
         video.src = channel.url;
         video.load();
+		setDefaultVolumeHTML5();
         video.play().catch(()=>{});
 
         setTimeout(()=>{
@@ -1125,7 +1145,8 @@ return;
         let playTimeout;
 
         hls.on(Hls.Events.MANIFEST_PARSED, function(){
-            video.play().catch(()=>{});
+            setDefaultVolumeHTML5();   // 🔊 25%
+			video.play().catch(()=>{});
 
             playTimeout = setTimeout(()=>{
                 if(video.readyState < 2){
@@ -1179,6 +1200,9 @@ function startJWfallback(channel){
     primary: "html5",
     type: type,
     
+});
+	jwInstance.on('ready', function(){
+    setDefaultVolumeJW();   // ✅ 25%
 });
 }
 
@@ -1264,3 +1288,6 @@ playStream(currentChannel);
 </body>
 
 </html>
+
+
+
