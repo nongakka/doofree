@@ -955,6 +955,9 @@ function startJW(channel){
         height: "100%",
         autostart: true
     });
+	jwInstance.on('ready', function(){
+    setDefaultVolumeJW();   // ✅ 25%
+});
 }
 
 /* PLAY */
@@ -1005,8 +1008,9 @@ function playStream(channel){
             hls.attachMedia(video);
 
             hls.on(Hls.Events.MANIFEST_PARSED,function(){
-                video.play().catch(()=>{});
-            });
+    setDefaultVolumeHTML5();   // ✅ เพิ่มบรรทัดนี้
+    video.play().catch(()=>{});
+});
 
         }else{
             video.src = channel.url;
@@ -1084,7 +1088,7 @@ return;
     }
 
     dashPlayer.initialize(video, channel.url, true);
-
+    setDefaultVolumeHTML5();
     dashPlayer.on(dashjs.MediaPlayer.events.ERROR, function(){
         try{ dashPlayer.reset(); }catch(e){}
         dashPlayer = null;
@@ -1111,6 +1115,7 @@ return;
         setPlayerLabel("Native HLS");
         video.src = channel.url;
         video.load();
+		setDefaultVolumeHTML5();
         video.play().catch(()=>{});
 
         setTimeout(()=>{
@@ -1202,6 +1207,9 @@ function startJWfallback(channel){
     type: type,
     
 });
+	jwInstance.on('ready', function(){
+    setDefaultVolumeJW();   // ✅ 25%
+});
 }
 
 /* CLOSE */
@@ -1286,4 +1294,5 @@ playStream(currentChannel);
 </body>
 
 </html>
+
 
