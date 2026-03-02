@@ -167,13 +167,15 @@
 </div>
 	<h2 style="color:orange; text-align:center;">หรรมน้อย IPTV</h2>
 	
-    <div id="player-container" style="width:60%; max-width:1200px;">
+    <div id="player-container">
     <div id="jw-player"></div>
     <video id="html5-player"
-        controls
-        autoplay
-        style="width:100%; display:none; background:black;">
-    </video>
+    controls
+    autoplay
+    muted
+    playsinline
+    style="width:100%; display:none; background:black;">
+</video>
 </div>
 
 	<h2 style="color:orange; text-align:center;">ทีวีออนไลน์</h2>
@@ -480,19 +482,23 @@
             	},
 		
 				{
-                name: "Monomax2",
-                logo: "https://www.fileinwtv.site/postor/20250830165343Mono2.jpg",
-                file: "https://ww.dooballfree.vip/live/monomax-2/playlist.m3u8",
+                name: "Monomax1",
+                logo: "https://www.fileinwtv.site/postor/20250830165328Mono1.jpg",
+                file: "https://love.r95lvvlb9o.workers.dev:443/lx-origin/th-monomax01_720/chunks.m3u8",
                 drm: false
             	},	
-
-		        {
+		{
                 name: "Monomax2",
                 logo: "https://www.fileinwtv.site/postor/20250830165343Mono2.jpg",
                 file: "https://love.r95lvvlb9o.workers.dev:443/lx-origin/th-monomax02_720/chunks.m3u8",
                 drm: false
             	},
-		
+		{
+                name: "Monomax3",
+                logo: "https://www.fileinwtv.site/postor/20250830165408Mono3.jpg",
+                file: "https://love.r95lvvlb9o.workers.dev:443/lx-origin/th-monomax03_720/chunks.m3u8",
+                drm: false
+            	},
 				{
              	name: "SPOTV",
                 logo: "https://www.fileinwtv.site/postor/20240418193126SPOTV.jpg",
@@ -608,7 +614,7 @@ function loadChannel(channel, element) {
         width: "100%",
         aspectratio: "16:9",
         autostart: true,
-        volume: 25
+        mute: true
     };
 
     // ถ้ามี DRM ใส่เพิ่ม
@@ -640,13 +646,14 @@ function loadChannel(channel, element) {
     // ⏳ ถ้าโหลดไม่ขึ้นใน 8 วิ → สลับ
     // ---------------------------
     setTimeout(() => {
-        const state = playerInstance.getState();
-        if (state !== "playing" && !fallbackUsed) {
-            fallbackUsed = true;
-            console.log("JW Timeout → Switch to HTML5");
-            useHTML5(channel.file);
-        }
-    }, 8000);
+   const state = playerInstance.getState();
+
+   if (state !== "playing" && state !== "buffering" && !fallbackUsed) {
+       fallbackUsed = true;   // ❗ เพิ่มบรรทัดนี้
+       useHTML5(channel.file);
+   }
+
+}, 12000);
 }
 
     // โหลดช่องแรกทันที
@@ -678,28 +685,32 @@ function loadChannel(channel, element) {
     }
 
 });
+function useHTML5(url) {
 
-</script>
+    const jwContainer = document.getElementById("jw-player");
+    const html5Video = document.getElementById("html5-player");
 
-<!-- 🔽 ตัวนับจำนวนผู้เข้าชม -->
-<p id="counter" style="margin:15px; color:#aaa; font-size:14px;">
-    กำลังโหลดจำนวนผู้เข้าชม...
-</p>
+    jwContainer.style.display = "none";
+    html5Video.style.display = "block";
 
-<!-- 🔽 ใส่ script ตรงนี้ (ก่อนปิด body) -->
-<script>
-let count = localStorage.getItem("visitCount");
+    if (html5Video.canPlayType('application/vnd.apple.mpegurl')) {
+        html5Video.src = url;
+        html5Video.play();
+    } 
+    else if (Hls.isSupported()) {
 
-if (count === null) {
-    count = 1;
-} else {
-    count = parseInt(count) + 1;
+        currentHls = new Hls();
+        currentHls.loadSource(url);
+        currentHls.attachMedia(html5Video);
+
+        currentHls.on(Hls.Events.MANIFEST_PARSED, function () {
+            html5Video.play();
+        });
+    }
 }
-
-localStorage.setItem("visitCount", count);
-document.getElementById("counter").innerText =
-    "ผู้เข้าชมเว็บไซต์: " + count + " ครั้ง";
 </script>
+
+
 <script>
 function goHome(){
   window.location.href = "https://nongakka.github.io/doofree/index.html";
@@ -707,4 +718,3 @@ function goHome(){
 </script>	
 </body>
 </html>
-
