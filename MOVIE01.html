@@ -1064,6 +1064,9 @@ return;
         }
 
         jwInstance = jwplayer("jw-player").setup(config);
+		jwInstance.on('ready', function(){
+    setDefaultVolumeJW();   // 🔊 25%
+});
         return;
     }
 
@@ -1296,6 +1299,7 @@ playStream(currentChannel);
 </body>
 
 </html>
+
 
 
 
