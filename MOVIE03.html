@@ -20,11 +20,12 @@
 }
 *{box-sizing:border-box}
 body{
-margin:0;
-font-family:'Kanit',sans-serif;
-background:#0b0b0b;
-color:#fff;
-display:flex;
+  margin:0;
+  font-family:'Kanit',sans-serif;
+  background:#0b0b0b;
+  color:#fff;
+  display:flex;
+  overflow:hidden;   /* เพิ่มบรรทัดนี้ */
 }
 
 .playlist-box{
@@ -312,11 +313,23 @@ body.light #categoryList li.active .category-count{
 /* MAIN */
 .main{
   margin-left:280px;
-  padding:30px;
   width:100%;
-  overflow-y:auto;
   height:100vh;
-  
+  display:flex;
+  flex-direction:column;
+}
+
+.main-content{
+  padding:20px 30px 30px 30px;
+  overflow-y:auto;
+  flex:1;
+}
+
+.main-header{
+  padding:30px 30px 0 30px;
+  flex-shrink:0;
+  background:inherit;
+  z-index:5;
 }
 
 .movie-grid{
@@ -324,6 +337,7 @@ display:grid;
 grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
 gap:20px; /* ลดช่องว่างนิดให้บาลานซ์ */
 }
+
 .movie-card{
   background:#1b1b1b;
   border-radius:14px;
@@ -488,9 +502,13 @@ z-index:1200;        /* มากกว่า player */
 </div>
 <div class="main">
 
-<button id="backHome" class="back-btn">← กลับหน้าหลัก</button>
+  <div class="main-header">
+    <button id="backHome" class="back-btn">← กลับหน้าหลัก</button>
+  </div>
 
-<div class="movie-grid" id="movieGrid"></div>
+  <div class="main-content">
+    <div class="movie-grid" id="movieGrid"></div>
+  </div>
 
 </div>
 
