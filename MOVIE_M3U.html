@@ -309,7 +309,10 @@ body.light #categoryList li.active .category-count{
   color:#fff;
 }
 
-
+body.light #recentUrls div{
+    background:#dde3ea !important;
+    color:#1e293b;
+}
 
 /* MAIN */
 .main{
@@ -482,7 +485,7 @@ z-index:1200;        /* มากกว่า player */
 <button id="themeToggle">🌙 โหมดมืด</button>
 
 <div class="sidebar-section">
-<input type="file" id="fileInput" accept=".m3u,.m3u8">
+<input type="file" id="fileInput" accept=".m3u,.m3u8,.w3u,.json">
 <input type="text" id="urlInput" placeholder="วาง URL m3u">
 <button onclick="loadURL()">โหลด URL</button>
 </div>
@@ -490,6 +493,7 @@ z-index:1200;        /* มากกว่า player */
 <div class="sidebar-section">
 <h3>📂 ช่องรายการที่เพิ่ม</h3>
 <div id="playlistContainer"></div>
+<div id="recentUrls" style="margin-top:8px;"></div>
 </div>
 
 <div class="sidebar-section">
@@ -543,13 +547,24 @@ style="padding:6px 10px;border:none;border-radius:6px;background:#2196f3;color:#
 </div>
 <!-- 🔼 จบปุ่ม -->
 
+<div id="server-buttons"
+     style="position:absolute;bottom:15px;left:50%;transform:translateX(-50%);
+            z-index:1200;display:flex;gap:8px;">
+</div>
+
 <video id="videoPlayer" controls playsinline></video>
 <div id="jw-player" style="display:none;"></div>
+<iframe id="embed-frame"
+        style="display:none;width:100%;height:100%;border:none;"
+        allowfullscreen
+        allow="autoplay; encrypted-media"
+        sandbox="allow-scripts allow-same-origin allow-forms allow-popups">
+</iframe>
 </div>
 
 <script>
 
-let playlists = JSON.parse(localStorage.getItem("iptv_playlists")) || [];
+let playlists = [];
 let activePlaylistIndex = null;
 let allChannels = [];
 let currentCategory = "ทั้งหมด";
@@ -560,6 +575,39 @@ let currentChannel = null;
 let hls=null;
 let dashPlayer=null;
 let jwInstance=null;
+
+let currentServers = null;
+let currentServerIndex = 0;
+
+let viewMode = "groups"; // groups | channels
+let currentGroupData = null;
+
+
+/* ===== SAVE LAST 5 URL ===== */
+
+function saveLastUrl(url){
+    let list = JSON.parse(localStorage.getItem("last_playlist_urls")) || [];
+
+    // ลบถ้ามีซ้ำ
+    list = list.filter(u => u !== url);
+
+    // เพิ่มไว้บนสุด
+    list.unshift(url);
+
+    // เก็บแค่ 5 ตัว
+    if(list.length > 5){
+        list = list.slice(0,5);
+    }
+
+    localStorage.setItem("last_playlist_urls", JSON.stringify(list));
+
+    renderRecentUrls();
+}
+
+//โหลด url
+function loadLastUrls(){
+    return JSON.parse(localStorage.getItem("last_playlist_urls")) || [];
+}
 
 function setPlayerLabel(text){
     const label = document.getElementById("player-type-label");
@@ -586,13 +634,23 @@ playerContainer.addEventListener("click", e => {
 });
 const playlistUI = document.getElementById("playlistContainer");
 
+
+
 /* SAVE */
-function savePlaylists(){
-localStorage.setItem("iptv_playlists",JSON.stringify(playlists));
+        function savePlaylists(){
+    // ปิดการบันทึก playlist ขนาดใหญ่
+    console.log("Skip saving playlist (disabled to prevent quota error)");
+}
+document.getElementById("backHome").onclick = () => {
+
+if(viewMode === "channels" && currentGroupData){
+    viewMode="groups";
+    currentGroupData=null;
+    renderGroups();
+    return;
 }
 
-document.getElementById("backHome").onclick = () => {
-    window.location.href = "https://nongakka.github.io/doofree/index.html"; 
+window.location.href = "https://nongakka.github.io/doofree/index.html";
 };
 
 /* RENDER PLAYLIST UI */
@@ -630,8 +688,15 @@ div.onclick=()=>{
 activePlaylistIndex=index;
 allChannels=pl.channels;
 currentCategory="ทั้งหมด";
-buildCategories();
-renderGrid();
+
+if(pl.groupsData && pl.groupsData.length > 0){
+    viewMode="groups";
+    renderGroups();
+}else{
+    viewMode="channels";
+    buildCategories();
+    renderGrid();
+}
 };
 
 playlistUI.appendChild(div);
@@ -661,9 +726,19 @@ function refreshOne(index){
 const pl=playlists[index];
 if(!pl.source) return alert("Playlist นี้ไม่ใช่ URL");
 
-fetch(pl.source+"?t="+Date.now())
+let refreshURL = pl.source;
+
+if(refreshURL.includes("?")){
+    refreshURL += "&t=" + Date.now();
+}else{
+    refreshURL += "?t=" + Date.now();
+}
+
+fetch(refreshURL)
+
 .then(r=>r.text())
 .then(text=>{
+
 parseM3U(text,pl.source,index);
 alert("รีเฟรชสำเร็จ ✅");
 })
@@ -681,85 +756,278 @@ parseM3U(reader.result,null,null,e.target.files[0].name);
 reader.readAsText(e.target.files[0]);
 });
 
+
 /* URL LOAD */
+function fixDropboxURL(url){
+
+    // ถ้าเป็น dropbox.com → แปลงเป็น dl=1
+    if(url.includes("dropbox.com")){
+        url = url.replace("www.dropbox.com","dl.dropboxusercontent.com");
+        url = url.replace("dropbox.com","dl.dropboxusercontent.com");
+
+        if(!url.includes("dl=1")){
+            if(url.includes("?")){
+                url += "&dl=1";
+            }else{
+                url += "?dl=1";
+            }
+        }
+    }
+
+    return url;
+}
+
 function loadURL(){
-const url=document.getElementById("urlInput").value.trim();
-if(!url) return;
-fetch(url)
-.then(r=>r.text())
-.then(text=>{
-parseM3U(text,url);
-})
-.catch(()=>alert("โหลด URL ไม่สำเร็จ"));
+
+    let url = document.getElementById("urlInput").value.trim();
+    if(!url) return;
+
+    url = fixDropboxURL(url);
+
+    saveLastUrl(url);
+    
+    fetch(url)
+    .then(r=>{
+        if(!r.ok) throw new Error("โหลดไม่สำเร็จ");
+        return r.text();
+    })
+    .then(text=>{
+        parseM3U(text,url);
+    })
+    .catch(err=>{
+        alert("โหลด URL ไม่สำเร็จ ❌\n" + err.message);
+    });
+}
+
+/* =========================
+   🔥 UNIVERSAL JSON NORMALIZER
+========================= */
+function normalizePlaylist(input){
+
+// ===== Series format (title + episodes) =====
+if(Array.isArray(input) && input.length > 0 && input[0]?.episodes){
+
+    const groups = input.map(series => {
+
+        const stations = [];
+
+        (series.episodes || []).forEach(ep => {
+            
+        // ===== Series รองรับ Multi Server จริง =====
+if((ep.servers || []).length > 0){
+    stations.push({
+        name: ep.name,
+        image: series.image || "",
+        servers: ep.servers
+    });
+}
+        });
+
+        return {
+            name: series.title || "ไม่มีชื่อ",
+            image: series.image || "",
+            stations: stations
+        };
+    });
+
+    return {
+        name: "Series Playlist",
+        groups: groups
+    };
+}
+    // ถ้าเป็น array ตรง ๆ
+    if(Array.isArray(input)){
+        return {
+            name: "Imported Playlist",
+            image: "",
+            groups: [{
+                name: "ทั้งหมด",
+                image: "",
+                
+stations: input
+.map(i => ({
+    name: i.name || i.title,
+    url: i.url || i.link,
+    image: i.image || ""
+}))
+.filter(i => i.name && i.url)
+            }]
+        };
+    }
+
+    // ถ้ามี groups อยู่แล้ว
+    if(input.groups && Array.isArray(input.groups)){
+    input.groups.forEach(g=>{
+        if(g.stations){
+            g.stations = g.stations.filter(s => 
+    s.url || (s.servers && Array.isArray(s.servers))
+);
+        }
+    });
+    return input;
+}
+
+    // ถ้ามี stations แต่ไม่มี groups
+    if(input.stations && Array.isArray(input.stations)){
+        return {
+            name: input.name || "Playlist",
+            image: input.image || "",
+            groups: [{
+                name: input.name || "ทั้งหมด",
+                image: input.image || "",
+                stations: input.stations
+            }]
+        };
+    }
+
+    // ถ้าเป็น object เดี่ยวที่มี name + url
+    if(input.name && input.url){
+        return {
+            name: "Imported Playlist",
+            image: input.image || "",
+            groups: [{
+                name: "ทั้งหมด",
+                image: input.image || "",
+                stations: [input]
+            }]
+        };
+    }
+
+    return null;
 }
 
 /* PARSE */
-function parseM3U(data,source,indexOverride=null,fileName=null){
+function parseM3U(data, source, indexOverride = null, fileName = null){
 
-let channels=[];
-const lines=data.split(/\r?\n/);
-let current=null;
-let pendingDRM=null;
+let channels = [];
+let groupsData = [];
 
-lines.forEach(line=>{
-line=line.trim();
+let cleanData = data.trim();
 
-if(line.startsWith("#EXTINF")){
-    const title=line.substring(line.lastIndexOf(",")+1).trim() || "ไม่ทราบชื่อ";
-    const group=(line.match(/group-title="(.*?)"/)||[])[1]||"อื่นๆ";
-    const logo=(line.match(/tvg-logo="(.*?)"/)||[])[1]||"";
-    current={title,group,logo};
-    pendingDRM=null;
+// ลบ BOM
+if(cleanData.charCodeAt(0) === 0xFEFF){
+    cleanData = cleanData.slice(1);
 }
 
-else if(line.includes("license_type=")){
-    pendingDRM=pendingDRM||{};
-    if(line.toLowerCase().includes("widevine")) pendingDRM.type="widevine";
-    if(line.toLowerCase().includes("clearkey")) pendingDRM.type="clearkey";
+/* =====================================
+   🔥 AUTO DETECT JSON จากเนื้อไฟล์จริง
+===================================== */
+
+let isJSON = false;
+
+try{
+    JSON.parse(cleanData);
+    isJSON = true;
+}catch(e){
+    isJSON = false;
 }
 
-else if(line.includes("license_key=")){
-    pendingDRM = pendingDRM || {};
-    const value = line.substring(line.indexOf("license_key=") + 12).trim();
+if(isJSON){
+    try{
 
-    if(value.startsWith("http")){
-        // Widevine license server
-        pendingDRM.type = "widevine";
-        pendingDRM.licenseServer = value;
-    }else{
-        // ClearKey
-        const parts = value.split(":");
-        if(parts.length === 2){
-            pendingDRM.type = "clearkey";
-            pendingDRM.keyId = parts[0].trim();
-            pendingDRM.key = parts[1].trim();
+        const raw = JSON.parse(cleanData);
+        const normalized = normalizePlaylist(raw);
+
+        if(normalized && normalized.groups){
+
+            groupsData = normalized.groups;
+
+            normalized.groups.forEach(group=>{
+
+                if(!group.stations || !Array.isArray(group.stations)) return;
+
+                group.stations.forEach(st=>{
+
+                    // ===== Multi Server =====
+                    if(st.servers && Array.isArray(st.servers)){
+                        channels.push({
+                            title: st.name || "ไม่ทราบชื่อ",
+                            group: group.name || "อื่นๆ",
+                            logo: st.image || group.image || "",
+                            servers: st.servers
+                        });
+                        return;
+                    }
+
+                    // ===== URL ปกติ =====
+                    if(st.url){
+                        channels.push({
+                            title: st.name || "ไม่ทราบชื่อ",
+                            group: group.name || "อื่นๆ",
+                            logo: st.image || group.image || "",
+                            url: st.url,
+                            referer: st.referer || null,
+                            drm: st.drm || null
+                        });
+                    }
+
+                });
+
+            });
+
         }
+
+    }catch(e){
+        console.log("JSON parse error → fallback M3U");
     }
 }
 
-else if(line && !line.startsWith("#") && current){
+/* =====================================
+   🔥 ถ้าไม่ใช่ JSON → ถือเป็น M3U
+===================================== */
 
-    // รับทุก URL ที่เป็น http
-    if(line.startsWith("http")){
+if(channels.length === 0){
 
-        current.url = line;
+    const lines = cleanData.split(/\r?\n/);
+    let current=null;
 
-        if(pendingDRM) current.drm = pendingDRM;
+    lines.forEach(line=>{
 
-        channels.push(current);
-    }
+        line=line.trim();
 
-    current = null;
+        if(line.startsWith("#EXTINF")){
+
+            const title=line.substring(line.lastIndexOf(",")+1).trim();
+            const group=(line.match(/group-title="(.*?)"/)||[])[1]||"อื่นๆ";
+            const logo=(line.match(/tvg-logo="(.*?)"/)||[])[1]||"";
+
+            current={title,group,logo};
+        }
+
+        else if(line && !line.startsWith("#") && current){
+
+            current.url=line;
+            channels.push(current);
+            current=null;
+        }
+
+    });
 }
 
-});
+/* =====================================
+   🔥 ตั้งชื่อ Playlist ให้ปลอดภัย
+===================================== */
 
-document.getElementById("searchInput").value="";
+let playlistName = "Local File";
+
+if(fileName){
+    playlistName = fileName;
+}
+else if(source){
+    try{
+        playlistName = new URL(source).hostname;
+    }catch{
+        playlistName = "Imported URL";
+    }
+}
+
+/* ===================================== */
 
 const playlistData={
-    name:fileName || (source ? new URL(source).hostname : "Local File"),
-    source:source,
-    channels:channels
+    name: playlistName,
+    source: source,
+    channels: channels,
+    groupsData: groupsData
 };
 
 if(indexOverride!==null){
@@ -774,9 +1042,15 @@ savePlaylists();
 renderPlaylists();
 
 allChannels=channels;
-currentCategory="ทั้งหมด";
-buildCategories();
-renderGrid();
+
+if(groupsData && groupsData.length > 0){
+    viewMode="groups";
+    renderGroups();
+}else{
+    viewMode="channels";
+    buildCategories();
+    renderGrid();
+}
 }
 
 /* CATEGORY */
@@ -824,6 +1098,87 @@ grid.appendChild(card);
 });
 }
 
+
+function renderGroups(){
+
+grid.innerHTML="";
+
+if(activePlaylistIndex === null || !playlists[activePlaylistIndex]){
+    viewMode="channels";
+    return;
+}
+
+const pl = playlists[activePlaylistIndex];
+
+if(!pl.groupsData || pl.groupsData.length===0){
+    viewMode="channels";
+    renderGrid();
+    return;
+}
+
+pl.groupsData.forEach(group=>{
+
+    const card=document.createElement("div");
+    card.className="movie-card";
+
+    card.innerHTML=`
+        <img src="${group.image || 'https://via.placeholder.com/300x450?text=No+Image'}">
+        <div class="movie-title">${group.name}</div>
+    `;
+
+    card.onclick=()=>{
+        currentGroupData = group;
+        viewMode="channels";
+        renderGroupChannels();
+    };
+
+    grid.appendChild(card);
+});
+}
+
+
+function renderGroupChannels(){
+
+grid.innerHTML="";
+
+if(!currentGroupData 
+   || !currentGroupData.stations 
+   || !Array.isArray(currentGroupData.stations)){
+
+    grid.innerHTML="<p style='padding:20px'>ไม่มีรายการในหมวดนี้</p>";
+    return;
+}
+
+const keyword=document.getElementById("searchInput").value.toLowerCase();
+
+currentGroupData.stations
+.filter(st => (st.name || "").toLowerCase().includes(keyword))
+.forEach(st=>{
+
+    const card=document.createElement("div");
+    card.className="movie-card";
+
+    card.innerHTML=`
+        <img loading="lazy" src="${st.image || currentGroupData.image || 'https://via.placeholder.com/300x450?text=No+Image'}">
+        <div class="movie-title">${st.name || "ไม่ทราบชื่อ"}</div>
+    `;
+
+    card.onclick = ()=>{
+    playStream({
+        title: st.name,
+        logo: st.image,
+        url: st.url || null,
+        referer: st.referer || "",
+        servers: st.servers || null
+    });
+};
+
+    grid.appendChild(card);
+
+});
+}
+
+
 /* PLAYER RESET */
 function resetPlayers(){
 
@@ -860,8 +1215,11 @@ if(oldVideo){
     document.getElementById("jw-player").style.display = "none";
 }
 
-    setPlayerLabel("Auto");
+    setPlayerLabel("ไม่มีการเล่น");
 
+const embedFrame = document.getElementById("embed-frame");
+embedFrame.style.display = "none";
+embedFrame.src = "";
 
 }
 function startJW(channel){
@@ -878,21 +1236,56 @@ function startJW(channel){
 
 /* PLAY */
 function playStream(channel){
-    currentChannel = channel; 
+
+// เช็คด้วย object reference ก่อน reset
+const isNewChannel = currentChannel !== channel;
+
+if(isNewChannel){
+    currentServerIndex = 0;
+}
+
+currentChannel = channel;
+
+resetPlayers();
+
     overlay.classList.add("active");
     playerContainer.classList.add("active");
-    resetPlayers();
 
-    if(!channel.url) return;
+    // =========================
+    // MULTI SERVER
+    // =========================
+    if(channel.servers && Array.isArray(channel.servers)){
 
-    const url = channel.url.toLowerCase();
+    currentServers = channel.servers;
+
+    if(currentServerIndex >= channel.servers.length){
+        currentServerIndex = 0;
+    }
+
+    const selectedServer = channel.servers[currentServerIndex];
+
+    channel = {
+        ...channel,
+        url: selectedServer.url,
+        referer: selectedServer.referer || channel.referer,
+        drm: selectedServer.drm || channel.drm
+    };
+
+    renderServerButtons();
+
+}else{
+    currentServers = null;
+    document.getElementById("server-buttons").innerHTML="";
+}
+
+    let url = (channel.url || "").toLowerCase();
 
 // =========================
     // 🔥 โหมดบังคับ
     // =========================
     if(forcedPlayer === "jw"){
         setPlayerLabel("JW (บังคับ)");
-        startJWfallback(channel);
+        startJWfallback(channel,true);
         return;
     }
 
@@ -940,6 +1333,22 @@ resetPlayers();
 return;
     }
 
+    return;
+}
+
+// =========================
+// EMBED LINK
+// =========================
+
+let rawUrl = (channel.url || "").trim();
+
+if(rawUrl.startsWith("<iframe")){
+    startEmbed(channel);
+    return;
+}
+
+if(rawUrl.includes("/embed/")){
+    startEmbed(channel);
     return;
 }
 
@@ -1084,9 +1493,12 @@ return;
             }
         });
 
-        video.addEventListener("playing",()=>{
-            clearTimeout(playTimeout);
-        });
+        const onPlaying = () => {
+    clearTimeout(playTimeout);
+    video.removeEventListener("playing", onPlaying);
+};
+
+video.addEventListener("playing", onPlaying);
 
         return;  // ✅ สำคัญ
     }
@@ -1101,26 +1513,32 @@ return;
     // =========================
     startJWfallback(channel);
 }
-function startJWfallback(channel){
+function startJWfallback(channel, isForced = false){
 
-    setPlayerLabel("JW (Fallback)");
+    if(isForced){
+        setPlayerLabel("JW (บังคับ)");
+    } else {
+        setPlayerLabel("JW (Fallback)");
+    }
+
     video.style.display="none";
     document.getElementById("jw-player").style.display="block";
 
     let type = null;
 
-    if(channel.url.toLowerCase().includes(".mpd")) type = "dash";
-    else if(channel.url.toLowerCase().includes(".m3u8")) type = "hls";
+    let safeUrl = (channel.url || "").toLowerCase();
+
+if(safeUrl.includes(".mpd")) type = "dash";
+else if(safeUrl.includes(".m3u8")) type = "hls";
 
     jwInstance = jwplayer("jw-player").setup({
-    file: channel.url,
-    width: "100%",
-    height: "100%",
-    autostart: true,
-    primary: "html5",
-    type: type,
-    
-});
+        file: channel.url,
+        width: "100%",
+        height: "100%",
+        autostart: true,
+        primary: "html5",
+        type: type
+    });
 }
 
 /* CLOSE */
@@ -1187,6 +1605,138 @@ playStream(currentChannel);
 });
 renderPlaylists();
 
+/* ===== AUTO LOAD LAST URL ===== */
+window.addEventListener("load", async () => {
+
+    renderRecentUrls();
+
+    const urls = loadLastUrls();
+
+    if(urls.length > 0){
+
+        const lastUrl = urls[0];
+        document.getElementById("urlInput").value = lastUrl;
+
+        try{
+            const response = await fetch(lastUrl);
+            const text = await response.text();
+            parseM3U(text,lastUrl);
+            console.log("Auto loaded last playlist");
+        }
+catch(err){
+    console.log("Auto load failed");
+
+    let urls = loadLastUrls().filter(u => u !== lastUrl);
+    localStorage.setItem("last_playlist_urls", JSON.stringify(urls));
+    renderRecentUrls();
+}
+    }
+});
+
+function renderRecentUrls(){
+    const container = document.getElementById("recentUrls");
+    if(!container) return;
+
+    const urls = loadLastUrls();
+
+    if(urls.length === 0){
+        container.innerHTML = "";
+        return;
+    }
+
+    container.innerHTML = "<div style='font-size:12px;margin-bottom:4px;color:#aaa;'>ล่าสุด:</div>";
+
+    urls.forEach(url => {
+
+        const div = document.createElement("div");
+        div.style.cssText = `
+            font-size:12px;
+            padding:4px 6px;
+            background:#1c1c1c;
+            margin-bottom:4px;
+            border-radius:4px;
+            cursor:pointer;
+            white-space:nowrap;
+            overflow:hidden;
+            text-overflow:ellipsis;
+        `;
+
+        div.textContent = url;
+
+        div.onclick = async () => {
+            document.getElementById("urlInput").value = url;
+
+		saveLastUrl(url); // 🔥 เพิ่มบรรทัดนี้
+
+            try{
+                const response = await fetch(url);
+                const text = await response.text();
+                parseM3U(text,url);
+            }catch{
+                alert("โหลด URL ไม่สำเร็จ ❌");
+            }
+        };
+
+        container.appendChild(div);
+    });
+}
+
+function startEmbed(channel){
+
+    setPlayerLabel("Embed");
+
+    video.style.display = "none";
+    document.getElementById("jw-player").style.display = "none";
+
+    const embedFrame = document.getElementById("embed-frame");
+    embedFrame.style.display = "block";
+
+    let url = (channel.url || "").trim();
+
+    // ถ้าเป็น iframe เต็มแท็ก → ดึง src ออกมา
+    if(url.startsWith("<iframe")){
+        const match = url.match(/src=["'](.*?)["']/i);
+        if(match && match[1]){
+            embedFrame.src = match[1];
+        }else{
+            console.log("Invalid iframe embed");
+        }
+    }else{
+        embedFrame.src = url;
+    }
+}
+
+function renderServerButtons(){
+
+    const container = document.getElementById("server-buttons");
+    container.innerHTML="";
+
+    if(!currentServers) return;
+
+    currentServers.forEach((server,index)=>{
+
+        const btn = document.createElement("button");
+
+        btn.textContent = server.name || ("Server " + (index+1));
+
+        btn.style.cssText = `
+            padding:6px 10px;
+            border:none;
+            border-radius:6px;
+            cursor:pointer;
+            background:${index===currentServerIndex ? "#f5c518" : "#333"};
+            color:#fff;
+        `;
+
+        btn.onclick = ()=>{
+    currentServerIndex = index;
+    renderServerButtons();
+    playStream(currentChannel);
+};
+
+        container.appendChild(btn);
+    });
+}
 
 </script>
 
