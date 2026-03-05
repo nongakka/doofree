@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Web 1</title>
+<script src="player-core.js"></script>
+<style>
+.anime-card{width:180px;display:inline-block;margin:10px;cursor:pointer}
+.anime-card img{width:100%}
+</style>
+</head>
+<body>
+
+<h2>Web 1 - Fixed Playlist</h2>
+
+<div id="animeGrid"></div>
+<div id="episodeContainer"></div>
+<div id="playerContainer"></div>
+
+<div id="serverPopup" style="display:none;background:#0008;padding:20px">
+    <div id="serverList"></div>
+</div>
+
+<script>
+const fixedPlaylist = [
+  {
+    "title": "Tales of Herding Gods",
+    "image": "https://anime-good.com/wp-content/uploads/2025/11/Tales-of-Herding-Gods.webp",
+    "episodes": [
+      {
+        "name": "ตอนที่ 1",
+        "servers": [
+          { "name": "Main", "url": "https://moji.team-indy.net/embed/TlbWVBKUzT/" }
+        ]
+      }
+    ]
+  }
+];
+
+initPlayer(fixedPlaylist);
+</script>
+
+</body>
+</html>
