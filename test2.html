@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Web 2</title>
+<script src="player-core.js"></script>
+<script src="import-system.js"></script>
+</head>
+<body>
+
+<h2>Web 2 - Import Playlist</h2>
+
+<input type="file" id="fileInput">
+<input type="text" id="urlInput" placeholder="วาง URL JSON">
+<button onclick="loadURL()">โหลด URL</button>
+
+<div id="animeGrid"></div>
+<div id="episodeContainer"></div>
+<div id="playerContainer"></div>
+
+<div id="serverPopup" style="display:none;background:#0008;padding:20px">
+    <div id="serverList"></div>
+</div>
+
+</body>
+</html>
