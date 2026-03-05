@@ -20,11 +20,12 @@
 }
 *{box-sizing:border-box}
 body{
-margin:0;
-font-family:'Kanit',sans-serif;
-background:#0b0b0b;
-color:#fff;
-display:flex;
+  margin:0;
+  font-family:'Kanit',sans-serif;
+  background:#0b0b0b;
+  color:#fff;
+  display:flex;
+  overflow:hidden;   /* เพิ่มบรรทัดนี้ */
 }
 
 .playlist-box{
@@ -312,11 +313,23 @@ body.light #categoryList li.active .category-count{
 /* MAIN */
 .main{
   margin-left:280px;
-  padding:30px;
   width:100%;
-  overflow-y:auto;
   height:100vh;
-  
+  display:flex;
+  flex-direction:column;
+}
+
+.main-content{
+  padding:20px 30px 30px 30px;
+  overflow-y:auto;
+  flex:1;
+}
+
+.main-header{
+  padding:30px 30px 0 30px;
+  flex-shrink:0;
+  background:inherit;
+  z-index:5;
 }
 
 .movie-grid{
@@ -324,6 +337,7 @@ display:grid;
 grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
 gap:20px; /* ลดช่องว่างนิดให้บาลานซ์ */
 }
+
 .movie-card{
   background:#1b1b1b;
   border-radius:14px;
@@ -398,6 +412,7 @@ transition:.3s;
 z-index:1100;   
 
 }
+
 
 #player-container.active{
 opacity:1;
@@ -476,7 +491,7 @@ z-index:1200;        /* มากกว่า player */
 </div>
 
 <div class="sidebar-section">
-<h3>ซีรีย์ออนไลน์</h3>
+<h3>รายการหนัง</h3>
 <div id="mainMenu" style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px;"></div>
 
 <hr style="margin:15px 0;">
@@ -487,9 +502,13 @@ z-index:1200;        /* มากกว่า player */
 </div>
 <div class="main">
 
-<button id="backHome" class="back-btn">← กลับหน้าหลัก</button>
+  <div class="main-header">
+    <button id="backHome" class="back-btn">← กลับหน้าหลัก</button>
+  </div>
 
-<div class="movie-grid" id="movieGrid"></div>
+  <div class="main-content">
+    <div class="movie-grid" id="movieGrid"></div>
+  </div>
 
 </div>
 
@@ -524,8 +543,64 @@ style="padding:6px 10px;border:none;border-radius:6px;background:#2196f3;color:#
 
 <video id="videoPlayer" controls playsinline></video>
 <div id="jw-player" style="display:none;"></div>
+
+<iframe id="iframePlayer"
+        style="display:none;width:100%;height:100%;border:none;"
+        allowfullscreen
+        allow="autoplay">
+</iframe>
+
 </div>
 
+<!-- SERVER POPUP -->
+<div id="serverPopup" style="
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,.8);
+backdrop-filter:blur(5px);
+display:none;
+align-items:center;
+justify-content:center;
+z-index:2000;
+">
+
+<div style="
+background:#1c1c1c;
+padding:25px;
+border-radius:16px;
+width:90%;
+max-width:500px;
+box-shadow:0 20px 60px rgba(0,0,0,.7);
+">
+
+<h3 style="margin-top:0;text-align:center;">เลือก Server</h3>
+
+<div id="serverList" style="
+display:flex;
+flex-direction:column;
+gap:10px;
+margin-top:15px;
+"></div>
+
+<button onclick="closeServerPopup()" 
+style="
+margin-top:20px;
+width:100%;
+padding:8px;
+border:none;
+border-radius:8px;
+background:#444;
+color:#fff;
+cursor:pointer;
+">
+ปิด
+</button>
+
+</div>
+</div>
 <script>
 
 let allChannels = [];
@@ -535,6 +610,10 @@ let playlistCounts = {};   // 👈 วางตรงนี้
 let hls=null;
 let dashPlayer=null;
 let jwInstance=null;
+
+let isAnimeMode = false;
+let animeData = [];
+let currentAnime = null;
 
 let currentChannel = null;
 let forcedPlayer = null; // null = auto | "html5" | "jw"
@@ -575,7 +654,6 @@ playerContainer.addEventListener("click", e => {
 /* ================= PLAYLIST CONFIG ================= */
 
 const PLAYLISTS = [
-
 
 {
     name: "ซีรีย์จีน",
@@ -618,6 +696,8 @@ const PLAYLISTS = [
     url: "https://dl.dropboxusercontent.com/scl/fi/uo1car54okz22dzl9gxqo/.m3u?rlkey=o3wcb2kp166lxe0lym21l065o&dl=1"
 },
 
+
+	
 ];
 
 function parseM3U(data, playlistName){
@@ -686,6 +766,31 @@ async function loadSinglePlaylist(pl){
 
     try{
         let channels=[];
+if(pl.type === "anime-json"){
+
+    grid.innerHTML = "<p>กำลังโหลดอนิเมะ...</p>";
+    categoryList.innerHTML = "";   // 🔥 เคลียร์หมวด
+    currentCategory = null;
+    allChannels = [];
+
+    try{
+        const res = await fetch(pl.url + "?v=" + Date.now());
+        const data = await res.json();
+
+        animeData = data;
+isAnimeMode = true;
+
+document.getElementById("count-"+pl.name).textContent = "(" + data.length + ")";
+
+renderAnimeGrid();
+
+    }catch(e){
+        grid.innerHTML = "<p>โหลด JSON ไม่สำเร็จ</p>";
+    }
+
+    document.getElementById("backHome").disabled = false;
+    return;
+}
 
 if(pl.type==="url"){
     const res = await fetch(pl.url,{cache:"no-store"});
@@ -715,6 +820,8 @@ else if(pl.type==="json"){
     }
 
     document.getElementById("backHome").disabled = false;
+
+
 }
 
 function parseJSONPlaylist(data, playlistName){
@@ -779,7 +886,10 @@ function buildMainMenu(){
 
     PLAYLISTS.forEach(pl=>{
         const btn=document.createElement("button");
-        btn.textContent=pl.name;
+        btn.innerHTML = `
+<span>${pl.name}</span>
+<span style="opacity:.6;font-size:12px" id="count-${pl.name}"></span>
+`;
 
         btn.style.padding="10px";
         btn.style.fontSize="14px";
@@ -861,7 +971,13 @@ groups.forEach((g,i)=>{
 
 
 /* SEARCH */
-document.getElementById("searchInput").addEventListener("input",renderGrid);
+document.getElementById("searchInput").addEventListener("input", () => {
+    if(isAnimeMode){
+        renderAnimeGrid();
+    }else{
+        renderGrid();
+    }
+});
 
 /* GRID */
 function renderGrid(){
@@ -894,6 +1010,94 @@ function renderGrid(){
         grid.appendChild(card);
     });
 }
+
+function renderAnimeGrid(){
+
+    grid.innerHTML = "";
+
+    const keyword = document.getElementById("searchInput")
+        .value.toLowerCase();
+
+    const filtered = animeData.filter(movie =>
+        movie.title.toLowerCase().includes(keyword)
+    );
+
+    filtered.forEach(movie => {
+
+        const card = document.createElement("div");
+        card.className = "movie-card";
+
+        card.innerHTML = `
+    <img loading="lazy" src="${movie.image}">
+    <div class="movie-title">
+        ${movie.title}
+        <div style="
+            margin-top:6px;
+            font-size:12px;
+            opacity:.7;
+        ">
+            ทั้งหมด ${movie.episodes ? movie.episodes.length : 0} ตอน
+        </div>
+    </div>
+`;
+
+        card.onclick = () => {
+            currentAnime = movie;
+            renderEpisodes(movie);
+        };
+
+        grid.appendChild(card);
+    });
+
+    if(filtered.length === 0){
+        grid.innerHTML = `
+            <div style="grid-column:1/-1;text-align:center;padding:40px;opacity:.6">
+                ไม่พบรายการ
+            </div>`;
+    }
+}
+
+function renderEpisodes(movie){
+
+    grid.innerHTML = "";
+
+    movie.episodes
+.sort((a,b)=>{
+
+    const numA = parseInt(a.name.replace(/\D/g,'')) || 0;
+    const numB = parseInt(b.name.replace(/\D/g,'')) || 0;
+
+    return numB - numA;   // มาก → น้อย
+})
+.forEach(ep => {
+
+        const card = document.createElement("div");
+        card.className = "movie-card";
+
+        card.innerHTML = `
+            <div class="movie-title">${ep.name}</div>
+        `;
+       
+            card.onclick = () => {
+
+    if(ep.servers && ep.servers.length > 0){
+        openServerPopup(ep);
+    }
+
+};
+
+        grid.appendChild(card);
+    });
+
+    const backBtn = document.createElement("button");
+    backBtn.textContent = "← กลับ";
+    backBtn.className = "back-btn";
+    backBtn.onclick = renderAnimeGrid;
+
+    grid.prepend(backBtn);
+}
+
+
 /* PLAYER RESET */
 function resetPlayers(){
 
@@ -932,6 +1136,11 @@ if(oldVideo){
 
     setPlayerLabel("Auto");
 
+const iframe = document.getElementById("iframePlayer");
+if(iframe){
+    iframe.src = "";
+    iframe.style.display = "none";
+}
 
 }
 function startJW(channel){
@@ -959,6 +1168,27 @@ function playStream(channel){
     if(!channel.url) return;
 
     const url = channel.url.toLowerCase();
+
+// =========================
+// 🔥 ถ้าเป็น embed page → ใช้ iframe
+// =========================
+if(
+    !url.includes(".m3u8") &&
+    !url.includes(".mp4") &&
+    !url.includes(".mpd")
+){
+
+    setPlayerLabel("Iframe");
+
+    video.style.display="none";
+    document.getElementById("jw-player").style.display="none";
+
+    const iframe = document.getElementById("iframePlayer");
+    iframe.style.display="block";
+    iframe.src = channel.url;
+
+    return;
+}
 
 // =========================
     // 🔥 โหมดบังคับ
@@ -1283,6 +1513,47 @@ document.getElementById("switchPlayerBtn").textContent = text;
 playStream(currentChannel);
 
 });
+
+function openServerPopup(episode){
+
+    const popup = document.getElementById("serverPopup");
+    const list = document.getElementById("serverList");
+
+    list.innerHTML = "";
+
+    episode.servers.forEach(server => {
+
+        const btn = document.createElement("button");
+
+        btn.textContent = server.name;
+        btn.style.padding = "10px";
+        btn.style.border = "none";
+        btn.style.borderRadius = "8px";
+        btn.style.cursor = "pointer";
+        btn.style.background = "#3b82f6";
+        btn.style.color = "#fff";
+
+        btn.onclick = () => {
+
+            closeServerPopup();
+
+            playStream({
+                title: episode.name,
+                url: server.url
+            });
+
+        };
+
+        list.appendChild(btn);
+
+    });
+
+    popup.style.display = "flex";
+}
+
+function closeServerPopup(){
+    document.getElementById("serverPopup").style.display = "none";
+}
 </script>
 
 </body>
