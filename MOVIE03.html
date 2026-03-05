@@ -755,8 +755,11 @@ if(pl.type === "anime-json"){
         const data = await res.json();
 
         animeData = data;
-        isAnimeMode = true;
-        renderAnimeGrid();
+isAnimeMode = true;
+
+document.getElementById("count-"+pl.name).textContent = "(" + data.length + ")";
+
+renderAnimeGrid();
 
     }catch(e){
         grid.innerHTML = "<p>โหลด JSON ไม่สำเร็จ</p>";
@@ -860,7 +863,10 @@ function buildMainMenu(){
 
     PLAYLISTS.forEach(pl=>{
         const btn=document.createElement("button");
-        btn.textContent=pl.name;
+        btn.innerHTML = `
+<span>${pl.name}</span>
+<span style="opacity:.6;font-size:12px" id="count-${pl.name}"></span>
+`;
 
         btn.style.padding="10px";
         btn.style.fontSize="14px";
