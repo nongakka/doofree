@@ -401,7 +401,8 @@ left:50%;
 transform:translate(-50%,-50%) scale(.9);
 width:80%;
 max-width:1100px;
-height:75vh;
+aspect-ratio:16/9;
+height:auto;
 background:#000;
 border-radius:16px;
 overflow:hidden;
@@ -660,25 +661,48 @@ playerContainer.addEventListener("click", e => {
 
 const PLAYLISTS = [
 
+
 {
     name: "อนิเมะพากย์ไทย",
     type: "anime-json",
-    url: "https://raw.githubusercontent.com/nongakka/anime-auto/refs/heads/main/data/thai_1.json"   // 🔥 เปลี่ยนเป็นไฟล์ของคุณ
+    url: "https://raw.githubusercontent.com/nongakka/anime-auto/refs/heads/main/data/json/thai.json"
 },
 
 {
     name: "อนิเมะซับไทย",
     type: "anime-json",
-    url: "https://raw.githubusercontent.com/nongakka/anime-auto/refs/heads/main/data/subthai_1.json"   
+    url: "https://raw.githubusercontent.com/nongakka/anime-auto/refs/heads/main/data/json/subthai.json"
 },
 
 {
     name: "อนิเมะจีน",
     type: "anime-json",
-    url: "https://raw.githubusercontent.com/nongakka/anime-auto/refs/heads/main/data/china_1.json"   
+    url: "https://raw.githubusercontent.com/nongakka/anime-auto/refs/heads/main/data/json/china.json"
 },
 
+{
+    name: "อนิเมะพากย์ไทย2",
+    type: "anime-json",
+    url: "https://raw.githubusercontent.com/nongakka/anime-auto/refs/heads/main/data/json/thai2.json"
+},
 
+{
+    name: "The movie",
+    type: "anime-json",
+    url: "https://raw.githubusercontent.com/nongakka/anime-auto/refs/heads/main/data/json/movie.json"
+},
+
+{
+    name: "อนิเมะยังไม่จบ",
+    type: "anime-json",
+    url: "https://raw.githubusercontent.com/nongakka/anime-auto/refs/heads/main/data/json/noend.json"
+},
+
+{
+    name: "อนิเมะจบแล้ว",
+    type: "anime-json",
+    url: "https://raw.githubusercontent.com/nongakka/anime-auto/refs/heads/main/data/json/end.json"
+},
 	
 ];
 
@@ -1224,7 +1248,9 @@ if(url.includes(".mp4")){
 if(
     !url.includes(".m3u8") &&
     !url.includes(".mp4") &&
-    !url.includes(".mpd")
+    !url.includes(".mpd") &&
+    !url.includes(".txt") &&
+    !url.includes("/qualitys/")
 ){
 
     setPlayerLabel("Iframe");
@@ -1268,14 +1294,19 @@ if(forcedPlayer === "html5"){
             }
 
             hls = new Hls({
-                enableWorker:true,
-                lowLatencyMode:true,
-                xhrSetup:function(xhr){
-                    if(channel.referer){
-                        xhr.setRequestHeader("Referer", channel.referer);
-                    }
-                }
-            });
+    enableWorker:true,
+    lowLatencyMode:true,
+
+    // 🔥 บังคับ parse playlist
+    manifestLoadingTimeOut: 20000,
+    manifestLoadingMaxRetry: 4,
+
+    xhrSetup: function(xhr){
+        if(channel.referer){
+            xhr.setRequestHeader("Referer", channel.referer);
+        }
+    }
+});
 
             hls.loadSource(channel.url);
             hls.attachMedia(video);
@@ -1400,7 +1431,12 @@ if(forcedPlayer === "html5"){
     // =========================
     // 3️⃣ M3U8 → HLS.js
     // =========================
-    if(url.includes(".m3u8")){
+    if(
+url.includes(".m3u8") ||
+url.includes(".txt") ||
+url.includes("/qualitys/") ||
+url.includes("/frame/")
+){
 
 
     video.style.display="block";
@@ -1434,15 +1470,25 @@ if(forcedPlayer === "html5"){
             hls = null;
         }
 
-        hls = new Hls({
-            enableWorker:true,
-            xhrSetup: function(xhr){
-                if(channel.referer){
-                    xhr.setRequestHeader("Referer", channel.referer);
-                }
-            }
-        });
+       
+hls = new Hls({
 
+enableWorker:true,
+lowLatencyMode:true,
+
+manifestLoadingTimeOut:20000,
+manifestLoadingMaxRetry:5,
+levelLoadingMaxRetry:5,
+fragLoadingMaxRetry:5,
+
+xhrSetup: function(xhr){
+
+    xhr.withCredentials = false
+
+}
+});
+
+        console.log("PLAY HLS:",channel.url);
         hls.loadSource(channel.url);
         hls.attachMedia(video);
 
@@ -1494,7 +1540,10 @@ function startJWfallback(channel){
     let type = null;
 
     if(channel.url.toLowerCase().includes(".mpd")) type = "dash";
-    else if(channel.url.toLowerCase().includes(".m3u8")) type = "hls";
+    else if(
+    channel.url.toLowerCase().includes(".m3u8") ||
+    channel.url.toLowerCase().includes(".txt")
+) type = "hls";
 
     jwInstance = jwplayer("jw-player").setup({
     file: channel.url,
