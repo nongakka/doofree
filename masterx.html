@@ -1465,7 +1465,7 @@ xhrSetup: function(xhr){
 });
 
         console.log("PLAY HLS:",channel.url);
-        hls.loadSource(channel.url);
+        hls.loadSource("https://corsproxy.io/?" + url)
         hls.attachMedia(video);
 
         let playTimeout;
@@ -1658,5 +1658,6 @@ function closeServerPopup(){
 </body>
 
 </html>
+
 
 
