@@ -1463,8 +1463,10 @@ xhrSetup: function(xhr){
 
 }
 });
-
-        console.log("PLAY HLS:",channel.url);
+		
+console.log("HLS START");
+		
+console.log("PLAY HLS:",channel.url);
 
 hls.loadSource("https://corsproxy.io/?" + channel.url);
 
@@ -1660,6 +1662,7 @@ function closeServerPopup(){
 </body>
 
 </html>
+
 
 
 
