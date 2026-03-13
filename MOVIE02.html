@@ -784,6 +784,7 @@ const PLAYLISTS = [
     url: "https://dl.dropboxusercontent.com/scl/fi/uo1car54okz22dzl9gxqo/.m3u?rlkey=o3wcb2kp166lxe0lym21l065o&dl=1"
 },
 	
+	
 ];
 
 function parseM3U(data, playlistName){
@@ -852,6 +853,7 @@ return channels;
 
 async function loadSinglePlaylist(pl){
 
+   currentPage = 1;   // รีเซต pagination
     
     grid.innerHTML = "<p>กำลังโหลด...</p>";
     document.getElementById("backHome").disabled = true;
@@ -905,12 +907,14 @@ else if(pl.type==="json"){
 }
         allChannels = channels;
 
-// 🔥 แสดงจำนวนช่องหลัง playlist
-const countEl = document.getElementById("count-"+pl.name);
-if(countEl){
-    countEl.textContent = "(" + channels.length + ")";
+// 🔥 แสดงจำนวนช่องหลังชื่อ playlist
+const el = document.getElementById("count-"+pl.name);
+if(el){
+    el.textContent = "(" + channels.length + ")";
 }
 
+document.querySelector(".main-content")
+.scrollTo({top:0,behavior:"smooth"});
 buildCategories();
 renderGrid();
 
@@ -927,29 +931,30 @@ function parseJSONPlaylist(data, playlistName){
 
     let channels = [];
 
-    // =========================
-    // แบบที่ 0 : channels
-    // =========================
-    if(data.channels && Array.isArray(data.channels)){
+// =========================
+// 🔥 แบบที่ 0 : channels (dookeela)
+// =========================
+if(data.channels && Array.isArray(data.channels)){
 
-        data.channels.forEach(ch => {
+    data.channels.forEach(ch => {
 
-            if(!ch.streams || ch.streams.length === 0) return;
+        if(!ch.streams || ch.streams.length === 0) return;
 
-            channels.push({
-                title: ch.name || "ไม่ทราบชื่อ",
-                group: ch.group || playlistName,
-                logo: ch.logo || "",
-                urls: ch.streams
-            });
-
+        channels.push({
+            title: ch.name || "ไม่ทราบชื่อ",
+            group: ch.group || playlistName,
+            logo: ch.logo || "",
+            urls: ch.streams
         });
 
-        return channels;
-    }
+    });
+
+    return channels;
+}
+
 
     // =========================
-    // แบบที่ 1 : groups
+    // 🔥 แบบที่ 1 : มี groups
     // =========================
     if(data.groups && Array.isArray(data.groups)){
 
@@ -960,7 +965,7 @@ function parseJSONPlaylist(data, playlistName){
             group.stations.forEach(station => {
 
                 channels.push({
-                    title: station.name || station.info || "ไม่ทราบชื่อ",
+                    title: (station.name || station.info || "ไม่ทราบชื่อ"),
                     group: group.name || playlistName,
                     logo: station.image || group.image || "",
                     url: station.url,
@@ -975,7 +980,7 @@ function parseJSONPlaylist(data, playlistName){
     }
 
     // =========================
-    // แบบที่ 2 : stations
+    // 🔥 แบบที่ 2 : มี stations ตรง ๆ (แบบที่คุณส่งมา)
     // =========================
     if(data.stations && Array.isArray(data.stations)){
 
@@ -994,28 +999,29 @@ function parseJSONPlaylist(data, playlistName){
 
         return channels;
     }
+// =========================
+// 🔥 แบบที่ 3 : array ธรรมดา (playlist หนัง)
+// =========================
+if(Array.isArray(data)){
 
-    // =========================
-    // 🔥 แบบที่ 3 : array ธรรมดา
-    // =========================
-    if(Array.isArray(data)){
+    data.forEach(item => {
 
-        data.forEach(item=>{
-
-            channels.push({
-                title: item.title || "ไม่ทราบชื่อ",
-                group: playlistName,
-                logo: item.logo || "",
-                url: item.url
-            });
-
+        channels.push({
+            title: item.title || item.name || "ไม่ทราบชื่อ",
+            group: item.group || playlistName,
+            logo: item.logo || item.image || "",
+            url: item.url || item.stream || ""
         });
 
-        return channels;
-    }
+    });
 
     return channels;
 }
+    return channels;
+}
+
+
+
 
 function buildMainMenu(){
 
@@ -1112,13 +1118,16 @@ groups.forEach((g,i)=>{
 }
 
     li.onclick=()=>{
-        categoryList.querySelectorAll("li")
-        .forEach(el=>el.classList.remove("active"));
+    categoryList.querySelectorAll("li")
+    .forEach(el=>el.classList.remove("active"));
 
-        li.classList.add("active");
-        currentCategory=g;
-        renderGrid();
-    };
+    li.classList.add("active");
+    currentCategory = g;
+
+    currentPage = 1;   // 🔥 รีเซตหน้า
+
+    renderGrid();
+};
 
     categoryList.appendChild(li);
 
@@ -1148,12 +1157,22 @@ function renderGrid(){
     grid.innerHTML="";
     const keyword=document.getElementById("searchInput").value.toLowerCase();
 
-    const filtered=allChannels.filter(c=>{
+    const filtered = allChannels.filter(c=>{
         return (!currentCategory || c.group===currentCategory)
         && c.title.toLowerCase().includes(keyword);
     });
 
+    if(filtered.length === 0){
+        grid.innerHTML = `
+        <div style="grid-column:1/-1;text-align:center;padding:40px;opacity:.6">
+            ไม่พบรายการ
+        </div>`;
+        return;
+    }
+
     const totalPages = Math.ceil(filtered.length / itemsPerPage);
+
+    if(currentPage > totalPages) currentPage = 1;
 
     const start = (currentPage - 1) * itemsPerPage;
     const end = start + itemsPerPage;
@@ -1172,13 +1191,6 @@ function renderGrid(){
         grid.appendChild(card);
     });
 
-    if(filtered.length === 0){
-        grid.innerHTML = `
-        <div style="grid-column:1/-1;text-align:center;padding:40px;opacity:.6">
-            ไม่พบรายการ
-        </div>`;
-    }
-
     renderPagination(totalPages);
 }
 
@@ -1194,7 +1206,7 @@ function renderAnimeGrid(){
     );
 
 const totalPages = Math.ceil(filtered.length / itemsPerPage);
-
+if(currentPage > totalPages) currentPage = 1;
 const start = (currentPage - 1) * itemsPerPage;
 const end = start + itemsPerPage;
 
@@ -1239,7 +1251,7 @@ renderPagination(totalPages);
 }
 function renderPagination(totalPages){
 
-const perPage = itemsPerPage;
+const perPage = 20;
 
 let start = Math.floor((currentPage-1)/perPage)*perPage + 1;
 let end = Math.min(start + perPage - 1, totalPages);
@@ -1254,7 +1266,15 @@ prev.textContent="◀";
 
 prev.onclick=()=>{
 currentPage=start-1;
-renderAnimeGrid();
+
+document.querySelector(".main-content")
+.scrollTo({top:0,behavior:"smooth"});
+
+if(isAnimeMode){
+    renderAnimeGrid();
+}else{
+    renderGrid();
+}
 };
 
 div.appendChild(prev);
@@ -1272,7 +1292,13 @@ btn.classList.add("active");
 
 btn.onclick=()=>{
 currentPage=i;
-renderAnimeGrid();
+document.querySelector(".main-content")
+.scrollTo({top:0,behavior:"smooth"});
+if(isAnimeMode){
+    renderAnimeGrid();
+}else{
+    renderGrid();
+}
 };
 
 div.appendChild(btn);
@@ -1286,7 +1312,15 @@ next.textContent="▶";
 
 next.onclick=()=>{
 currentPage=end+1;
-renderAnimeGrid();
+
+document.querySelector(".main-content")
+.scrollTo({top:0,behavior:"smooth"});
+
+if(isAnimeMode){
+    renderAnimeGrid();
+}else{
+    renderGrid();
+}
 };
 
 div.appendChild(next);
@@ -1334,7 +1368,10 @@ function renderEpisodes(movie){
     const backBtn = document.createElement("button");
     backBtn.textContent = "← กลับ";
     backBtn.className = "back-btn";
-    backBtn.onclick = renderAnimeGrid;
+    backBtn.onclick = ()=>{
+    currentPage = 1;   // 🔥 รีเซตหน้า
+    renderAnimeGrid();
+};
 
     grid.prepend(backBtn);
 }
@@ -1923,6 +1960,5 @@ function closeServerPopup(){
 </body>
 
 </html>
-
 
 
