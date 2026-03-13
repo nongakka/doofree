@@ -794,7 +794,6 @@ const PLAYLISTS = [
     type: "url",
     url: "https://dl.dropboxusercontent.com/scl/fi/9dlsc4byxhzibg5i74vub/Gojek.m3u?rlkey=zxcqa3mr7z9veldpqu9wop4wd&dl=1"
 },
-
 	
 ];
 
@@ -915,9 +914,13 @@ else if(pl.type==="json"){
         channels = parseM3U(text, pl.name);
     }
 }
-        allChannels=channels;
+        allChannels = channels;
 
-currentPage=1;
+// 🔥 แสดงจำนวนช่องหลัง playlist
+const countEl = document.getElementById("count-"+pl.name);
+if(countEl){
+    countEl.textContent = "(" + channels.length + ")";
+}
 
 buildCategories();
 renderGrid();
@@ -935,30 +938,29 @@ function parseJSONPlaylist(data, playlistName){
 
     let channels = [];
 
-// =========================
-// 🔥 แบบที่ 0 : channels (dookeela)
-// =========================
-if(data.channels && Array.isArray(data.channels)){
+    // =========================
+    // แบบที่ 0 : channels
+    // =========================
+    if(data.channels && Array.isArray(data.channels)){
 
-    data.channels.forEach(ch => {
+        data.channels.forEach(ch => {
 
-        if(!ch.streams || ch.streams.length === 0) return;
+            if(!ch.streams || ch.streams.length === 0) return;
 
-        channels.push({
-            title: ch.name || "ไม่ทราบชื่อ",
-            group: ch.group || playlistName,
-            logo: ch.logo || "",
-            urls: ch.streams
+            channels.push({
+                title: ch.name || "ไม่ทราบชื่อ",
+                group: ch.group || playlistName,
+                logo: ch.logo || "",
+                urls: ch.streams
+            });
+
         });
 
-    });
-
-    return channels;
-}
-
+        return channels;
+    }
 
     // =========================
-    // 🔥 แบบที่ 1 : มี groups
+    // แบบที่ 1 : groups
     // =========================
     if(data.groups && Array.isArray(data.groups)){
 
@@ -969,7 +971,7 @@ if(data.channels && Array.isArray(data.channels)){
             group.stations.forEach(station => {
 
                 channels.push({
-                    title: (station.name || station.info || "ไม่ทราบชื่อ"),
+                    title: station.name || station.info || "ไม่ทราบชื่อ",
                     group: group.name || playlistName,
                     logo: station.image || group.image || "",
                     url: station.url,
@@ -984,7 +986,7 @@ if(data.channels && Array.isArray(data.channels)){
     }
 
     // =========================
-    // 🔥 แบบที่ 2 : มี stations ตรง ๆ (แบบที่คุณส่งมา)
+    // แบบที่ 2 : stations
     // =========================
     if(data.stations && Array.isArray(data.stations)){
 
@@ -1004,11 +1006,27 @@ if(data.channels && Array.isArray(data.channels)){
         return channels;
     }
 
+    // =========================
+    // 🔥 แบบที่ 3 : array ธรรมดา
+    // =========================
+    if(Array.isArray(data)){
+
+        data.forEach(item=>{
+
+            channels.push({
+                title: item.title || "ไม่ทราบชื่อ",
+                group: playlistName,
+                logo: item.logo || "",
+                url: item.url
+            });
+
+        });
+
+        return channels;
+    }
+
     return channels;
 }
-
-
-
 
 function buildMainMenu(){
 
@@ -1105,18 +1123,13 @@ groups.forEach((g,i)=>{
 }
 
     li.onclick=()=>{
+        categoryList.querySelectorAll("li")
+        .forEach(el=>el.classList.remove("active"));
 
-categoryList.querySelectorAll("li")
-.forEach(el=>el.classList.remove("active"));
-
-li.classList.add("active");
-
-currentCategory=g;
-
-currentPage=1;
-
-renderGrid();
-};
+        li.classList.add("active");
+        currentCategory=g;
+        renderGrid();
+    };
 
     categoryList.appendChild(li);
 
@@ -1143,55 +1156,41 @@ if(isAnimeMode){
 /* GRID */
 function renderGrid(){
 
-grid.innerHTML="";
+    grid.innerHTML="";
+    const keyword=document.getElementById("searchInput").value.toLowerCase();
 
-const keyword=document.getElementById("searchInput").value.toLowerCase();
+    const filtered=allChannels.filter(c=>{
+        return (!currentCategory || c.group===currentCategory)
+        && c.title.toLowerCase().includes(keyword);
+    });
 
-const filtered=allChannels.filter(c=>{
-return (!currentCategory || c.group===currentCategory)
-&& c.title.toLowerCase().includes(keyword);
-});
+    const totalPages = Math.ceil(filtered.length / itemsPerPage);
 
-if(filtered.length === 0){
-grid.innerHTML = `
-<div style="grid-column:1/-1;text-align:center;padding:40px;opacity:.6">
-ไม่พบรายการ
-</div>`;
-return;
-}
+    const start = (currentPage - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
 
-/* ===== PAGINATION ===== */
+    const pageItems = filtered.slice(start, end);
 
-const totalPages = Math.ceil(filtered.length / itemsPerPage);
+    pageItems.forEach(ch=>{
+        const card=document.createElement("div");
+        card.className="movie-card";
+        card.innerHTML=`
+            <img loading="lazy"
+                 src="${ch.logo||'https://via.placeholder.com/300x450?text=No+Image'}">
+            <div class="movie-title">${ch.title}</div>
+        `;
+        card.onclick=()=>playStream(ch);
+        grid.appendChild(card);
+    });
 
-const start = (currentPage - 1) * itemsPerPage;
-const end = start + itemsPerPage;
+    if(filtered.length === 0){
+        grid.innerHTML = `
+        <div style="grid-column:1/-1;text-align:center;padding:40px;opacity:.6">
+            ไม่พบรายการ
+        </div>`;
+    }
 
-const pageItems = filtered.slice(start, end);
-
-/* ===== RENDER GRID ===== */
-
-pageItems.forEach(ch=>{
-
-const card=document.createElement("div");
-card.className="movie-card";
-
-card.innerHTML=`
-<img loading="lazy"
-src="${ch.logo||'https://via.placeholder.com/300x450?text=No+Image'}">
-<div class="movie-title">${ch.title}</div>
-`;
-
-card.onclick=()=>playStream(ch);
-
-grid.appendChild(card);
-
-});
-
-/* ===== PAGINATION BUTTON ===== */
-
-renderPagination(totalPages);
-
+    renderPagination(totalPages);
 }
 
 function renderAnimeGrid(){
@@ -1251,7 +1250,7 @@ renderPagination(totalPages);
 }
 function renderPagination(totalPages){
 
-const perPage = 20;
+const perPage = itemsPerPage;
 
 let start = Math.floor((currentPage-1)/perPage)*perPage + 1;
 let end = Math.min(start + perPage - 1, totalPages);
@@ -1935,5 +1934,6 @@ function closeServerPopup(){
 </body>
 
 </html>
+
 
 
