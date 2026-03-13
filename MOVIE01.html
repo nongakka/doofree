@@ -795,6 +795,7 @@ const PLAYLISTS = [
     url: "https://dl.dropboxusercontent.com/scl/fi/9dlsc4byxhzibg5i74vub/Gojek.m3u?rlkey=zxcqa3mr7z9veldpqu9wop4wd&dl=1"
 },
 	
+	
 ];
 
 function parseM3U(data, playlistName){
@@ -1124,7 +1125,7 @@ groups.forEach((g,i)=>{
 
     if(i===0){
     li.classList.add("active");
-    currentCategory = groups[0];
+    currentCategory = null;   // 🔥 แสดงทุกหมวด
 }
 
     li.onclick=()=>{
@@ -1970,6 +1971,4 @@ function closeServerPopup(){
 </body>
 
 </html>
-
-
 
