@@ -911,9 +911,16 @@ else if(pl.type==="json"){
         channels = parseM3U(text, pl.name);
     }
 }
-        allChannels=channels;
-        buildCategories();
-        renderGrid();
+        allChannels = channels;
+
+// 🔥 แสดงจำนวนช่องหลัง playlist
+const countEl = document.getElementById("count-"+pl.name);
+if(countEl){
+    countEl.textContent = "(" + channels.length + ")";
+}
+
+buildCategories();
+renderGrid();
 
     }catch(e){
         grid.innerHTML="<p>โหลดไม่สำเร็จ</p>";
