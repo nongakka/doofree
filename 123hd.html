@@ -999,7 +999,24 @@ if(data.channels && Array.isArray(data.channels)){
 
     return channels;
 }
+// =========================
+// 🔥 แบบที่ 3 : array ธรรมดา
+// =========================
+if(Array.isArray(data)){
 
+    data.forEach(item=>{
+
+        channels.push({
+            title: item.title || "ไม่ทราบชื่อ",
+            group: playlistName,
+            logo: item.logo || "",
+            url: item.url
+        });
+
+    });
+
+    return channels;
+}
 
 
 
@@ -1901,5 +1918,6 @@ function closeServerPopup(){
 </body>
 
 </html>
+
 
 
