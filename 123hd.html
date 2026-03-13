@@ -686,7 +686,7 @@ cursor:pointer;
 let allChannels = [];
 let currentCategory = null;
 let playlistCounts = {};   // 👈 วางตรงนี้
-let itemsPerPage = 24;
+
 let hls=null;
 let dashPlayer=null;
 let jwInstance=null;
@@ -928,30 +928,29 @@ function parseJSONPlaylist(data, playlistName){
 
     let channels = [];
 
-// =========================
-// 🔥 แบบที่ 0 : channels (dookeela)
-// =========================
-if(data.channels && Array.isArray(data.channels)){
+    // =========================
+    // แบบที่ 0 : channels
+    // =========================
+    if(data.channels && Array.isArray(data.channels)){
 
-    data.channels.forEach(ch => {
+        data.channels.forEach(ch => {
 
-        if(!ch.streams || ch.streams.length === 0) return;
+            if(!ch.streams || ch.streams.length === 0) return;
 
-        channels.push({
-            title: ch.name || "ไม่ทราบชื่อ",
-            group: ch.group || playlistName,
-            logo: ch.logo || "",
-            urls: ch.streams
+            channels.push({
+                title: ch.name || "ไม่ทราบชื่อ",
+                group: ch.group || playlistName,
+                logo: ch.logo || "",
+                urls: ch.streams
+            });
+
         });
 
-    });
-
-    return channels;
-}
-
+        return channels;
+    }
 
     // =========================
-    // 🔥 แบบที่ 1 : มี groups
+    // แบบที่ 1 : groups
     // =========================
     if(data.groups && Array.isArray(data.groups)){
 
@@ -962,7 +961,7 @@ if(data.channels && Array.isArray(data.channels)){
             group.stations.forEach(station => {
 
                 channels.push({
-                    title: (station.name || station.info || "ไม่ทราบชื่อ"),
+                    title: station.name || station.info || "ไม่ทราบชื่อ",
                     group: group.name || playlistName,
                     logo: station.image || group.image || "",
                     url: station.url,
@@ -977,7 +976,7 @@ if(data.channels && Array.isArray(data.channels)){
     }
 
     // =========================
-    // 🔥 แบบที่ 2 : มี stations ตรง ๆ (แบบที่คุณส่งมา)
+    // แบบที่ 2 : stations
     // =========================
     if(data.stations && Array.isArray(data.stations)){
 
@@ -997,28 +996,27 @@ if(data.channels && Array.isArray(data.channels)){
         return channels;
     }
 
-    return channels;
-}
-// =========================
-// 🔥 แบบที่ 3 : array ธรรมดา
-// =========================
-if(Array.isArray(data)){
+    // =========================
+    // 🔥 แบบที่ 3 : array ธรรมดา
+    // =========================
+    if(Array.isArray(data)){
 
-    data.forEach(item=>{
+        data.forEach(item=>{
 
-        channels.push({
-            title: item.title || "ไม่ทราบชื่อ",
-            group: playlistName,
-            logo: item.logo || "",
-            url: item.url
+            channels.push({
+                title: item.title || "ไม่ทราบชื่อ",
+                group: playlistName,
+                logo: item.logo || "",
+                url: item.url
+            });
+
         });
 
-    });
+        return channels;
+    }
 
     return channels;
 }
-
-
 
 function buildMainMenu(){
 
@@ -1156,15 +1154,14 @@ function renderGrid(){
         && c.title.toLowerCase().includes(keyword);
     });
 
-    if(filtered.length === 0){
-        grid.innerHTML = `
-        <div style="grid-column:1/-1;text-align:center;padding:40px;opacity:.6">
-            ไม่พบรายการ
-        </div>`;
-        return;
-    }
+    const totalPages = Math.ceil(filtered.length / itemsPerPage);
 
-    filtered.forEach(ch=>{
+    const start = (currentPage - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+
+    const pageItems = filtered.slice(start, end);
+
+    pageItems.forEach(ch=>{
         const card=document.createElement("div");
         card.className="movie-card";
         card.innerHTML=`
@@ -1175,6 +1172,15 @@ function renderGrid(){
         card.onclick=()=>playStream(ch);
         grid.appendChild(card);
     });
+
+    if(filtered.length === 0){
+        grid.innerHTML = `
+        <div style="grid-column:1/-1;text-align:center;padding:40px;opacity:.6">
+            ไม่พบรายการ
+        </div>`;
+    }
+
+    renderPagination(totalPages);
 }
 
 function renderAnimeGrid(){
@@ -1234,7 +1240,7 @@ renderPagination(totalPages);
 }
 function renderPagination(totalPages){
 
-const perPage = 20;
+const perPage = itemsPerPage;
 
 let start = Math.floor((currentPage-1)/perPage)*perPage + 1;
 let end = Math.min(start + perPage - 1, totalPages);
@@ -1918,7 +1924,6 @@ function closeServerPopup(){
 </body>
 
 </html>
-
 
 
 
