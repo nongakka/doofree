@@ -276,10 +276,11 @@ iframe{
 </div>
 <div class="menu-title vip" data-menu="vipMenu">VIP</div>
 <div id="vipMenu" class="submenu">
-
+     
 <div class="menu-link"
      data-url="https://nongakka.github.io/doofree/VIP.html"
-     data-type="page">VIP
+     data-type="page"
+     data-pass="9999">VIP
 </div>
 </div>
 </div>
@@ -321,7 +322,17 @@ menuTitles.forEach(title=>{
 
 links.forEach(link=>{
   link.addEventListener("click",()=>{
+// 🔐 ตรวจสอบรหัสผ่าน
+    const pass = link.dataset.pass;
 
+    if(pass){
+        const input = prompt("กรุณาใส่รหัสผ่าน");
+
+        if(input !== pass){
+            alert("รหัสไม่ถูกต้อง");
+            return;
+        }
+    }
     links.forEach(l=>l.classList.remove("active"));
     link.classList.add("active");
 
@@ -360,7 +371,6 @@ homeBtn.addEventListener("click",()=>{
 mobileToggle.addEventListener("click",()=>{
   sidebar.classList.toggle("hidden");
 });
-
 
 
 </script>
