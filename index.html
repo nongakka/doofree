@@ -322,6 +322,7 @@ menuTitles.forEach(title=>{
 
 links.forEach(link=>{
   link.addEventListener("click",()=>{
+
 // 🔐 ตรวจสอบรหัสผ่าน
     const pass = link.dataset.pass;
 
@@ -332,10 +333,12 @@ links.forEach(link=>{
             alert("รหัสไม่ถูกต้อง");
             return;
         }
+
     }
+    localStorage.setItem("activeMenu", link.dataset.url);
     links.forEach(l=>l.classList.remove("active"));
     link.classList.add("active");
-
+    link.scrollIntoView({block:"center"});
     const url = link.dataset.url;
     const type = link.dataset.type || "iframe"; // ค่าเริ่มต้น
 
@@ -372,7 +375,33 @@ mobileToggle.addEventListener("click",()=>{
   sidebar.classList.toggle("hidden");
 });
 
+// ⭐ restore menu highlight
+window.addEventListener("load",()=>{
 
+  const saved = localStorage.getItem("activeMenu");
+
+  if(!saved) return;
+
+  links.forEach(link=>{
+
+    if(link.dataset.url === saved){
+
+      link.classList.add("active");
+      link.scrollIntoView({block:"center"});
+
+      const menu = link.closest(".submenu");
+      if(menu){
+        menu.classList.add("open");
+
+        const title = menu.previousElementSibling;
+        if(title) title.classList.add("active-title");
+      }
+
+    }
+
+  });
+
+});
 </script>
 
 </body>
