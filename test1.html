@@ -1,43 +1,530 @@
 <!DOCTYPE html>
-<html>
+<html lang="th">
 <head>
-<title>Web 1</title>
-<script src="player-core.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>หรรมน้อย ออนไลน์</title>
+
+<link rel="icon" href="https://img2.pic.in.th/ChatGPT-Image-23-..-2569-10_56_05.png">
+
 <style>
-.anime-card{width:180px;display:inline-block;margin:10px;cursor:pointer}
-.anime-card img{width:100%}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif;}
+
+body{
+  display:flex;
+  height:100vh;
+  background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);
+  color:#fff;
+  overflow:hidden;
+}
+
+/* MOBILE BUTTON */
+#mobileToggle{
+  position:fixed;
+  top:15px;
+  left:15px;
+  background:linear-gradient(90deg,#ff512f,#dd2476);
+  padding:8px 14px;
+  border-radius:8px;
+  cursor:pointer;
+  z-index:1000;
+  display:none;
+  font-weight:bold;
+  transition:0.3s;
+}
+#mobileToggle:hover{transform:scale(1.05);}
+
+/* SIDEBAR */
+#menu{
+  width:200px;
+  background:rgba(20,20,35,0.95);
+  backdrop-filter:blur(15px);
+  border-right:1px solid rgba(255,255,255,0.08);
+  padding:20px;
+  overflow-y:auto;
+  transition:0.4s;
+  box-shadow:5px 0 40px rgba(0,0,0,0.6);
+}
+#menu.hidden{transform:translateX(-100%);}
+
+/* LOGO */
+.logo-box{
+  text-align:center;
+  margin-bottom:25px;
+  padding-bottom:15px;
+  border-bottom:1px solid rgba(255,255,255,0.1);
+}
+.logo-box img{
+  width:100%;
+  max-width:180px;
+  border-radius:20px;
+  box-shadow:0 0 30px rgba(255,0,150,0.7);
+}
+
+/* HOME */
+.home-btn{
+  display:block;
+  padding:10px;
+  text-align:center;
+  background:linear-gradient(90deg,#00c6ff,#0072ff);
+  border-radius:8px;
+  margin-bottom:15px;
+  cursor:pointer;
+  font-weight:bold;
+  transition:0.3s;
+}
+.home-btn:hover{transform:scale(1.05);}
+
+/* MENU TITLE */
+.menu-title{
+  padding:12px;
+  border-radius:12px;
+  cursor:pointer;
+  font-weight:600;
+  margin:12px 0 6px;
+  transition:0.3s ease;
+
+}
+  
+.menu-title:hover{transform:scale(1.05);}
+
+.premium{background:linear-gradient(90deg,#ff512f,#dd2476);}
+.movie{background:linear-gradient(90deg,#fc466b,#3f5efb);}
+.series{background:linear-gradient(90deg,#f7971e,#ffd200);}
+.anime{background:linear-gradient(90deg,#11998e,#38ef7d);}
+.m3u{background:linear-gradient(90deg,#fc466b,#3f5efb);}
+.vip{background:linear-gradient(90deg,#f7971e,#ffd200);}
+/* SUBMENU */
+.submenu{
+  max-height:0;
+  overflow:hidden;
+  transition:max-height 0.4s ease;
+}
+.submenu.open{max-height:1000px;}
+
+/* ACTIVE MENU TITLE */
+.menu-title.active-title{
+  box-shadow: 0 0 20px rgba(255,255,255,0.4);
+  transform: scale(1.05);
+  border:2px solid #fff;
+}
+
+
+/* LINKS */
+.menu-link{
+  display:block;
+  padding:10px 15px;
+  font-size:14px;
+  cursor:pointer;
+  transition:0.3s;
+  border-radius:6px;
+}
+.menu-link:hover{
+  background:#e94560;
+  transform:translateX(6px);
+}
+
+/* ACTIVE MENU LINK */
+.menu-link.active{
+  background: linear-gradient(90deg,#ff512f,#dd2476);
+  box-shadow: 0 0 15px rgba(255,0,150,0.7);
+  transform: translateX(6px);
+  font-weight: bold;
+}
+
+
+/* PLAYER */
+#main-player{
+  flex:1;
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  background:radial-gradient(circle at center,#1a1a2e 0%,#000 80%);
+}
+#welcome{
+text-align:center;
+opacity:0.9;
+margin-top:150px;
+}
+#welcome img{
+  width:300px;
+  max-width:80%;
+  border-radius:25px;
+  box-shadow:0 0 40px rgba(255,0,150,0.7);
+  animation:float 3s ease-in-out infinite;
+}
+@keyframes float{
+  0%{transform:translateY(0);}
+  50%{transform:translateY(-10px);}
+  100%{transform:translateY(0);}
+}
+iframe{
+  width:100%;
+  height:100%;
+  border:none;
+}
+
+/* MOBILE */
+@media(max-width:768px){
+  #menu{position:fixed;height:100%;z-index:999;}
+  #mobileToggle{display:block;}
+}
+
+/* FAVORITE CHANNELS */
+
+#favoriteChannels{
+display:flex;
+gap:15px;
+justify-content:center;
+margin-top:50px;
+flex-wrap:wrap;
+}
+
+.fav-channel{
+padding:12px 20px;
+background:linear-gradient(90deg,#ff512f,#dd2476);
+border-radius:10px;
+cursor:pointer;
+font-weight:bold;
+transition:0.3s;
+}
+
+.fav-channel:hover{
+transform:scale(1.1);
+}
+
+/* FLOAT PLAYER */
+
+#floatingPlayer{
+position:fixed;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+width:70%;
+height:70%;
+background:#000;
+border-radius:12px;
+box-shadow:0 0 50px rgba(0,0,0,0.9);
+display:none;
+z-index:9999;
+overflow:hidden;
+}
+
+#floatingPlayer iframe{
+width:100%;
+height:100%;
+border:none;
+}
+
+#closePlayer{
+position:absolute;
+top:8px;
+right:12px;
+font-size:22px;
+color:#fff;
+cursor:pointer;
+z-index:10;
+background:rgba(0,0,0,0.5);
+padding:4px 10px;
+border-radius:6px;
+}
+
+#closePlayer:hover{
+background:red;
+}
+
 </style>
 </head>
+
 <body>
 
-<h2>Web 1 - Fixed Playlist</h2>
+<div id="mobileToggle">☰ เมนู</div>
 
-<div id="animeGrid"></div>
-<div id="episodeContainer"></div>
-<div id="playerContainer"></div>
+<div id="menu">
 
-<div id="serverPopup" style="display:none;background:#0008;padding:20px">
-    <div id="serverList"></div>
+<div class="logo-box">
+  <img src="https://img2.pic.in.th/ChatGPT-Image-23-..-2569-10_56_05.png">
+</div>
+
+<div class="home-btn" id="homeBtn">🏠 หน้าแรก</div>
+
+<!-- ทีวี -->
+<div class="menu-title premium" data-menu="tvMenu">ทีวีออนไลน์</div>
+<div id="tvMenu" class="submenu">
+
+<div class="menu-link"
+     data-url="https://nongakka.github.io/doofree/iptv.html"
+     data-type="page">3BB
+     
+</div>
+<div class="menu-link"
+     data-url="https://night.redfight.info/iptv.php"
+     data-type="page">GOD TV
+</div>
+  
+<div class="menu-link"
+     data-url="https://nongakka.github.io/doofree/DKL.html"
+     data-type="page">Dookeela
+     
+</div>
+
+  
+</div>
+
+<!-- หนัง -->
+<div class="menu-title movie" data-menu="movieMenu">หนัง</div>
+<div id="movieMenu" class="submenu">
+  
+<div class="menu-link"
+     data-url="https://nongakka.github.io/doofree/MOVIE01.html"
+     data-type="page">ผู้เฒ่าพเนจร
+            
+</div>
+<div class="menu-link"
+     data-url="https://nongakka.github.io/doofree/123hd.html"
+     data-type="page">123HD
+
+</div>
+<div class="menu-link"
+     data-url="https://nongakka.github.io/doofree/24hd.html"
+     data-type="page">24HD
+
+</div>
+</div>
+
+<!-- ซีรีส์ -->
+<div class="menu-title series" data-menu="seriesMenu">ซีรีส์</div>
+<div id="seriesMenu" class="submenu">
+
+<div class="menu-link"
+     data-url="https://nongakka.github.io/doofree/MOVIE02.html"
+     data-type="page">ผู้เฒ่าพเนจร
+</div>
+<div class="menu-link"
+     data-url="https://nongakka.github.io/doofree/flixmono.html"
+     data-type="page">Flixmono
+</div>
+<div class="menu-link"
+     data-url="https://nongakka.github.io/doofree/seriesday.html"
+     data-type="page">Series Day
+</div>
+
+<div class="menu-link"
+     data-url="https://nongakka.github.io/doofree/goseries4k.html"
+     data-type="page">GoSeries4K
+</div>
+
+</div>
+
+<!-- อนิเมะ -->
+<div class="menu-title anime" data-menu="animeMenu">อนิเมะ</div>
+<div id="animeMenu" class="submenu">
+  
+<div class="menu-link"
+     data-url="https://nongakka.github.io/doofree/animegood.html"
+     data-type="page">AnimeGOOD
+</div>
+<div class="menu-link"
+     data-url="https://nongakka.github.io/doofree/masterx.html"
+     data-type="page">MasterX
+</div>
+  
+</div>
+
+<!-- M3U -->
+<div class="menu-title m3u" data-menu="m3uMenu">MOVIE M3U</div>
+<div id="m3uMenu" class="submenu">
+  
+<div class="menu-link"
+     data-url="https://nongakka.github.io/doofree/MOVIE_M3U.html"
+     data-type="page">เพิ่ม M3U เอง
+</div>
+</div>
+<div class="menu-title vip" data-menu="vipMenu">VIP</div>
+<div id="vipMenu" class="submenu">
+     
+<div class="menu-link"
+     data-url="https://nongakka.github.io/doofree/VIP.html"
+     data-type="page"
+     data-pass="9999">VIP
+</div>
+</div>
+</div>
+
+<div id="main-player">
+
+  <div id="welcome">
+    <img src="https://img2.pic.in.th/ChatGPT-Image-23-..-2569-10_56_05.png">
+    <h1>หรรมน้อย ออนไลน์</h1>
+  </div>
+
+  <div id="favoriteChannels">
+
+    <div class="fav-channel"
+    data-url="https://embed-test.bananacake.org/embed/max-01">
+    MAX01
+    </div>
+
+    <div class="fav-channel"
+    data-url="https://embed-test.bananacake.org/embed/max-02">
+    MAX02
+    </div>
+
+    <div class="fav-channel"
+    data-url="https://embed-test.bananacake.org/embed/max-03">
+    MAX03
+    </div>
+
+  </div>
+
+  <iframe id="iframePlayer"></iframe>
+
+</div>
+
+<div id="floatingPlayer">
+
+<div id="closePlayer">✕</div>
+
+<iframe id="floatFrame"></iframe>
+
 </div>
 
 <script>
-const fixedPlaylist = [
-  {
-    "title": "Tales of Herding Gods",
-    "image": "https://anime-good.com/wp-content/uploads/2025/11/Tales-of-Herding-Gods.webp",
-    "episodes": [
-      {
-        "name": "ตอนที่ 1",
-        "servers": [
-          { "name": "Main", "url": "https://moji.team-indy.net/embed/TlbWVBKUzT/" }
-        ]
-      }
-    ]
-  }
-];
+const menuTitles=document.querySelectorAll(".menu-title");
+const submenus=document.querySelectorAll(".submenu");
+const links=document.querySelectorAll(".menu-link");
+const iframe=document.getElementById("iframePlayer");
+const welcome=document.getElementById("welcome");
+const mobileToggle=document.getElementById("mobileToggle");
+const sidebar=document.getElementById("menu");
+const homeBtn=document.getElementById("homeBtn");
 
-initPlayer(fixedPlaylist);
+menuTitles.forEach(title=>{
+  title.addEventListener("click",()=>{
+
+    // ลบ active-title ทั้งหมดก่อน
+    menuTitles.forEach(t=>t.classList.remove("active-title"));
+    title.classList.add("active-title");
+
+    const target=document.getElementById(title.dataset.menu);
+
+    submenus.forEach(menu=>{
+      if(menu!==target){menu.classList.remove("open");}
+    });
+
+    target.classList.toggle("open");
+  });
+});
+
+links.forEach(link=>{
+  link.addEventListener("click",()=>{
+
+// 🔐 ตรวจสอบรหัสผ่าน
+    const pass = link.dataset.pass;
+
+    if(pass){
+        const input = prompt("กรุณาใส่รหัสผ่าน");
+
+        if(input !== pass){
+            alert("รหัสไม่ถูกต้อง");
+            return;
+        }
+
+    }
+    localStorage.setItem("activeMenu", link.dataset.url);
+    links.forEach(l=>l.classList.remove("active"));
+    link.classList.add("active");
+    link.scrollIntoView({block:"center"});
+    const url = link.dataset.url;
+    const type = link.dataset.type || "iframe"; // ค่าเริ่มต้น
+
+    // 🔥 เลือกการเปิดตามประเภท
+    if(type === "iframe"){
+        iframe.src = url;
+        iframe.style.display="block";
+        welcome.style.display="none";
+    }
+    else if(type === "page"){
+        window.location.href = url;
+    }
+    else if(type === "blank"){
+        window.open(url, "_blank");
+    }
+
+    if(window.innerWidth<768){
+      sidebar.classList.add("hidden");
+    }
+  });
+});
+
+homeBtn.addEventListener("click",()=>{
+  iframe.src="";
+  iframe.style.display="none";
+  welcome.style.display="block";
+
+  links.forEach(l=>l.classList.remove("active"));
+  menuTitles.forEach(t=>t.classList.remove("active-title"));
+  submenus.forEach(menu=>menu.classList.remove("open")); // เพิ่มบรรทัดนี้
+});
+
+mobileToggle.addEventListener("click",()=>{
+  sidebar.classList.toggle("hidden");
+});
+
+// ⭐ restore menu highlight
+window.addEventListener("load",()=>{
+
+  const saved = localStorage.getItem("activeMenu");
+
+  if(!saved) return;
+
+  links.forEach(link=>{
+
+    if(link.dataset.url === saved){
+
+      link.classList.add("active");
+      link.scrollIntoView({block:"center"});
+
+      const menu = link.closest(".submenu");
+      if(menu){
+        menu.classList.add("open");
+
+        const title = menu.previousElementSibling;
+        if(title) title.classList.add("active-title");
+      }
+
+    }
+
+  });
+
+});
+
+const favs=document.querySelectorAll(".fav-channel");
+const floatPlayer=document.getElementById("floatingPlayer");
+const floatFrame=document.getElementById("floatFrame");
+
+favs.forEach(ch=>{
+ch.addEventListener("click",()=>{
+
+const url=ch.dataset.url;
+
+floatFrame.src=url;
+floatPlayer.style.display="block";
+
+});
+});
+document.getElementById("closePlayer").onclick=()=>{
+
+floatPlayer.style.display="none";
+floatFrame.src="";
+
+};
+
 </script>
 
+
+</div>
 </body>
 </html>
