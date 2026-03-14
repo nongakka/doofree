@@ -138,11 +138,16 @@ body{
   flex:1;
   position:relative;
   display:flex;
+  flex-direction:column;
   justify-content:center;
   align-items:center;
   background:radial-gradient(circle at center,#1a1a2e 0%,#000 80%);
 }
-#welcome{text-align:center;opacity:0.9;}
+#welcome{
+text-align:center;
+opacity:0.9;
+margin-top:150px;
+}
 #welcome img{
   width:300px;
   max-width:80%;
@@ -159,7 +164,6 @@ iframe{
   width:100%;
   height:100%;
   border:none;
-  display:none;
 }
 
 /* MOBILE */
@@ -167,6 +171,70 @@ iframe{
   #menu{position:fixed;height:100%;z-index:999;}
   #mobileToggle{display:block;}
 }
+
+/* FAVORITE CHANNELS */
+
+#favoriteChannels{
+display:flex;
+gap:15px;
+justify-content:center;
+margin-top:50px;
+flex-wrap:wrap;
+}
+
+.fav-channel{
+padding:12px 20px;
+background:linear-gradient(90deg,#ff512f,#dd2476);
+border-radius:10px;
+cursor:pointer;
+font-weight:bold;
+transition:0.3s;
+}
+
+.fav-channel:hover{
+transform:scale(1.1);
+}
+
+/* FLOAT PLAYER */
+
+#floatingPlayer{
+position:fixed;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+width:70%;
+height:70%;
+background:#000;
+border-radius:12px;
+box-shadow:0 0 50px rgba(0,0,0,0.9);
+display:none;
+z-index:9999;
+overflow:hidden;
+}
+
+#floatingPlayer iframe{
+width:100%;
+height:100%;
+border:none;
+}
+
+#closePlayer{
+position:absolute;
+top:8px;
+right:12px;
+font-size:22px;
+color:#fff;
+cursor:pointer;
+z-index:10;
+background:rgba(0,0,0,0.5);
+padding:4px 10px;
+border-radius:6px;
+}
+
+#closePlayer:hover{
+background:red;
+}
+
 </style>
 </head>
 
@@ -286,11 +354,41 @@ iframe{
 </div>
 
 <div id="main-player">
+
   <div id="welcome">
     <img src="https://img2.pic.in.th/ChatGPT-Image-23-..-2569-10_56_05.png">
     <h1>หรรมน้อย ออนไลน์</h1>
   </div>
+
+  <div id="favoriteChannels">
+
+    <div class="fav-channel"
+    data-url="https://embed-test.bananacake.org/embed/max-01?muted=0">
+    MAX01
+    </div>
+
+    <div class="fav-channel"
+    data-url="https://embed-test.bananacake.org/embed/max-02?muted=0">
+    MAX02
+    </div>
+
+    <div class="fav-channel"
+    data-url="https://embed-test.bananacake.org/embed/max-03?muted=0">
+    MAX03
+    </div>
+
+  </div>
+
   <iframe id="iframePlayer"></iframe>
+
+</div>
+
+<div id="floatingPlayer">
+
+<div id="closePlayer">✕</div>
+
+<iframe id="floatFrame"></iframe>
+
 </div>
 
 <script>
@@ -402,7 +500,31 @@ window.addEventListener("load",()=>{
   });
 
 });
+
+const favs=document.querySelectorAll(".fav-channel");
+const floatPlayer=document.getElementById("floatingPlayer");
+const floatFrame=document.getElementById("floatFrame");
+
+favs.forEach(ch=>{
+ch.addEventListener("click",()=>{
+
+const url=ch.dataset.url;
+
+floatFrame.src=url;
+floatPlayer.style.display="block";
+
+});
+});
+document.getElementById("closePlayer").onclick=()=>{
+
+floatPlayer.style.display="none";
+floatFrame.src="";
+
+};
+
 </script>
 
+
+</div>
 </body>
 </html>
