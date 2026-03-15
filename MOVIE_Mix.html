@@ -1735,8 +1735,7 @@ url.includes("/frame/")
             hls = null;
         }
 
-       
-hls = new Hls({
+     hls = new Hls({
 
 enableWorker:true,
 lowLatencyMode:true,
@@ -1746,13 +1745,17 @@ manifestLoadingMaxRetry:5,
 levelLoadingMaxRetry:5,
 fragLoadingMaxRetry:5,
 
-xhrSetup: function(xhr){
+xhrSetup: function(xhr,url){
 
-    xhr.withCredentials = false
+    xhr.withCredentials = false;
+
+    // 🔥 เพิ่ม 3 บรรทัดนี้
+    xhr.setRequestHeader("Referer", location.href);
+    xhr.setRequestHeader("Origin", location.origin);
+    xhr.setRequestHeader("User-Agent", navigator.userAgent);
 
 }
-});
-
+});  
         console.log("PLAY HLS:",channel.url);
         hls.loadSource(channel.url);
         hls.attachMedia(video);
