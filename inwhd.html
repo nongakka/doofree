@@ -134,12 +134,13 @@ class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50 backdro
 <div class="modal-box w-11/12 md:w-3/4 lg:w-1/2 rounded-2xl p-4 relative">
 <button onclick="forceClose()" class="absolute top-3 right-4 text-red-400 text-2xl hover:text-red-600">✖</button>
 
-<iframe
-id="playerFrame"
-class="w-full h-72 md:h-96 rounded-xl"
-allow="autoplay; fullscreen"
-allowfullscreen>
-</iframe>
+<video
+id="playerVideo"
+class="w-full h-72 md:h-96 rounded-xl bg-black"
+controls
+autoplay
+playsinline>
+</video>
 
 </div>
 
@@ -260,14 +261,30 @@ grid.appendChild(card);
 container.appendChild(grid);
 }
   
-function openPlayer(url){
+async function openPlayer(url){
 
-const iframe = document.getElementById("playerFrame");
+const api = url + "&ajax=1";
 
-iframe.src = url;
+try{
+
+const res = await fetch("https://api.allorigins.win/raw?url="+encodeURIComponent(api));
+const data = await res.json();
+
+if(data.status !== "ok"){
+alert("Stream error");
+return;
+}
+
+const video = document.getElementById("playerVideo");
+video.src = data.file;
+video.play();
 
 document.getElementById("playerModal").classList.remove("hidden");
 document.getElementById("playerModal").classList.add("flex");
+
+}catch(e){
+alert("Load stream failed");
+}
 
 }
 function closeModal(e){
@@ -277,9 +294,10 @@ if(e.target.id==="playerModal"){ forceClose(); }
 function forceClose(){
 
 const modal = document.getElementById("playerModal");
-const iframe = document.getElementById("playerFrame");
+const video = document.getElementById("playerVideo");
 
-iframe.src = "";   // หยุด stream
+video.pause();
+video.src="";
 
 modal.classList.add("hidden");
 modal.classList.remove("flex");
