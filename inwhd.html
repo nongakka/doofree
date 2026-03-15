@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>หรรมน้อย ออนไลน์</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
 
 <style>
 body{
@@ -275,18 +275,15 @@ if(e.target.id==="playerModal"){ forceClose(); }
 }
 
 function forceClose(){
+
 const modal = document.getElementById("playerModal");
+const iframe = document.getElementById("playerFrame");
 
-const video=document.getElementById("videoPlayer");
-video.pause();
-video.src="";
-
-if(window.hls){
-window.hls.destroy();
-}
+iframe.src = "";   // หยุด stream
 
 modal.classList.add("hidden");
 modal.classList.remove("flex");
+
 }
 
 switchCategory("SPORTS");
