@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>หรรมน้อย ออนไลน์</title>
 <script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
 <style>
 body{
@@ -132,11 +133,16 @@ class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50 backdro
 
 <div class="modal-box w-11/12 md:w-3/4 lg:w-1/2 rounded-2xl p-4 relative">
 <button onclick="forceClose()" class="absolute top-3 right-4 text-red-400 text-2xl hover:text-red-600">✖</button>
-<iframe id="playerFrame"
-class="w-full h-72 md:h-96 rounded-xl"
-allow="autoplay; fullscreen"
-allowfullscreen>
-</iframe>
+
+<video
+id="videoPlayer"
+class="w-full h-72 md:h-96 rounded-xl bg-black"
+controls
+autoplay
+muted
+playsinline>
+</video>
+
 </div>
 
 </div>
@@ -261,14 +267,38 @@ async function openPlayer(url){
 const res = await fetch(url + "&ajax=1");
 const data = await res.json();
 
-if(data.status==="ok"){
+if(data.status!=="ok"){
+alert("Stream error");
+return;
+}
 
-document.getElementById("playerFrame").src = data.file;
+const video=document.getElementById("videoPlayer");
+const stream=data.file;
+
+if(Hls.isSupported()){
+
+if(window.hls){
+window.hls.destroy();
+}
+
+window.hls=new Hls();
+
+window.hls.on(Hls.Events.ERROR,function(event,data){
+console.log("HLS ERROR",data);
+});
+
+window.hls.loadSource(stream);
+window.hls.attachMedia(video);
+video.play();
+
+}else{
+
+video.src=stream;
+
+}
 
 document.getElementById("playerModal").classList.remove("hidden");
 document.getElementById("playerModal").classList.add("flex");
-
-}
 
 }
 
@@ -278,7 +308,15 @@ if(e.target.id==="playerModal"){ forceClose(); }
 
 function forceClose(){
 const modal = document.getElementById("playerModal");
-document.getElementById("playerFrame").src="";
+
+const video=document.getElementById("videoPlayer");
+video.pause();
+video.src="";
+
+if(window.hls){
+window.hls.destroy();
+}
+
 modal.classList.add("hidden");
 modal.classList.remove("flex");
 }
