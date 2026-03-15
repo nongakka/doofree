@@ -267,7 +267,7 @@ const api = url + "&ajax=1";
 
 try{
 
-const res = await fetch("broken-surf-7347.hssmnoy.workers.dev?url="+encodeURIComponent(api));
+const res = await fetch("https://broken-surf-7347.hssmnoy.workers.dev?url="+encodeURIComponent(api));
 const data = await res.json();
 
 if(data.status !== "ok"){
