@@ -134,8 +134,8 @@ class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50 backdro
 <button onclick="forceClose()" class="absolute top-3 right-4 text-red-400 text-2xl hover:text-red-600">✖</button>
 <iframe id="playerFrame"
 class="w-full h-72 md:h-96 rounded-xl"
-allowfullscreen
-sandbox="allow-scripts allow-same-origin allow-forms">
+allow="autoplay; fullscreen"
+allowfullscreen>
 </iframe>
 </div>
 
@@ -256,10 +256,20 @@ grid.appendChild(card);
 container.appendChild(grid);
 }
 
-function openPlayer(url){
-document.getElementById("playerFrame").src=url;
+async function openPlayer(url){
+
+const res = await fetch(url + "&ajax=1");
+const data = await res.json();
+
+if(data.status==="ok"){
+
+document.getElementById("playerFrame").src = data.file;
+
 document.getElementById("playerModal").classList.remove("hidden");
 document.getElementById("playerModal").classList.add("flex");
+
+}
+
 }
 
 function closeModal(e){
