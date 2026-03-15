@@ -564,8 +564,8 @@ box-shadow:0 4px 12px rgba(59,130,246,.4);
 <div id="mainMenu" style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px;"></div>
 
 <hr style="margin:15px 0;">
-<h3>📁 หมวดหมู่</h3>
-<ul id="categoryList"></ul>
+<h3 id="categoryToggle" style="cursor:pointer;">📁 หมวดหมู่ ▾</h3>
+<ul id="categoryList" class="show"></ul>
 </div>
 
 </div>
@@ -1974,6 +1974,21 @@ function openServerPopup(episode){
 function closeServerPopup(){
     document.getElementById("serverPopup").style.display = "none";
 }
+
+const categoryToggle = document.getElementById("categoryToggle");
+const categoryListEl = document.getElementById("categoryList");
+
+categoryToggle.addEventListener("click", () => {
+
+    if(categoryListEl.style.display === "none"){
+        categoryListEl.style.display = "block";
+        categoryToggle.textContent = "📁 หมวดหมู่ ▾";
+    }else{
+        categoryListEl.style.display = "none";
+        categoryToggle.textContent = "📁 หมวดหมู่ ▸";
+    }
+
+});	
 </script>
 
 </body>
