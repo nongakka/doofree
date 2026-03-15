@@ -564,8 +564,8 @@ box-shadow:0 4px 12px rgba(59,130,246,.4);
 <div id="mainMenu" style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px;"></div>
 
 <hr style="margin:15px 0;">
-<h3>📁 หมวดหมู่</h3>
-<ul id="categoryList"></ul>
+<h3 id="categoryToggle" style="cursor:pointer;">📁 หมวดหมู่ ▸</h3>
+<ul id="categoryList" style="display:none;"></ul>
 </div>
 
 </div>
@@ -1478,7 +1478,8 @@ if(
     !url.includes(".mp4") &&
     !url.includes(".mpd") &&
     !url.includes(".txt") &&
-    !url.includes("/qualitys/")
+    !url.includes("/qualitys/")&&
+	url.includes("master")
 ){
 
     setPlayerLabel("Iframe");
@@ -1663,7 +1664,8 @@ if(forcedPlayer === "html5"){
 url.includes(".m3u8") ||
 url.includes(".txt") ||
 url.includes("/qualitys/") ||
-url.includes("/frame/")
+url.includes("/frame/") ||
+url.includes("master")
 ){
 
 
@@ -1698,8 +1700,7 @@ url.includes("/frame/")
             hls = null;
         }
 
-       
-hls = new Hls({
+     hls = new Hls({
 
 enableWorker:true,
 lowLatencyMode:true,
@@ -1709,13 +1710,17 @@ manifestLoadingMaxRetry:5,
 levelLoadingMaxRetry:5,
 fragLoadingMaxRetry:5,
 
-xhrSetup: function(xhr){
+xhrSetup: function(xhr,url){
 
-    xhr.withCredentials = false
+    xhr.withCredentials = false;
+
+    // 🔥 เพิ่ม 3 บรรทัดนี้
+    xhr.setRequestHeader("Referer", location.href);
+    xhr.setRequestHeader("Origin", location.origin);
+    xhr.setRequestHeader("User-Agent", navigator.userAgent);
 
 }
-});
-
+});  
         console.log("PLAY HLS:",channel.url);
         hls.loadSource(channel.url);
         hls.attachMedia(video);
@@ -1932,6 +1937,21 @@ function openServerPopup(episode){
 function closeServerPopup(){
     document.getElementById("serverPopup").style.display = "none";
 }
+
+const categoryToggle = document.getElementById("categoryToggle");
+const categoryListEl = document.getElementById("categoryList");
+
+categoryToggle.addEventListener("click", () => {
+
+    if(categoryListEl.style.display === "none"){
+        categoryListEl.style.display = "block";
+        categoryToggle.textContent = "📁 หมวดหมู่ ▾";
+    }else{
+        categoryListEl.style.display = "none";
+        categoryToggle.textContent = "📁 หมวดหมู่ ▸";
+    }
+
+});	
 </script>
 
 </body>
