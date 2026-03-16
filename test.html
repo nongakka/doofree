@@ -1477,20 +1477,7 @@ function playStream(channel){
 if(!channel.url) return;
 
     const url = channel.url.toLowerCase();
-// 🔥 workers.dev video page → iframe
-if(channel.url.includes("workers.dev")){
 
-    setPlayerLabel("Iframe (Worker)");
-
-    video.style.display="none";
-    document.getElementById("jw-player").style.display="none";
-
-    const iframe = document.getElementById("iframePlayer");
-    iframe.style.display="block";
-    iframe.src = channel.url;
-
-    return;
-}
 // =========================
 // MP4 PLAYER
 // =========================
