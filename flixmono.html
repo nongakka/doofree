@@ -749,67 +749,67 @@ const PLAYLISTS = [
 {
     name: "ซีรี่ย์-2026",
     type: "anime-json",
-    url: "https://raw.githubusercontent.com/nongakka/flixmono/refs/heads/main/flixmono_ซีรี่ย์-2026.json"   
+    url: "https://raw.githubusercontent.com/nongakka/flixmono/main/flixmono_ซีรี่ย์-2026.json"   
 },
 {
     name: "ซีรี่ย์-2025",
     type: "anime-json",
-    url: "https://raw.githubusercontent.com/nongakka/flixmono/refs/heads/main/flixmono_ซีรี่ย์-2025.json"   
+    url: "https://raw.githubusercontent.com/nongakka/flixmono/main/flixmono_ซีรี่ย์-2025.json"   
 },	
 {
     name: "ซีรี่ย์จีนพากย์ไทย",
     type: "anime-json",
-    url: "https://raw.githubusercontent.com/nongakka/flixmono/refs/heads/main/flixmono_ซีรี่ย์จีนพากย์ไทย.json" 
+    url: "https://raw.githubusercontent.com/nongakka/flixmono/main/flixmono_ซีรี่ย์จีนพากย์ไทย.json" 
 },
 {
     name: "ซีรี่ย์จีนซับไทย",
     type: "anime-json",
-    url: "https://raw.githubusercontent.com/nongakka/flixmono/refs/heads/main/flixmono_ซีรี่ย์จีนซับไทย.json"   
+    url: "https://raw.githubusercontent.com/nongakka/flixmono/main/flixmono_ซีรี่ย์จีนซับไทย.json"   
 },
 {
     name: "ซีรี่ย์เกาหลีพากย์ไทย",
     type: "anime-json",
-    url: "https://raw.githubusercontent.com/nongakka/flixmono/refs/heads/main/flixmono_ซีรี่ย์เกาหลีพากย์ไทย.json"   
+    url: "https://raw.githubusercontent.com/nongakka/flixmono/main/flixmono_ซีรี่ย์เกาหลีพากย์ไทย.json"   
 },
 {
     name: "ซีรี่ย์เกาหลีซับไทย",
     type: "anime-json",
-    url: "https://raw.githubusercontent.com/nongakka/flixmono/refs/heads/main/flixmono_ซีรี่ย์เกาหลีซับไทย.json"   
+    url: "https://raw.githubusercontent.com/nongakka/flixmono/main/flixmono_ซีรี่ย์เกาหลีซับไทย.json"   
 },
 {
     name: "ซีรี่ย์ญี่ปุ่น",
     type: "anime-json",
-    url: "https://raw.githubusercontent.com/nongakka/flixmono/refs/heads/main/flixmono_ดูซีรี่ย์ญี่ปุ่น.json"   
+    url: "https://raw.githubusercontent.com/nongakka/flixmono/main/flixmono_ดูซีรี่ย์ญี่ปุ่น.json"   
 },
 {
     name: "ซีรี่ย์ฝรั่ง",
     type: "anime-json",
-    url: "https://raw.githubusercontent.com/nongakka/flixmono/refs/heads/main/flixmono_ดูซีรี่ย์ฝรั่ง.json"   
+    url: "https://raw.githubusercontent.com/nongakka/flixmono/main/flixmono_ดูซีรี่ย์ฝรั่ง.json"   
 },
 {
     name: "ดูหนัง",
     type: "anime-json",
-    url: "https://raw.githubusercontent.com/nongakka/flixmono/refs/heads/main/flixmono_movie.json"   
+    url: "https://raw.githubusercontent.com/nongakka/flixmono/main/flixmono_movie.json"   
 },	
 {
     name: "หนัง Action",
     type: "anime-json",
-    url: "https://raw.githubusercontent.com/nongakka/flixmono/refs/heads/main/flixmono_action.json"   
+    url: "https://raw.githubusercontent.com/nongakka/flixmono/main/flixmono_action.json"   
 },
 {
     name: "หนัง Drama",
     type: "anime-json",
-    url: "https://raw.githubusercontent.com/nongakka/flixmono/refs/heads/main/flixmono_drama.json"   
+    url: "https://raw.githubusercontent.com/nongakka/flixmono/main/flixmono_drama.json"   
 },
 {
     name: "หนัง Adventure",
     type: "anime-json",
-    url: "https://raw.githubusercontent.com/nongakka/flixmono/refs/heads/main/flixmono_action-adventure.json"   
+    url: "https://raw.githubusercontent.com/nongakka/flixmono/main/flixmono_action-adventure.json"   
 },	
 {
     name: "หนังการ์ตูน",
     type: "anime-json",
-    url: "https://raw.githubusercontent.com/nongakka/flixmono/refs/heads/main/flixmono_kid.json"   
+    url: "https://raw.githubusercontent.com/nongakka/flixmono/main/flixmono_kid.json"   
 },	
 ];
 
@@ -1400,15 +1400,19 @@ function resetPlayers(){
     if(jwInstance){
 
     try{
-
-        jwInstance.stop(true);   // 🔥 หยุด video
-        jwInstance.remove();     // 🔥 ลบ player
-
+        jwInstance.stop();
+        jwInstance.remove();
     }catch(e){}
 
     jwInstance = null;
-
 }
+
+// 🔥 kill JW ทุก instance กันเสียงค้าง
+try{
+    jwplayer().remove();
+}catch(e){}
+
+	
     const jwDiv = document.getElementById("jw-player");
 
 if(jwDiv){
@@ -1420,8 +1424,9 @@ const oldVideo = document.getElementById("videoPlayer");
 if(oldVideo){
 
     try{
-        oldVideo.pause();
-    }catch(e){}
+    oldVideo.pause();
+    oldVideo.muted = true;
+}catch(e){}
 
     oldVideo.removeAttribute("src");
     oldVideo.srcObject = null;
@@ -1719,23 +1724,34 @@ url.includes("master")
     video.style.display="block";
     document.getElementById("jw-player").style.display="none";
 
-    // 1️⃣ Safari native
     if(video.canPlayType("application/vnd.apple.mpegurl") && !channel.referer){
 
-        setPlayerLabel("Native HLS");
-        video.src = channel.url;
-        video.load();
-		setDefaultVolumeHTML5();
+    setPlayerLabel("Native HLS");
+
+    video.src = channel.url;
+    video.load();
+    setDefaultVolumeHTML5();
+
+    video.addEventListener("loadedmetadata", function(){
         video.play().catch(()=>{});
+    }, { once:true });
 
-        setTimeout(()=>{
-            if(video.readyState < 2){
-                startJWfallback(channel);
-            }
-        },3000);
+    video.addEventListener("error", function(){
+        startJWfallback(channel);
+    }, { once:true });
 
-        return;   // ✅ สำคัญมาก
-    }
+    // 🔥 ตรวจว่าเล่นจริงหรือไม่
+    setTimeout(()=>{
+
+        if(video.paused || video.currentTime === 0){
+            console.log("Native HLS stuck → fallback JW");
+            startJWfallback(channel);
+        }
+
+    },3000);
+
+    return;
+}
 
     // 2️⃣ HLS.js
     if(typeof Hls !== "undefined" && Hls.isSupported()){
