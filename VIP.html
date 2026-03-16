@@ -1476,7 +1476,15 @@ function playStream(channel){
 if(!channel.url) return;
 
     const url = channel.url.toLowerCase();
+// 🔥 worker proxy stream
+if(channel.url.includes("workers.dev")){
 
+    setPlayerLabel("JW (Worker)");
+
+    startJWfallback(channel);
+
+    return;
+}
 // =========================
 // MP4 PLAYER
 // =========================
