@@ -621,7 +621,7 @@ style="padding:6px 10px;border:none;border-radius:6px;background:#2196f3;color:#
 </div>
 <!-- 🔼 จบปุ่ม -->
 
-<video id="videoPlayer" controls playsinline autoplay muted></video>
+<video id="videoPlayer" controls playsinline autoplay></video>
 <div id="jw-player" style="display:none;"></div>
 
 <iframe id="iframePlayer"
@@ -721,6 +721,11 @@ const grid=document.getElementById("movieGrid");
 const categoryList=document.getElementById("categoryList");
 let video=document.getElementById("videoPlayer");
 const overlay=document.getElementById("overlay");
+overlay.addEventListener("click", () => {
+    overlay.classList.remove("active");
+    playerContainer.classList.remove("active");
+    resetPlayers();
+});
 const playerContainer=document.getElementById("player-container");
 const closeBtn = document.getElementById("closePlayer");
 
@@ -875,7 +880,7 @@ return channels;
 async function loadSinglePlaylist(pl){
 
    currentPage = 1;   // รีเซต pagination
-    isAnimeMode = false;
+    
     grid.innerHTML = "<p>กำลังโหลด...</p>";
     document.getElementById("backHome").disabled = true;
 
@@ -895,10 +900,7 @@ if(pl.type === "anime-json"){
         animeData = data;
 isAnimeMode = true;
 
-const el = document.getElementById("count-"+pl.name);
-if(el){
-    el.textContent = "(" + data.length + ")";
-}
+document.getElementById("count-"+pl.name).textContent = "(" + data.length + ")";
 
 renderAnimeGrid();
 
@@ -1398,15 +1400,19 @@ function resetPlayers(){
     if(jwInstance){
 
     try{
-
-        jwInstance.stop(true);   // 🔥 หยุด video
-        jwInstance.remove();     // 🔥 ลบ player
-
+        jwInstance.stop();
+        jwInstance.remove();
     }catch(e){}
 
     jwInstance = null;
-
 }
+
+// 🔥 kill JW ทุก instance กันเสียงค้าง
+try{
+    jwplayer().remove();
+}catch(e){}
+
+	
     const jwDiv = document.getElementById("jw-player");
 
 if(jwDiv){
@@ -1418,8 +1424,9 @@ const oldVideo = document.getElementById("videoPlayer");
 if(oldVideo){
 
     try{
-        oldVideo.pause();
-    }catch(e){}
+    oldVideo.pause();
+    oldVideo.muted = true;
+}catch(e){}
 
     oldVideo.removeAttribute("src");
     oldVideo.srcObject = null;
@@ -1489,9 +1496,8 @@ function playStream(channel){
 
     overlay.classList.add("active");
     playerContainer.classList.add("active");
-    forcedPlayer = null;
-    
-	if(!channel.url && channel.urls){
+
+    if(!channel.url && channel.urls){
     channel.url = channel.urls[0];
 }
 
@@ -1723,9 +1729,7 @@ url.includes("master")
 
         setPlayerLabel("Native HLS");
         video.src = channel.url;
-        video.crossOrigin = "anonymous";   // เพิ่มบรรทัดนี้
-		video.muted = true;     // 🔥 เพิ่มบรรทัดนี้
-		video.load();
+        video.load();
 		setDefaultVolumeHTML5();
         video.play().catch(()=>{});
 
@@ -1760,15 +1764,11 @@ fragLoadingMaxRetry:5,
 
 xhrSetup: function(xhr,url){
 
-xhr.withCredentials = false;
+    xhr.withCredentials = false;
 
-if(channel.referer){
-xhr.setRequestHeader("Referer", channel.referer);
-}
-
-if(channel.origin){
-xhr.setRequestHeader("Origin", channel.origin);
-}
+    if(channel.referer){
+        xhr.setRequestHeader("Referer", channel.referer);
+    }
 
 }
 });  
@@ -1779,11 +1779,7 @@ xhr.setRequestHeader("Origin", channel.origin);
         let playTimeout;
 
         hls.on(Hls.Events.MANIFEST_PARSED, function(){
-
-		video.muted = true;   // 🔥 เพิ่ม
-
-		setDefaultVolumeHTML5();
-		
+            setDefaultVolumeHTML5();   // 🔊 25%
 			video.play().catch(()=>{});
 
             playTimeout = setTimeout(()=>{
@@ -1827,10 +1823,12 @@ xhr.setRequestHeader("Origin", channel.origin);
 
     }
 
-        video.onplaying = ()=>{
-            clearTimeout(playTimeout);
-        };
 });
+
+        video.addEventListener("playing",()=>{
+            clearTimeout(playTimeout);
+        });
+
         return;  // ✅ สำคัญ
     }
 
@@ -2017,12 +2015,8 @@ categoryToggle.addEventListener("click", () => {
     }
 
 });	
-
-	console.log("SCRIPT START");
-console.log(PLAYLISTS);
 </script>
 
 </body>
 
 </html>
-
