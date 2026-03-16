@@ -730,9 +730,12 @@ const playerContainer=document.getElementById("player-container");
 const closeBtn = document.getElementById("closePlayer");
 
 closeBtn.addEventListener("click", () => {
+
+    resetPlayers();   // 🔥 ให้หยุด player ก่อน
+
     overlay.classList.remove("active");
     playerContainer.classList.remove("active");
-    resetPlayers();
+
 });
 
 playerContainer.addEventListener("click", e => {
@@ -1084,27 +1087,6 @@ function buildMainMenu(){
 
 buildMainMenu();
 
-document.getElementById("switchPlayerBtn").onclick = function(){
-
-    if(forcedPlayer === null){
-        forcedPlayer = "html5";
-        this.innerText = "HTML5";
-    }
-    else if(forcedPlayer === "html5"){
-        forcedPlayer = "jw";
-        this.innerText = "JW";
-    }
-    else{
-        forcedPlayer = null;
-        this.innerText = "Auto";
-    }
-
-    if(currentChannel){
-        playStream(currentChannel);
-    }
-
-};
-
 document.getElementById("backHome").addEventListener("click", () => {
     window.location.href = "https://nongakka.github.io/doofree/index.html";
 });
@@ -1416,21 +1398,41 @@ function resetPlayers(){
     }
         
     if(jwInstance){
-    try{ jwInstance.remove(); }catch(e){}
+
+    try{
+
+        jwInstance.stop(true);   // 🔥 หยุด video
+        jwInstance.remove();     // 🔥 ลบ player
+
+    }catch(e){}
+
     jwInstance = null;
+
 }
-    document.getElementById("jw-player").innerHTML="";
-    const oldVideo = document.getElementById("videoPlayer");
+    const jwDiv = document.getElementById("jw-player");
+
+if(jwDiv){
+    jwDiv.innerHTML = "";
+}
+    
+const oldVideo = document.getElementById("videoPlayer");
 
 if(oldVideo){
 
-    oldVideo.pause();
+    try{
+        oldVideo.pause();
+    }catch(e){}
+
     oldVideo.removeAttribute("src");
+    oldVideo.srcObject = null;
+
+    while(oldVideo.firstChild){
+        oldVideo.removeChild(oldVideo.firstChild);
+    }
+
     oldVideo.load();
 
-    const newVideo = oldVideo.cloneNode(true);
-    oldVideo.parentNode.replaceChild(newVideo, oldVideo);
-    video = newVideo;
+    video = oldVideo;
 
     video.style.display = "block";
     document.getElementById("jw-player").style.display = "none";
@@ -1439,8 +1441,14 @@ if(oldVideo){
     setPlayerLabel(forcedPlayer ? forcedPlayer.toUpperCase() : "Auto");
 
 const iframe = document.getElementById("iframePlayer");
+
 if(iframe){
+
+    iframe.src = "";
+    iframe.removeAttribute("src");
+
     iframe.src = "about:blank";
+
     iframe.style.display = "none";
 }
 
@@ -1450,6 +1458,15 @@ function startJW(channel){
 
     video.style.display="none";
     document.getElementById("jw-player").style.display="block";
+
+    // 🔥 kill player เก่าก่อน
+    if(jwInstance){
+        try{
+            jwInstance.stop(true);
+            jwInstance.remove();
+        }catch(e){}
+        jwInstance = null;
+    }
 
     jwInstance = jwplayer("jw-player").setup({
         file: channel.url,
@@ -1464,32 +1481,16 @@ function startJW(channel){
 
 }
 
-function startJWfallback(channel){
-
-    video.style.display="none";
-    document.getElementById("jw-player").style.display="block";
-
-    jwInstance = jwplayer("jw-player").setup({
-        file: channel.url,
-        width: "100%",
-        height: "100%",
-        autostart: true,
-        primary: "html5"
-    });
-
-    jwInstance.on('ready', function(){
-        setDefaultVolumeJW();
-    });
-
-}
-
-
 /* PLAY */
+
 function playStream(channel){
+
+    resetPlayers();   // 🔥 ย้ายขึ้นมาบรรทัดแรก
+
     currentChannel = channel; 
+
     overlay.classList.add("active");
     playerContainer.classList.add("active");
-    resetPlayers();
 
     if(!channel.url && channel.urls){
     channel.url = channel.urls[0];
@@ -1525,7 +1526,7 @@ if(
     !url.includes(".mpd") &&
     !url.includes(".txt") &&
     !url.includes("/qualitys/")&&
-	url.includes("master")
+     url.includes(".html")
 ){
 
     setPlayerLabel("Iframe");
@@ -1570,7 +1571,7 @@ if(forcedPlayer === "html5"){
 
             hls = new Hls({
     enableWorker:true,
-    lowLatencyMode:true,
+    lowLatencyMode:false,
 
     // 🔥 บังคับ parse playlist
     manifestLoadingTimeOut: 20000,
@@ -1749,7 +1750,7 @@ url.includes("master")
      hls = new Hls({
 
 enableWorker:true,
-lowLatencyMode:true,
+lowLatencyMode:false,
 
 manifestLoadingTimeOut:20000,
 manifestLoadingMaxRetry:5,
@@ -1760,10 +1761,9 @@ xhrSetup: function(xhr,url){
 
     xhr.withCredentials = false;
 
-    // 🔥 เพิ่ม 3 บรรทัดนี้
-    xhr.setRequestHeader("Referer", location.href);
-    xhr.setRequestHeader("Origin", location.origin);
-    xhr.setRequestHeader("User-Agent", navigator.userAgent);
+    if(channel.referer){
+        xhr.setRequestHeader("Referer", channel.referer);
+    }
 
 }
 });  
@@ -1840,36 +1840,48 @@ xhrSetup: function(xhr,url){
 function startJWfallback(channel){
 
     setPlayerLabel("JW (Fallback)");
+
     video.style.display="none";
     document.getElementById("jw-player").style.display="block";
+
+    if(jwInstance){
+        try{
+            jwInstance.stop(true);
+            jwInstance.remove();
+        }catch(e){}
+        jwInstance = null;
+    }
 
     let type = null;
 
     if(channel.url.toLowerCase().includes(".mpd")) type = "dash";
     else if(
-    channel.url.toLowerCase().includes(".m3u8") ||
-    channel.url.toLowerCase().includes(".txt")
-) type = "hls";
+        channel.url.toLowerCase().includes(".m3u8") ||
+        channel.url.toLowerCase().includes(".txt")
+    ) type = "hls";
 
     jwInstance = jwplayer("jw-player").setup({
-    file: channel.url,
-    width: "100%",
-    height: "100%",
-    autostart: true,
-    primary: "html5",
-    type: type,
-    
-});
-	jwInstance.on('ready', function(){
-    setDefaultVolumeJW();   // ✅ 25%
-});
+        file: channel.url,
+        width: "100%",
+        height: "100%",
+        autostart: true,
+        primary: "html5",
+        type: type
+    });
+
+    jwInstance.on('ready', function(){
+        setDefaultVolumeJW();
+    });
 }
 
 /* CLOSE */
 overlay.onclick=()=>{
+
+resetPlayers();
+
 overlay.classList.remove("active");
 playerContainer.classList.remove("active");
-resetPlayers();
+
 };
 
 /* ================= INIT ================= */
@@ -2003,4 +2015,3 @@ categoryToggle.addEventListener("click", () => {
 </body>
 
 </html>
-
