@@ -1727,20 +1727,28 @@ url.includes("master")
     // 1️⃣ Safari native
     if(video.canPlayType("application/vnd.apple.mpegurl") && !channel.referer){
 
-        setPlayerLabel("Native HLS");
-        video.src = channel.url;
-        video.load();
-		setDefaultVolumeHTML5();
+    setPlayerLabel("Native HLS");
+
+    video.src = channel.url;
+    video.load();
+    setDefaultVolumeHTML5();
+
+    video.addEventListener("loadedmetadata", function(){
         video.play().catch(()=>{});
+    }, { once:true });
 
-        setTimeout(()=>{
-            if(video.readyState < 2){
-                startJWfallback(channel);
-            }
-        },3000);
+    video.addEventListener("error", function(){
+        startJWfallback(channel);
+    }, { once:true });
 
-        return;   // ✅ สำคัญมาก
-    }
+    setTimeout(()=>{
+        if(video.readyState < 2){
+            startJWfallback(channel);
+        }
+    },3000);
+
+    return;
+}
 
     // 2️⃣ HLS.js
     if(typeof Hls !== "undefined" && Hls.isSupported()){
