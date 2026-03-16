@@ -875,7 +875,7 @@ return channels;
 async function loadSinglePlaylist(pl){
 
    currentPage = 1;   // รีเซต pagination
-    
+    isAnimeMode = false;
     grid.innerHTML = "<p>กำลังโหลด...</p>";
     document.getElementById("backHome").disabled = true;
 
@@ -1486,8 +1486,9 @@ function playStream(channel){
 
     overlay.classList.add("active");
     playerContainer.classList.add("active");
-
-    if(!channel.url && channel.urls){
+    forcedPlayer = null;
+    
+	if(!channel.url && channel.urls){
     channel.url = channel.urls[0];
 }
 
