@@ -1719,8 +1719,9 @@ url.includes("master")
 
         setPlayerLabel("Native HLS");
         video.src = channel.url;
-        video.load();
+        video.crossOrigin = "anonymous";   // เพิ่มบรรทัดนี้
 		video.muted = true;     // 🔥 เพิ่มบรรทัดนี้
+		video.load();
 		setDefaultVolumeHTML5();
         video.play().catch(()=>{});
 
@@ -1755,11 +1756,15 @@ fragLoadingMaxRetry:5,
 
 xhrSetup: function(xhr,url){
 
-    xhr.withCredentials = false;
+xhr.withCredentials = false;
 
-    if(channel.referer){
-        xhr.setRequestHeader("Referer", channel.referer);
-    }
+if(channel.referer){
+xhr.setRequestHeader("Referer", channel.referer);
+}
+
+if(channel.origin){
+xhr.setRequestHeader("Origin", channel.origin);
+}
 
 }
 });  
