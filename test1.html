@@ -621,7 +621,7 @@ style="padding:6px 10px;border:none;border-radius:6px;background:#2196f3;color:#
 </div>
 <!-- 🔼 จบปุ่ม -->
 
-<video id="videoPlayer" controls playsinline autoplay></video>
+<video id="videoPlayer" controls playsinline autoplay muted></video>
 <div id="jw-player" style="display:none;"></div>
 
 <iframe id="iframePlayer"
@@ -721,11 +721,6 @@ const grid=document.getElementById("movieGrid");
 const categoryList=document.getElementById("categoryList");
 let video=document.getElementById("videoPlayer");
 const overlay=document.getElementById("overlay");
-overlay.addEventListener("click", () => {
-    overlay.classList.remove("active");
-    playerContainer.classList.remove("active");
-    resetPlayers();
-});
 const playerContainer=document.getElementById("player-container");
 const closeBtn = document.getElementById("closePlayer");
 
@@ -1725,6 +1720,7 @@ url.includes("master")
         setPlayerLabel("Native HLS");
         video.src = channel.url;
         video.load();
+		video.muted = true;     // 🔥 เพิ่มบรรทัดนี้
 		setDefaultVolumeHTML5();
         video.play().catch(()=>{});
 
@@ -1774,7 +1770,11 @@ xhrSetup: function(xhr,url){
         let playTimeout;
 
         hls.on(Hls.Events.MANIFEST_PARSED, function(){
-            setDefaultVolumeHTML5();   // 🔊 25%
+
+		video.muted = true;   // 🔥 เพิ่ม
+
+		setDefaultVolumeHTML5();
+		
 			video.play().catch(()=>{});
 
             playTimeout = setTimeout(()=>{
@@ -1820,7 +1820,7 @@ xhrSetup: function(xhr,url){
 
 });
 
-        video.addEventListener("playing",()=>{
+        video.onplaying = ()=>{
             clearTimeout(playTimeout);
         });
 
