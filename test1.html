@@ -895,7 +895,10 @@ if(pl.type === "anime-json"){
         animeData = data;
 isAnimeMode = true;
 
-document.getElementById("count-"+pl.name).textContent = "(" + data.length + ")";
+const el = document.getElementById("count-"+pl.name);
+if(el){
+    el.textContent = "(" + data.length + ")";
+}
 
 renderAnimeGrid();
 
