@@ -1724,7 +1724,6 @@ url.includes("master")
     video.style.display="block";
     document.getElementById("jw-player").style.display="none";
 
-    // 1️⃣ Safari native
     if(video.canPlayType("application/vnd.apple.mpegurl") && !channel.referer){
 
     setPlayerLabel("Native HLS");
@@ -1741,10 +1740,14 @@ url.includes("master")
         startJWfallback(channel);
     }, { once:true });
 
+    // 🔥 ตรวจว่าเล่นจริงหรือไม่
     setTimeout(()=>{
-        if(video.readyState < 2){
+
+        if(video.paused || video.currentTime === 0){
+            console.log("Native HLS stuck → fallback JW");
             startJWfallback(channel);
         }
+
     },3000);
 
     return;
