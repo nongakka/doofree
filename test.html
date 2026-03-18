@@ -773,40 +773,34 @@ const PLAYLISTS = [
 },
 {
     name: "VIP5",
-    type: "url",
-    url: "https://broken-surf-7347.hssmnoy.workers.dev/?url=https://drive.google.com/uc?id=1VHPhofgC4pGOFtyZijba2ehG4qYzZWC4&export=download",
-    
-},
-{
-    name: "VIP6",
-    type: "url",
-    url: "https://broken-surf-7347.hssmnoy.workers.dev/?url=https://drive.google.com/uc?id=115JYa8qTqRPrdcG_rlnOh0WTuLieWEnC&export=download",
-    
-},	
-{
-    name: "VIP7",
-    type: "json",
-    url: "https://raw.githubusercontent.com/nongakka/doofree/main/M3U/AV-MIX.json",
-    
-},	
-{
-    name: "VIP8",
     type: "json",
     url: "https://raw.githubusercontent.com/nongakka/doofree/main/M3U/njav.json",
     
 },
 {
-    name: "VIP9",
+    name: "VIP6",
     type: "json",
     url: "https://raw.githubusercontent.com/nongakka/doofree/main/M3U/playlist_avpung.json",
     
 },
 {
-    name: "VIP10",
+    name: "VIP7",
     type: "json",
     url: "https://raw.githubusercontent.com/nongakka/doofree/main/M3U/playlist_jav24.json",
     
+},
+{
+    name: "VIP8",
+    type: "json",
+    url: "https://raw.githubusercontent.com/nongakka/doofree/main/M3U/mix.json",
+    
 },	
+{
+    name: "TEST",
+    type: "url",
+    url: "https://broken-surf-7347.hssmnoy.workers.dev/?url=https://drive.google.com/uc?id=115JYa8qTqRPrdcG_rlnOh0WTuLieWEnC&export=download",
+    
+},
 ];
 
 function parseM3U(data, playlistName){
@@ -1505,151 +1499,138 @@ function startJW(channel){
 
 function playStream(channel){
 
-    resetPlayers();   // 🔥 ย้ายขึ้นมาบรรทัดแรก
+    // 🔥 รีเซต player ทุกตัวก่อน
+    resetPlayers();
 
     currentChannel = channel; 
 
     overlay.classList.add("active");
     playerContainer.classList.add("active");
 
+    // ถ้าไม่มี url แต่มี urls array ให้เอาตัวแรก
     if(!channel.url && channel.urls){
-    channel.url = channel.urls[0];
-}
+        channel.url = channel.urls[0];
+    }
 
-if(!channel.url) return;
+    if(!channel.url) return;
 
     const url = channel.url.toLowerCase();
 
-// =========================
-// MP4 PLAYER
-// =========================
-if(url.includes(".mp4")){
+    // =========================
+    // 🔹 MP4 → HTML5
+    // =========================
+    if(url.includes(".mp4")){
+        setPlayerLabel("HTML5 MP4");
 
-    setPlayerLabel("HTML5 MP4");
+        video.style.display="block";
+        document.getElementById("jw-player").style.display="none";
 
-    video.style.display="block";
-    document.getElementById("jw-player").style.display="none";
-
-    video.src = channel.url;
-    setDefaultVolumeHTML5();
-    video.play().catch(()=>{});
-
-    return;
-}
-
-// =========================
-// 🔥 ถ้าเป็น embed page → ใช้ iframe
-// =========================
-if(
-    !url.includes(".m3u8") &&
-    !url.includes(".mp4") &&
-    !url.includes(".mpd") &&
-    !url.includes(".txt") &&
-    !url.includes("/qualitys/")
-     
-){
-
-    setPlayerLabel("Iframe");
-
-    video.style.display="none";
-    document.getElementById("jw-player").style.display="none";
-
-    const iframe = document.getElementById("iframePlayer");
-    iframe.style.display="block";
-    iframe.src = channel.url;
-
-    return;
-}
-
-// =========================
-// 🔥 โหมดบังคับ
-// =========================
-if(forcedPlayer === "jw"){
-    setPlayerLabel("JW (บังคับ)");
-    startJWfallback(channel);
-    return;
-}
-
-if(forcedPlayer === "html5"){
-
-    setPlayerLabel("HTML5 (บังคับ)");
-
-    video.style.display="block";
-    document.getElementById("jw-player").style.display="none";
-
-    // =================
-    // HLS (.m3u8)
-    // =================
-    if(url.includes(".m3u8")){
-
-        if(typeof Hls !== "undefined" && Hls.isSupported()){
-
-            if(hls){
-                try{ hls.destroy(); }catch(e){}
-                hls = null;
-            }
-
-            hls = new Hls({
-    enableWorker:true,
-    lowLatencyMode:false,
-
-    // 🔥 บังคับ parse playlist
-    manifestLoadingTimeOut: 20000,
-    manifestLoadingMaxRetry: 4,
-
-    xhrSetup: function(xhr){
-        if(channel.referer){
-            xhr.setRequestHeader("Referer", channel.referer);
-        }
-    }
-});
-
-            hls.loadSource(channel.url);
-            hls.attachMedia(video);
-
-            hls.on(Hls.Events.MANIFEST_PARSED,function(){
-                setDefaultVolumeHTML5();
-                video.play().catch(()=>{});
-            });
-
-        }else{
-
-            video.src = channel.url;
-            setDefaultVolumeHTML5();
-            video.play().catch(()=>{});
-
-        }
-
-        return;
-    }
-
-    // =================
-    // DASH (.mpd)
-    // =================
-    if(url.includes(".mpd")){
-
-        dashPlayer = dashjs.MediaPlayer().create();
-        dashPlayer.initialize(video, channel.url, true);
-
+        video.src = channel.url;
         setDefaultVolumeHTML5();
-
+        video.play().catch(()=>{});
         return;
     }
-
-    // =================
-    // ไม่รองรับ
-    // =================
-    alert("HTML5 รองรับเฉพาะ m3u8 / mpd");
-
-    overlay.classList.remove("active");
-    playerContainer.classList.remove("active");
-    resetPlayers();
-
-    return;
-}
 
     // =========================
-    // 1️⃣ ถ้าเป็น MPD + DRM → ใช้ JW ทันที
+    // 🔹 Embed / iframe / เว็บฝัง
+    // =========================
+    if(
+        !url.includes(".m3u8") &&
+        !url.includes(".mp4") &&
+        !url.includes(".mpd") &&
+        !url.includes(".txt") &&
+        (
+            url.includes("embed") ||
+            url.includes("videoembed") ||
+            url.includes("iframe") ||
+            url.includes("ok.ru") ||
+            url.includes("short.")
+        )
+    ){
+        setPlayerLabel("Iframe");
+
+        video.style.display="none";
+        document.getElementById("jw-player").style.display="none";
+
+        const iframe = document.getElementById("iframePlayer");
+        iframe.style.display="block";
+        iframe.src = channel.url;
+
+        return;
+    }
+
+    // =========================
+    // 🔹 บังคับ player
+    // =========================
+    if(forcedPlayer === "jw"){
+        setPlayerLabel("JW (บังคับ)");
+        startJWfallback(channel);
+        return;
+    }
+
+    if(forcedPlayer === "html5"){
+        setPlayerLabel("HTML5 (บังคับ)");
+
+        video.style.display="block";
+        document.getElementById("jw-player").style.display="none";
+
+        // HLS
+        if(url.includes(".m3u8")){
+            if(typeof Hls !== "undefined" && Hls.isSupported()){
+                if(hls){ try{ hls.destroy(); }catch(e){} hls=null; }
+                hls = new Hls({
+                    enableWorker:true,
+                    lowLatencyMode:false,
+                    manifestLoadingTimeOut:20000,
+                    manifestLoadingMaxRetry:4,
+                    xhrSetup: function(xhr){
+                        if(channel.referer){
+                            xhr.setRequestHeader("Referer", channel.referer);
+                        }
+                    }
+                });
+                hls.loadSource(channel.url);
+                hls.attachMedia(video);
+                hls.on(Hls.Events.MANIFEST_PARSED,function(){
+                    setDefaultVolumeHTML5();
+                    video.play().catch(()=>{});
+                });
+            }else{
+                video.src = channel.url;
+                setDefaultVolumeHTML5();
+                video.play().catch(()=>{});
+            }
+            return;
+        }
+
+        // DASH
+        if(url.includes(".mpd")){
+            dashPlayer = dashjs.MediaPlayer().create();
+            if(channel.referer){
+                dashPlayer.extend("RequestModifier", function(){ 
+                    return { modifyRequestHeader: xhr => { xhr.setRequestHeader("Referer", channel.referer); return xhr; } }; 
+                }, true);
+            }
+            dashPlayer.initialize(video, channel.url, true);
+            setDefaultVolumeHTML5();
+            dashPlayer.on(dashjs.MediaPlayer.events.ERROR, function(){
+                try{ dashPlayer.reset(); }catch(e){}
+                dashPlayer = null;
+                console.log("dash error → fallback JW");
+                startJWfallback(channel);
+            });
+            return;
+        }
+
+        alert("HTML5 รองรับเฉพาะ m3u8 / mpd");
+        overlay.classList.remove("active");
+        playerContainer.classList.remove("active");
+        resetPlayers();
+        return;
+    }
+
+    // =========================
+    // 🔹 MPD + DRM → JW
     // =========================
     if(url.includes(".mpd") && channel.drm){
         setPlayerLabel("JW (DRM)");
@@ -1666,254 +1647,119 @@ if(forcedPlayer === "html5"){
         };
 
         if(channel.drm.type === "widevine"){
-            config.drm = {
-                widevine: {
-                    url: channel.drm.licenseServer
-                }
-            };
+            config.drm = { widevine: { url: channel.drm.licenseServer } };
         }
 
         if(channel.drm.type === "clearkey"){
-            config.drm = {
-                clearkey: {
-                    keyId: channel.drm.keyId,
-                    key: channel.drm.key
-                }
-            };
+            config.drm = { clearkey: { keyId: channel.drm.keyId, key: channel.drm.key } };
         }
 
         jwInstance = jwplayer("jw-player").setup(config);
-		jwInstance.on('ready', function(){
-    setDefaultVolumeJW();   // 🔊 25%
-});
+        jwInstance.on('ready', function(){ setDefaultVolumeJW(); });
         return;
     }
 
     // =========================
-    // 2️⃣ MPD ไม่มี DRM → dash.js
+    // 🔹 DASH ปกติ → dash.js
     // =========================
     if(url.includes(".mpd")){
-    setPlayerLabel("dash.js");
-    video.style.display="block";
-    document.getElementById("jw-player").style.display="none";
+        setPlayerLabel("dash.js");
+        video.style.display="block";
+        document.getElementById("jw-player").style.display="none";
 
-    dashPlayer = dashjs.MediaPlayer().create();
-     // 🔥 เพิ่มตรงนี้
-    if(channel.referer){
-        dashPlayer.extend("RequestModifier", function(){
-            return {
-                modifyRequestHeader: function(xhr){
-                    xhr.setRequestHeader("Referer", channel.referer);
-                    return xhr;
-                }
-            };
-        }, true);
+        dashPlayer = dashjs.MediaPlayer().create();
+        if(channel.referer){
+            dashPlayer.extend("RequestModifier", function(){
+                return { modifyRequestHeader: xhr => { xhr.setRequestHeader("Referer", channel.referer); return xhr; } };
+            }, true);
+        }
+        dashPlayer.initialize(video, channel.url, true);
+        setDefaultVolumeHTML5();
+
+        dashPlayer.on(dashjs.MediaPlayer.events.ERROR, function(){
+            try{ dashPlayer.reset(); }catch(e){}
+            dashPlayer = null;
+            console.log("dash error → fallback JW");
+            startJWfallback(channel);
+        });
+        return;
     }
 
-    dashPlayer.initialize(video, channel.url, true);
-    setDefaultVolumeHTML5();
-    dashPlayer.on(dashjs.MediaPlayer.events.ERROR, function(){
-        try{ dashPlayer.reset(); }catch(e){}
-        dashPlayer = null;
-
-        console.log("dash error → fallback JW");
-        startJWfallback(channel);
-    });
-
-    return;
-}
-       
-
     // =========================
-    // 3️⃣ M3U8 → HLS.js
+    // 🔹 HLS / m3u8 → Native HLS / HLS.js
     // =========================
     if(
-url.includes(".m3u8") ||
-url.includes(".txt") ||
-url.includes("/qualitys/") ||
-url.includes("/frame/") ||
-url.includes("master")
-){
+        url.includes(".m3u8") ||
+        url.includes(".txt") ||
+        url.includes("/qualitys/") ||
+        url.includes("/frame/") ||
+        url.includes("master")
+    ){
+        video.style.display="block";
+        document.getElementById("jw-player").style.display="none";
 
+        // Native HLS
+        if(video.canPlayType("application/vnd.apple.mpegurl") && !channel.referer){
+            setPlayerLabel("Native HLS");
+            video.src = channel.url;
+            video.load();
+            setDefaultVolumeHTML5();
+            video.addEventListener("loadedmetadata",()=>{ video.play().catch(()=>{}); }, { once:true });
+            video.addEventListener("error",()=>{ startJWfallback(channel); }, { once:true });
 
-    video.style.display="block";
-    document.getElementById("jw-player").style.display="none";
-
-    if(video.canPlayType("application/vnd.apple.mpegurl") && !channel.referer){
-
-    setPlayerLabel("Native HLS");
-
-    video.src = channel.url;
-    video.load();
-    setDefaultVolumeHTML5();
-
-    video.addEventListener("loadedmetadata", function(){
-        video.play().catch(()=>{});
-    }, { once:true });
-
-    video.addEventListener("error", function(){
-        startJWfallback(channel);
-    }, { once:true });
-
-    // 🔥 ตรวจว่าเล่นจริงหรือไม่
-    setTimeout(()=>{
-
-        if(video.paused || video.currentTime === 0){
-            console.log("Native HLS stuck → fallback JW");
-            startJWfallback(channel);
-        }
-
-    },3000);
-
-    return;
-}
-
-    // 2️⃣ HLS.js
-    if(typeof Hls !== "undefined" && Hls.isSupported()){
-
-        setPlayerLabel("HLS.js");
-
-        if(hls){
-            try{ hls.destroy(); }catch(e){}
-            hls = null;
-        }
-
-     hls = new Hls({
-
-enableWorker:true,
-lowLatencyMode:false,
-
-manifestLoadingTimeOut:20000,
-manifestLoadingMaxRetry:5,
-levelLoadingMaxRetry:5,
-fragLoadingMaxRetry:5,
-
-xhrSetup: function(xhr,url){
-
-    xhr.withCredentials = false;
-
-    if(channel.referer){
-        xhr.setRequestHeader("Referer", channel.referer);
-    }
-
-}
-});  
-        console.log("PLAY HLS:",channel.url);
-        hls.loadSource(channel.url);
-        hls.attachMedia(video);
-
-        let playTimeout;
-
-        hls.on(Hls.Events.MANIFEST_PARSED, function(){
-            setDefaultVolumeHTML5();   // 🔊 25%
-			video.play().catch(()=>{});
-
-            playTimeout = setTimeout(()=>{
-                if(video.readyState < 2){
-                    try{ hls.destroy(); }catch(e){}
+            // ตรวจสอบว่าเล่นจริงหรือไม่
+            setTimeout(()=>{
+                if(video.paused || video.currentTime===0){
+                    console.log("Native HLS stuck → fallback JW");
                     startJWfallback(channel);
                 }
             },3000);
-        });
-
-        hls.on(Hls.Events.ERROR, function(event,data){
-
-    if(data.fatal){
-
-        console.log("HLS ERROR → switch server");
-
-        // ถ้ามีหลาย server
-        if(channel.urls && channel.urls.length > 1){
-
-            const index = channel.urls.indexOf(channel.url);
-
-            if(index < channel.urls.length - 1){
-
-                channel.url = channel.urls[index + 1];
-
-                console.log("Switch to:", channel.url);
-
-                setTimeout(()=>{
-                    playStream(channel);
-                },500);
-
-                return;
-            }
+            return;
         }
 
-        clearTimeout(playTimeout);
+        // HLS.js
+        if(typeof Hls !== "undefined" && Hls.isSupported()){
+            setPlayerLabel("HLS.js");
+            if(hls){ try{ hls.destroy(); }catch(e){} hls=null; }
+            hls = new Hls({
+                enableWorker:true,
+                lowLatencyMode:false,
+                manifestLoadingTimeOut:20000,
+                manifestLoadingMaxRetry:5,
+                levelLoadingMaxRetry:5,
+                fragLoadingMaxRetry:5,
+                xhrSetup: function(xhr){
+                    xhr.withCredentials=false;
+                    if(channel.referer) xhr.setRequestHeader("Referer", channel.referer);
+                }
+            });
+            console.log("PLAY HLS:", channel.url);
+            hls.loadSource(channel.url);
+            hls.attachMedia(video);
+            hls.on(Hls.Events.MANIFEST_PARSED,()=>{ setDefaultVolumeHTML5(); video.play().catch(()=>{}); });
+            hls.on(Hls.Events.ERROR, (event, data)=>{
+                console.log("HLS error → fallback JW", data);
+                startJWfallback(channel);
+            });
+            return;
+        }
 
-        try{ hls.destroy(); }catch(e){}
-
+        // ถ้าไม่รองรับ HLS → JW fallback
         startJWfallback(channel);
-
+        return;
     }
 
-});
-
-        video.addEventListener("playing",()=>{
-            clearTimeout(playTimeout);
-        });
-
-        return;  // ✅ สำคัญ
-    }
-
-    // 3️⃣ ถ้าเข้าไม่ได้เลย → JW
-    startJWfallback(channel);
-    return;
-}
-            
     // =========================
-    // 4️⃣ อื่น ๆ → JW
+    // 🔹 Fallback → iframe
     // =========================
-    startJWfallback(channel);
-}
-function startJWfallback(channel){
-
-    setPlayerLabel("JW (Fallback)");
-
+    setPlayerLabel("Iframe");
     video.style.display="none";
-    document.getElementById("jw-player").style.display="block";
+    document.getElementById("jw-player").style.display="none";
 
-    if(jwInstance){
-        try{
-            jwInstance.stop(true);
-            jwInstance.remove();
-        }catch(e){}
-        jwInstance = null;
-    }
-
-    let type = null;
-
-    if(channel.url.toLowerCase().includes(".mpd")) type = "dash";
-    else if(
-        channel.url.toLowerCase().includes(".m3u8") ||
-        channel.url.toLowerCase().includes(".txt")
-    ) type = "hls";
-
-    jwInstance = jwplayer("jw-player").setup({
-        file: channel.url,
-        width: "100%",
-        height: "100%",
-        autostart: true,
-        primary: "html5",
-        type: type
-    });
-
-    jwInstance.on('ready', function(){
-        setDefaultVolumeJW();
-    });
+    const iframe = document.getElementById("iframePlayer");
+    iframe.style.display="block";
+    iframe.src = channel.url;
 }
-
-/* CLOSE */
-overlay.onclick=()=>{
-
-resetPlayers();
-
-overlay.classList.remove("active");
-playerContainer.classList.remove("active");
-
-};
 
 /* ================= INIT ================= */
 
