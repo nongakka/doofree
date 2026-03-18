@@ -1502,9 +1502,15 @@ if(
     !url.includes(".mp4") &&
     !url.includes(".mpd") &&
     !url.includes(".txt") &&
-    !url.includes("/qualitys/")&&
-	url.includes("master")
-){
+    (
+        url.includes("embed") ||
+        url.includes("videoembed") ||
+        url.includes("iframe") ||
+        url.includes("ok.ru") ||
+        url.includes("short.")
+    )
+)
+{
 
     setPlayerLabel("Iframe");
 
