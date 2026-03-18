@@ -773,40 +773,34 @@ const PLAYLISTS = [
 },
 {
     name: "VIP5",
-    type: "url",
-    url: "https://broken-surf-7347.hssmnoy.workers.dev/?url=https://drive.google.com/uc?id=1VHPhofgC4pGOFtyZijba2ehG4qYzZWC4&export=download",
-    
-},
-{
-    name: "VIP6",
-    type: "url",
-    url: "https://broken-surf-7347.hssmnoy.workers.dev/?url=https://drive.google.com/uc?id=115JYa8qTqRPrdcG_rlnOh0WTuLieWEnC&export=download",
-    
-},	
-{
-    name: "VIP7",
-    type: "json",
-    url: "https://raw.githubusercontent.com/nongakka/doofree/main/M3U/AV-MIX.json",
-    
-},	
-{
-    name: "VIP8",
     type: "json",
     url: "https://raw.githubusercontent.com/nongakka/doofree/main/M3U/njav.json",
     
 },
 {
-    name: "VIP9",
+    name: "VIP6",
     type: "json",
     url: "https://raw.githubusercontent.com/nongakka/doofree/main/M3U/playlist_avpung.json",
     
 },
 {
-    name: "VIP10",
+    name: "VIP7",
     type: "json",
     url: "https://raw.githubusercontent.com/nongakka/doofree/main/M3U/playlist_jav24.json",
     
+},
+{
+    name: "VIP8",
+    type: "json",
+    url: "https://raw.githubusercontent.com/nongakka/doofree/main/M3U/mix.json",
+    
 },	
+{
+    name: "TEST",
+    type: "url",
+    url: "https://broken-surf-7347.hssmnoy.workers.dev/?url=https://drive.google.com/uc?id=115JYa8qTqRPrdcG_rlnOh0WTuLieWEnC&export=download",
+    
+},
 ];
 
 function parseM3U(data, playlistName){
@@ -1545,8 +1539,8 @@ if(
     !url.includes(".mp4") &&
     !url.includes(".mpd") &&
     !url.includes(".txt") &&
-    !url.includes("/qualitys/")&&
-     url.includes(".html")
+    !url.includes("/qualitys/")
+     
 ){
 
     setPlayerLabel("Iframe");
