@@ -1064,8 +1064,9 @@ if(Array.isArray(data) && data.length && data[0].poster){
         channels.push({
             title: item.title || item.name || "ไม่ทราบชื่อ",
             group: item.group || playlistName,
-            logo: item.poster || "",   // 🔥 ใช้ poster โดยตรง
-            url: item.stream || item.url || ""
+            logo: item.poster || "",
+            url: item.stream || item.url || "",
+            servers: item.servers || []   // ✅ เพิ่มตรงนี้ด้วย
         });
 
     });
@@ -1083,7 +1084,8 @@ if(Array.isArray(data)){
             title: item.title || item.name || "ไม่ทราบชื่อ",
             group: item.group || playlistName,
             logo: item.logo || item.image || "",
-            url: item.url || item.stream || ""
+            url: item.url || item.stream || "",
+            servers: item.servers || []   // ✅ เพิ่มบรรทัดนี้
         });
 
     });
@@ -1258,10 +1260,30 @@ function renderGrid(){
             <div class="movie-title">${ch.title}</div>
         `;
         card.onclick = () => {
+
+    // ✅ 1. ถ้ามีหลาย server → ให้เลือก
+    if(ch.servers && ch.servers.length > 1){
+        openServerPopup({
+            name: ch.title,
+            servers: ch.servers
+        });
+        return;
+    }
+
+    // ✅ 2. ถ้ามี server เดียว → เล่นทันที
+    if(ch.servers && ch.servers.length === 1){
+        playStream({
+            title: ch.title,
+            url: ch.servers[0].url
+        });
+        return;
+    }
+
+    // 🔄 3. ของเดิม (เผื่อกรณีอื่น)
     if(ch.episodes && ch.episodes.length > 0){
-        renderSeriesEpisodes(ch); // เรียกฟังก์ชันใหม่สำหรับ series
+        renderSeriesEpisodes(ch);
     } else {
-        playStream(ch);           // เล่นแบบเดิม
+        playStream(ch);
     }
 };
         grid.appendChild(card);
