@@ -1,101 +1,20 @@
 <!DOCTYPE html>
-<html lang="th">
+<html>
 <head>
-<meta charset="UTF-8">
-<title>Dooball Player</title>
-
-<style>
-body {
-  margin:0;
-  background:#000;
-  color:#fff;
-  font-family: sans-serif;
-}
-
-#player {
-  width:100%;
-  height:60vh;
-  background:#111;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-
-iframe {
-  width:100%;
-  height:100%;
-  border:none;
-}
-
-#channels {
-  padding:10px;
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-}
-
-button {
-  padding:10px 15px;
-  border:none;
-  border-radius:8px;
-  background:#222;
-  color:#fff;
-  cursor:pointer;
-}
-
-button:hover {
-  background:#444;
-}
-</style>
-
+  <meta charset="UTF-8">
+  <title>Hydrax Test</title>
+  <style>
+    body { margin:0; background:#000; }
+    iframe { width:100vw; height:100vh; border:0; }
+  </style>
 </head>
 <body>
 
-<div id="player">
-  <div>เลือกช่องเพื่อเริ่ม</div>
-</div>
-
-<div id="channels">
-  <button onclick="play('th-monomax01')">MonoMax</button>
-  <button onclick="play('th-mono29')">Mono29</button>
-</div>
-
-<script>
-async function play(channel) {
-  const playerDiv = document.getElementById("player");
-  playerDiv.innerHTML = "⏳ กำลังโหลด...";
-
-  try {
-    const res = await fetch(
-      `https://embed.bananacake.org/dooball66v2/ajax_player.php?channel=${channel}&api_key=hmcb4rf66f`
-    );
-
-    const html = await res.text();
-
-    // 🔥 ดึง player_basic URL จาก JS
-    const match = html.match(/player_basic\.php[^"]+/);
-
-    if (match) {
-      let iframeSrc = "https://embed-xs.bananacake.org/" + match[0];
-
-      playerDiv.innerHTML = `
-        <iframe 
-          src="${iframeSrc}"
-          allow="autoplay; fullscreen"
-          allowfullscreen>
-        </iframe>
-      `;
-    } else {
-      playerDiv.innerHTML = "❌ หา player ไม่เจอ (JS เปลี่ยน)";
-      console.log(html); // debug
-    }
-
-  } catch (err) {
-    console.error(err);
-    playerDiv.innerHTML = "❌ โหลดไม่ได้ (CORS)";
-  }
-}
-</script>
+<iframe 
+  src="https://playhydrax.com/?v=ciEI-l5TS"
+  allow="autoplay; fullscreen"
+  allowfullscreen>
+</iframe>
 
 </body>
 </html>
