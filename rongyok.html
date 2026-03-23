@@ -756,8 +756,8 @@ function setPlayerLabel(text){
 
 // 🔹 ฟังก์ชันช่วยแปลงรูปผ่าน proxy
 function proxyImage(url){
-    if(!url) return url;
-    return "https://raspy-sea-8787.hssmnoy.workers.dev/" + encodeURIComponent(url);
+    if(!url) return "https://via.placeholder.com/300x450?text=No+Image";
+    return "https://weathered-sun-2b7b.hssmnoy.workers.dev/?url=" + encodeURI(url);
 }
 
 const grid=document.getElementById("movieGrid");
