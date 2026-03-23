@@ -753,6 +753,13 @@ function setPlayerLabel(text){
         label.textContent = "ตัวเล่น: " + text;
     }
 }
+
+// 🔹 ฟังก์ชันช่วยแปลงรูปผ่าน proxy
+function proxyImage(url){
+    if(!url) return url;
+    return "https://raspy-sea-8787.hssmnoy.workers.dev/" + encodeURIComponent(url);
+}
+
 const grid=document.getElementById("movieGrid");
 const categoryList=document.getElementById("categoryList");
 let video=document.getElementById("videoPlayer");
@@ -1266,10 +1273,10 @@ function renderGrid(){
         const card=document.createElement("div");
         card.className="movie-card";
         card.innerHTML=`
-            <img loading="lazy"
-                 src="${ch.logo||'https://via.placeholder.com/300x450?text=No+Image'}">
-            <div class="movie-title">${ch.title}</div>
-        `;
+    <img loading="lazy"
+         src="${proxyImage(ch.logo)||'https://via.placeholder.com/300x450?text=No+Image'}">
+    <div class="movie-title">${ch.title}</div>
+`;
         card.onclick = () => {
 
     // ✅ 1. ถ้ามีหลาย server → ให้เลือก
@@ -1311,7 +1318,10 @@ function renderSeriesEpisodes(series){
         const card = document.createElement("div");
         card.className = "movie-card";
 
-        card.innerHTML = `<div class="movie-title">${ep.title}</div>`;
+        card.innerHTML = `
+    ${ep.poster ? `<img loading="lazy" src="${proxyImage(ep.poster)}">` : ""}
+    <div class="movie-title">${ep.title}</div>
+`;
 
         card.onclick = () => {
             playStream(ep); // เล่น episode
@@ -1352,7 +1362,7 @@ const pageItems = filtered.slice(start, end);
         card.className = "movie-card";
 
         card.innerHTML = `
-    <img loading="lazy" src="${movie.image}">
+    <img loading="lazy" src="${proxyImage(movie.image)}">
     <div class="movie-title">
         ${movie.title}
         <div style="
