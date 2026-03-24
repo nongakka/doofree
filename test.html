@@ -134,13 +134,12 @@ async function playChannel(id){
   try{
 
     const api = `${proxy}https://redirector.ais-vidnt.com/live/ais/${id}/hls/metadata.json?https_streaming=true`;
-console.log("M3U8:", m3u8);
+
     const res = await fetch(api);
     const data = await res.json();
 
-    // ✅ ใช้ playbackUrls เท่านั้น
     let m3u8 = data.playbackUrls?.[0]?.url;
-
+      console.log("M3U8:", m3u8);
     if(!m3u8){
       alert("ไม่มีลิ้งเล่น");
       console.log(data);
