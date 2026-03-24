@@ -1,20 +1,168 @@
 <!DOCTYPE html>
-<html>
+<html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <title>Hydrax Test</title>
-  <style>
-    body { margin:0; background:#000; }
-    iframe { width:100vw; height:100vh; border:0; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TV Live</title>
+
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
+<style>
+body{
+  margin:0;
+  font-family:sans-serif;
+  background:#0f0c29;
+  color:#fff;
+}
+
+#channels{
+  display:flex;
+  flex-wrap:wrap;
+  gap:15px;
+  padding:20px;
+  justify-content:center;
+}
+
+.channel{
+  width:100px;
+  height:100px;
+  background:#222;
+  border-radius:12px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  cursor:pointer;
+  transition:0.3s;
+  overflow:hidden;
+}
+
+.channel:hover{
+  transform:scale(1.1);
+}
+
+.channel img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+#playerBox{
+  position:fixed;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  width:80%;
+  height:70%;
+  background:#000;
+  display:none;
+  border-radius:12px;
+  overflow:hidden;
+}
+
+video{
+  width:100%;
+  height:100%;
+}
+
+#close{
+  position:absolute;
+  top:10px;
+  right:15px;
+  font-size:20px;
+  cursor:pointer;
+  z-index:10;
+}
+</style>
 </head>
+
 <body>
 
-<iframe 
-  src="https://playhydrax.com/?v=ciEI-l5TS"
-  allow="autoplay; fullscreen"
-  allowfullscreen>
-</iframe>
+<h2 style="text-align:center;margin-top:10px;">📺 TV Live</h2>
+
+<div id="channels"></div>
+
+<div id="playerBox">
+  <div id="close">✕</div>
+  <video id="video" controls autoplay></video>
+</div>
+
+<script>
+
+// 🔥 proxy (ถ้ามี)
+const proxy = ""; // ใส่ proxy ถ้าจำเป็น
+
+// 🔥 API list ช่อง (ต้องหา endpoint ที่คุณใช้)
+const listAPI = "https://corsproxy.io/?https://web-sila.ais-vidnt.com/get_channels/?d=gstweb"; // 👈 ใส่ของคุณ
+
+const channelsDiv = document.getElementById("channels");
+const video = document.getElementById("video");
+const playerBox = document.getElementById("playerBox");
+
+// โหลดรายการช่อง
+async function loadChannels(){
+  try{
+    const res = await fetch(listAPI);
+    const data = await res.json();
+
+    const items = data.items;
+
+    items.forEach(ch => {
+
+      const div = document.createElement("div");
+      div.className = "channel";
+      div.dataset.id = ch.mid;
+
+      div.innerHTML = `<img src="${ch.poster}" alt="${ch.title}">`;
+
+      div.onclick = () => playChannel(div.dataset.id);
+
+      channelsDiv.appendChild(div);
+    });
+
+  }catch(e){
+    console.error(e);
+  }
+}
+
+// เล่นช่อง
+async function playChannel(id){
+
+  try{
+
+    const api = `${proxy}https://redirector.ais-vidnt.com/live/ais/${id}/hls/metadata.json?https_streaming=true`;
+
+    const res = await fetch(api);
+    const data = await res.json();
+
+    const m3u8 = data.playbackLinks.smilUrls[0].url;
+
+    playerBox.style.display = "block";
+
+    if(Hls.isSupported()){
+      const hls = new Hls();
+      hls.loadSource(m3u8);
+      hls.attachMedia(video);
+    }else{
+      video.src = m3u8;
+    }
+
+  }catch(err){
+    alert("เล่นไม่ได้");
+    console.error(err);
+  }
+}
+
+// ปิด player
+document.getElementById("close").onclick = () => {
+  playerBox.style.display = "none";
+  video.pause();
+  video.src = "";
+};
+
+// เริ่มโหลดช่อง
+loadChannels();
+
+</script>
 
 </body>
 </html>
