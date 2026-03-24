@@ -92,7 +92,7 @@ video{
 const proxy = "https://summer-recipe-da50.hssmnoy.workers.dev/?url=";
 
 // 🔥 API list ช่อง (ต้องหา endpoint ที่คุณใช้)
-const listAPI = proxy + "https://web-sila.ais-vidnt.com/get_channels/?d=gstweb"; // 👈 ใส่ของคุณ
+const listAPI = proxy + encodeURIComponent("https://web-sila.ais-vidnt.com/get_channels/?d=gstweb"); // 👈 ใส่ของคุณ
 
 const channelsDiv = document.getElementById("channels");
 const video = document.getElementById("video");
@@ -111,8 +111,8 @@ items.forEach(ch => {
   const div = document.createElement("div");
   div.className = "channel";
 
-  // ❗ ใช้ mid เท่านั้น
-  div.dataset.id = ch.mid;
+if(!ch.mid) return;
+div.dataset.id = ch.mid;
 
   div.innerHTML = `<img src="${ch.poster}" alt="${ch.title}">`;
 
@@ -127,8 +127,6 @@ items.forEach(ch => {
 }
 
 // เล่นช่อง
-let hls;
-
 let hls;
 
 async function playChannel(id){
