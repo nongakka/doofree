@@ -230,10 +230,10 @@ border-radius:6px;
 #closePlayer:hover{
 background:red;
 }
+/* ปรับ fav-channel ให้โลโก้เต็มพื้นที่ */
 .fav-channel{
-  width: 80px;       /* กำหนดขนาดช่อง */
+  width: 80px;       
   height: 80px;
-  background: linear-gradient(90deg,#ff512f,#dd2476);
   border-radius: 12px;
   cursor: pointer;
   display: flex;
@@ -241,11 +241,14 @@ background:red;
   align-items: center;
   overflow: hidden;
   transition: transform 0.3s;
+  padding: 0; /* ลบ padding เดิม */
+  background: linear-gradient(90deg,#ff512f,#dd2476);
 }
 
 .fav-channel img{
-  width: 90%;       /* ปรับขนาดโลโก้ให้พอดี */
-  height: auto;
+  width: 100%;       /* ให้เต็มพื้นที่ container */
+  height: 100%;      /* ให้เต็มพื้นที่ container */
+  object-fit: cover; /* ครอบเต็มช่อง ไม่บิดรูป */
   display: block;
 }
 
