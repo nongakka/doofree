@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TV Live</title>
+<title>TV Live1</title>
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
@@ -138,14 +138,17 @@ async function playChannel(id){
     const res = await fetch(api);
     const data = await res.json();
 
-    const m3u8 = data.playbackUrls[0].url;
-if(!m3u8){
-  alert("ไม่มีลิ้งเล่น");
-  return;
-}
+    // ✅ ใช้ playbackUrls เท่านั้น
+    let m3u8 = data.playbackUrls?.[0]?.url;
+
+    if(!m3u8){
+      alert("ไม่มีลิ้งเล่น");
+      console.log(data);
+      return;
+    }
+
     playerBox.style.display = "block";
 
-    // 🔥 ล้างของเก่า
     if(hls){
       hls.destroy();
     }
@@ -153,14 +156,12 @@ if(!m3u8){
     const stream = proxy + encodeURIComponent(m3u8);
 
     if(Hls.isSupported()){
-      hls = new Hls({
-        debug: false
-      });
+      hls = new Hls();
 
       hls.loadSource(stream);
       hls.attachMedia(video);
 
-      video.muted = true; // กัน autoplay block
+      video.muted = true;
       video.play();
 
     }else{
