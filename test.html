@@ -134,7 +134,7 @@ async function playChannel(id){
   try{
 
     const api = `${proxy}https://redirector.ais-vidnt.com/live/ais/${id}/hls/metadata.json?https_streaming=true`;
-
+console.log("M3U8:", m3u8);
     const res = await fetch(api);
     const data = await res.json();
 
