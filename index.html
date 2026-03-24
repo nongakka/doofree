@@ -230,7 +230,28 @@ border-radius:6px;
 #closePlayer:hover{
 background:red;
 }
+.fav-channel{
+  width: 80px;       /* กำหนดขนาดช่อง */
+  height: 80px;
+  background: linear-gradient(90deg,#ff512f,#dd2476);
+  border-radius: 12px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  transition: transform 0.3s;
+}
 
+.fav-channel img{
+  width: 70%;       /* ปรับขนาดโลโก้ให้พอดี */
+  height: auto;
+  display: block;
+}
+
+.fav-channel:hover{
+  transform: scale(1.1);
+}
 </style>
 </head>
 
@@ -370,26 +391,22 @@ background:red;
   </div>
 
   <div id="favoriteChannels">
-
-    <div class="fav-channel"
-    data-url="https://embed-test.bananacake.org/embed/max-01?muted=0">
-    MAX01
-    </div>
-
-    <div class="fav-channel"
-    data-url="https://embed-test.bananacake.org/embed/max-02?muted=0">
-    MAX02
-    </div>
-
-    <div class="fav-channel"
-    data-url="https://embed-test.bananacake.org/embed/max-03?muted=0">
-    MAX03
-    </div>
-    <div class="fav-channel"
-    data-url="https://embed-test.bananacake.org/embed/max-04?muted=0">
-    MAX04
-    </div>
+  <div class="fav-channel" data-url="https://embed-test.bananacake.org/embed/max-01?muted=0">
+    <img src="https://www.fileinwtv.site/postor/20250830165328Mono1.jpg" alt="MAX01 Logo">
   </div>
+
+  <div class="fav-channel" data-url="https://embed-test.bananacake.org/embed/max-02?muted=0">
+    <img src="https://www.fileinwtv.site/postor/20250830165343Mono2.jpg" alt="MAX02 Logo">
+  </div>
+
+  <div class="fav-channel" data-url="https://embed-test.bananacake.org/embed/max-03?muted=0">
+    <img src="https://www.fileinwtv.site/postor/20250830165408Mono3.jpg" alt="MAX03 Logo">
+  </div>
+
+  <div class="fav-channel" data-url="https://embed-test.bananacake.org/embed/max-04?muted=0">
+    <img src="https://www.fileinwtv.site/postor/20250830165433Mono4.jpg" alt="MAX04 Logo">
+  </div>
+</div>
 
   <iframe id="iframePlayer" allowfullscreen allow="fullscreen"></iframe>
 
