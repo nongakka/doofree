@@ -88,12 +88,13 @@ body{
   
 .menu-title:hover{transform:scale(1.05);}
 
-.premium{background:linear-gradient(90deg,#ff512f,#dd2476);}
-.movie{background:linear-gradient(90deg,#fc466b,#3f5efb);}
-.series{background:linear-gradient(90deg,#f7971e,#ffd200);}
-.anime{background:linear-gradient(90deg,#11998e,#38ef7d);}
-.m3u{background:linear-gradient(90deg,#fc466b,#3f5efb);}
-.vip{background:linear-gradient(90deg,#f7971e,#ffd200);}
+.premium {background: linear-gradient(90deg, #ff416c, #ff4b2b);} /* ชมพูแดงร้อนแรง */
+.movie {background: linear-gradient(90deg, #36d1dc, #5b86e5);} /* ฟ้า → น้ำเงิน สดใส */
+.series {background: linear-gradient(90deg, #f9d423, #ff4e50);} /* เหลืองทอง → แดงอมส้ม */
+.anime {background: linear-gradient(90deg, #11998e, #38ef7d);} /* เขียว → เขียวอ่อน สดชื่น */
+.short {background: linear-gradient(90deg, #8e2de2, #4a00e0);} /* ม่วงเข้ม → ม่วงสด */
+.vip {background: linear-gradient(90deg, #fcb045, #fd1d1d);} /* ทอง → แดงร้อนแรง */
+
 /* SUBMENU */
 .submenu{
   max-height:0;
@@ -108,8 +109,6 @@ body{
   transform: scale(1.05);
   border:2px solid #fff;
 }
-
-
 /* LINKS */
 .menu-link{
   display:block;
@@ -123,7 +122,6 @@ body{
   background:#e94560;
   transform:translateX(6px);
 }
-
 /* ACTIVE MENU LINK */
 .menu-link.active{
   background: linear-gradient(90deg,#ff512f,#dd2476);
@@ -131,8 +129,6 @@ body{
   transform: translateX(6px);
   font-weight: bold;
 }
-
-
 /* PLAYER */
 #main-player{
   flex:1;
@@ -323,8 +319,8 @@ background:red;
      data-type="page">Wathclakorn
 </div>
 
-<div class="menu-title m3u" data-menu="m3uMenu">หนังสั้นแนวตั้ง</div>
-<div id="m3uMenu" class="submenu">
+<div class="menu-title short" data-menu="short">หนังสั้นแนวตั้ง</div>
+<div id="short" class="submenu">
 
 <div class="menu-link"
      data-url="https://nongakka.github.io/doofree/short.html"
@@ -362,7 +358,7 @@ background:red;
      data-type="page"
      data-pass="9999">VIP
 </div>
-
+</div>
 </div>
 
 <div id="main-player">
