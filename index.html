@@ -485,30 +485,26 @@ mobileToggle.addEventListener("click",()=>{
   sidebar.classList.toggle("hidden");
 });
 
-// ⭐ restore menu highlight
-window.addEventListener("load",()=>{
+// ⭐ restore menu highlight แบบไม่เปิด submenu
+window.addEventListener("load", () => {
 
   const saved = localStorage.getItem("activeMenu");
 
-  if(!saved) return;
+  if(!saved) return;  // ถ้าไม่มีค่า อย่าเปิดเมนูใดๆ
 
-  links.forEach(link=>{
-
+  links.forEach(link => {
     if(link.dataset.url === saved){
-
+      // ไฮไลท์เฉพาะลิงก์
       link.classList.add("active");
       link.scrollIntoView({block:"center"});
 
+      // ไม่เปิด submenu
       const menu = link.closest(".submenu");
       if(menu){
-        menu.classList.add("open");
-
         const title = menu.previousElementSibling;
-        if(title) title.classList.add("active-title");
+        if(title) title.classList.add("active-title"); // ไฮไลท์ title แต่ไม่เปิด
       }
-
     }
-
   });
 
 });
