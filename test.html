@@ -129,17 +129,17 @@ items.forEach(ch => {
 // เล่นช่อง
 let hls;
 
+let hls;
+
 async function playChannel(id){
 
   try{
 
-    // 🔥 ดึง metadata ผ่าน proxy
     const api = `${proxy}https://redirector.ais-vidnt.com/live/ais/${id}/hls/metadata.json?https_streaming=true`;
 
     const res = await fetch(api);
     const data = await res.json();
 
-    // 🔥 ดึง m3u8
     const m3u8 = data.playbackLinks.smilUrls[0].url;
 
     playerBox.style.display = "block";
@@ -149,19 +149,22 @@ async function playChannel(id){
       hls.destroy();
     }
 
-    // 🔥 เล่นผ่าน proxy อีกที (กัน 403 ตอนโหลด .ts)
-  const stream = proxy + m3u8;
+    const stream = proxy + encodeURIComponent(m3u8);
 
     if(Hls.isSupported()){
       hls = new Hls({
-        xhrSetup: function(xhr, url) {
-          xhr.withCredentials = false;
-        }
+        debug: false
       });
+
       hls.loadSource(stream);
       hls.attachMedia(video);
+
+      video.muted = true; // กัน autoplay block
+      video.play();
+
     }else{
       video.src = stream;
+      video.play();
     }
 
   }catch(err){
