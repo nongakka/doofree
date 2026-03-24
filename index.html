@@ -244,7 +244,7 @@ background:red;
 }
 
 .fav-channel img{
-  width: 70%;       /* ปรับขนาดโลโก้ให้พอดี */
+  width: 90%;       /* ปรับขนาดโลโก้ให้พอดี */
   height: auto;
   display: block;
 }
@@ -530,15 +530,25 @@ const favs=document.querySelectorAll(".fav-channel");
 const floatPlayer=document.getElementById("floatingPlayer");
 const floatFrame=document.getElementById("floatFrame");
 
-favs.forEach(ch=>{
-ch.addEventListener("click",()=>{
+favs.forEach(ch => {
+  ch.addEventListener("click", () => {
+    const url = ch.dataset.url;
 
-const url=ch.dataset.url;
+    // เปิด float player
+    floatFrame.src = url;  
+    floatPlayer.style.display = "block";
 
-floatFrame.src=url;
-floatPlayer.style.display="block";
-
-});
+    // รอ iframe โหลดแล้วปรับเสียง (สำหรับ player ที่รองรับ)
+    floatFrame.onload = () => {
+      try {
+        const vid = floatFrame.contentWindow.document.querySelector("video");
+        if (vid) vid.volume = 0.25; // ตั้งเสียง 25%
+      } catch(e){
+        // ถ้า cross-origin จะไม่สามารถเข้าถึงได้
+        // embed-test.bananacake.org ใช้ ?muted=0
+      }
+    };
+  });
 });
 document.getElementById("closePlayer").onclick=()=>{
 
