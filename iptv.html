@@ -660,7 +660,8 @@ function loadChannel(channel, element) {
         width: "100%",
         aspectratio: "16:9",
         autostart: true,
-        mute: true
+        mute: false,   // เปิดเสียง
+        volume: 25     // เริ่มเสียง 25%
     };
 
     // ถ้ามี DRM ใส่เพิ่ม
@@ -689,7 +690,7 @@ function loadChannel(channel, element) {
     });
 
     // ---------------------------
-    // ⏳ ถ้าโหลดไม่ขึ้นใน 8 วิ → สลับ
+    // ⏳ ถ้าโหลดไม่ขึ้นใน 12 วิ → สลับ
     // ---------------------------
     setTimeout(() => {
    const state = playerInstance.getState();
@@ -738,7 +739,8 @@ function useHTML5(url) {
 
     jwContainer.style.display = "none";
     html5Video.style.display = "block";
-
+    html5Video.volume = 0.25; // เริ่มเสียง 25%
+	
     if (html5Video.canPlayType('application/vnd.apple.mpegurl')) {
         html5Video.src = url;
         html5Video.play();
