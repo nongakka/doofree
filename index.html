@@ -485,18 +485,28 @@ mobileToggle.addEventListener("click",()=>{
   sidebar.classList.toggle("hidden");
 });
 
-// ⭐ รีเซ็ต localStorage ทุกครั้งที่โหลด
+// ⭐ restore menu highlight แบบไม่เปิด submenu
 window.addEventListener("load", () => {
-  
-  // ลบค่าเก่าที่จำเมนู
-  localStorage.removeItem("activeMenu");
 
-  // ปิด submenu ทั้งหมด
-  submenus.forEach(menu => menu.classList.remove("open"));
+  const saved = localStorage.getItem("activeMenu");
 
-  // ลบไฮไลท์ title และลิงก์ทั้งหมด
-  menuTitles.forEach(title => title.classList.remove("active-title"));
-  links.forEach(link => link.classList.remove("active"));
+  if(!saved) return;  // ถ้าไม่มีค่า อย่าเปิดเมนูใดๆ
+
+  links.forEach(link => {
+    if(link.dataset.url === saved){
+      // ไฮไลท์เฉพาะลิงก์
+      link.classList.add("active");
+      link.scrollIntoView({block:"center"});
+
+      // ไม่เปิด submenu
+      const menu = link.closest(".submenu");
+      if(menu){
+        const title = menu.previousElementSibling;
+        if(title) title.classList.add("active-title"); // ไฮไลท์ title แต่ไม่เปิด
+      }
+    }
+  });
+
 });
 
 const favs=document.querySelectorAll(".fav-channel");
