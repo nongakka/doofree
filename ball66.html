@@ -1579,8 +1579,9 @@ if(url.includes(".mp4")){
     document.getElementById("jw-player").style.display="none";
 
     video.src = channel.url;
-    setDefaultVolumeHTML5();
-    video.play().catch(()=>{});
+video.muted = false;           // 🔥 เพิ่ม
+video.volume = 0.5;
+video.play().catch(()=>{});
 
     return;
 }
@@ -1796,8 +1797,10 @@ url.includes("master")
     setDefaultVolumeHTML5();
 
     video.addEventListener("loadedmetadata", function(){
-        video.play().catch(()=>{});
-    }, { once:true });
+    video.muted = false;       // 🔥 เพิ่ม
+    video.volume = 0.5;
+    video.play().catch(()=>{});
+}, { once:true });
 
     video.addEventListener("error", function(){
         startJWfallback(channel);
@@ -1853,8 +1856,9 @@ xhrSetup: function(xhr,url){
         let playTimeout;
 
         hls.on(Hls.Events.MANIFEST_PARSED, function(){
-            setDefaultVolumeHTML5();   // 🔊 25%
-			video.play().catch(()=>{});
+    video.muted = false;        // 🔥 เพิ่ม
+    video.volume = 0.5;         // 🔥 เพิ่ม
+    video.play().catch(()=>{});
 
             playTimeout = setTimeout(()=>{
                 if(video.readyState < 2){
