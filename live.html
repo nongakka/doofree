@@ -46,11 +46,11 @@ body{
     position:absolute;
     inset:0;
 
-    background-size:cover;
-    background-position:center;
-    background-repeat:no-repeat;
-    background-color:#000; /* กันขอบดำดูเนียน */
-    filter:brightness(1.2) contrast(1.1); /* 🔥 ทำให้ชัดขึ้น */
+    background:linear-gradient(
+        135deg,
+        #0f172a,
+        #1e293b
+    );
 }
 
 /* OVERLAY */
@@ -517,9 +517,7 @@ const showLogo = mainLogo &&
 	    const hasLogo = mainLogo && mainLogo.trim() !== "";
 
 card.innerHTML = `
-    <div class="bg" 
-         style="${m.bg ? `background-image:url('${m.bg}')` : 'background:#111'}"
-    </div>
+   <div class="bg"></div>
 
     ${showLogo ? `
 <div class="channel-logo">
