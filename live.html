@@ -426,6 +426,9 @@ video{
     overflow:hidden;
 }
 
+/* Back Home */
+.back-home{position:fixed; top:15px; left:15px; padding:10px 18px; border-radius:50px; font-weight:600; cursor:pointer; z-index:9999; background:rgba(255,255,255,0.15); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border:1px solid rgba(255,255,255,0.3); color:#fff; box-shadow:0 8px 25px rgba(0,0,0,0.3); transition:0.3s ease;}
+.back-home:hover{background:linear-gradient(90deg,#ff512f,#dd2476); transform:scale(1.05); box-shadow:0 10px 30px rgba(255,0,150,0.6);}
 
 </style>
 </head>
@@ -433,13 +436,14 @@ video{
 <body>
 
 <div class="tabs tabs-date">
-    <button class="tab-date active" onclick="switchTab(event,'📅 วันนี้')">วันนี้</button>
+   
+ <button class="tab-date active" onclick="switchTab(event,'📅 วันนี้')">วันนี้</button>
     <button class="tab-date" onclick="switchTab(event,'📅 พรุ่งนี้')">พรุ่งนี้</button>
     
 </div>
 
 <div id="sportTabs" class="tabs tabs-sport"></div>
-
+<div class="back-home" onclick="goHome()">⬅ กลับหน้าหลัก</div>
 <div id="list" class="container"></div>
 <div id="playerOverlay" onclick="closePlayer()"></div>
 
@@ -826,7 +830,7 @@ function closePlayer(){
     document.getElementById("playerOverlay").style.display="none";
     video.pause();
 }
-
+function goHome(){ window.location.href="https://nongakka.github.io/doofree/index.html"; }
 load();
 
 </script>
