@@ -31,14 +31,22 @@ body{
 /* CARD */
 .card{
     position:relative;
-    border-radius:16px;
+    border-radius:18px;
     overflow:hidden;
     aspect-ratio:16/9;
     cursor:pointer;
     transition:.25s;
+
+    background:linear-gradient(145deg,#0f172a,#020617);
+    box-shadow:
+        0 8px 25px rgba(0,0,0,0.6),
+        inset 0 1px 0 rgba(255,255,255,0.05);
 }
 .card:hover{
     transform:translateY(-6px) scale(1.02);
+    box-shadow:
+        0 12px 35px rgba(0,0,0,0.8),
+        0 0 0 1px rgba(255,255,255,0.05);
 }
 
 /* 🔥 BG ใหม่ (ไม่มีภาพรก) */
@@ -46,11 +54,12 @@ body{
     position:absolute;
     inset:0;
 
-    background:linear-gradient(
-        135deg,
-        #0f172a,
-        #1e293b
+    background:radial-gradient(circle at top left,
+        #1e3a8a,
+        #020617 70%
     );
+
+    opacity:.9;
 }
 
 /* OVERLAY */
