@@ -518,7 +518,11 @@ const showLogo = mainLogo &&
 
 card.innerHTML = `
     <div class="bg" 
-         style="${m.bg ? `background-image:url('${m.bg}')` : 'background:#111'}">
+         const bgUrl = m.bg 
+    ? "https://broken-surf-7347.hssmnoy.workers.dev/?url=" + encodeURIComponent(m.bg)
+    : "";
+
+style="${bgUrl ? `background-image:url('${bgUrl}')` : 'background:#111'}"
     </div>
 
     ${showLogo ? `
