@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>หรรมน้อย ออนไลน์</title>
+
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
+<style>
+body{
+    margin:0;
+    background:#0b0f1a;
+    color:#fff;
+    font-family:sans-serif;
+}
+
+/* GRID */
+.container{
+    max-width:1400px;   
+    margin:0 auto;      
+    padding:10px 16px;  
+}
+@media (max-width:1200px){
+    .container{grid-template-columns:repeat(4,1fr);}
+}
+@media (max-width:800px){
+    .container{grid-template-columns:repeat(2,1fr);}
+}
+
+/* CARD */
+.card{
+    position:relative;
+    border-radius:16px;
+    overflow:hidden;
+    aspect-ratio:16/9;
+    cursor:pointer;
+    transition:.25s;
+}
+.card:hover{
+    transform:translateY(-6px) scale(1.02);
+}
+
+/* 🔥 BG ใหม่ (ไม่มีภาพรก) */
+.bg{
+    position:absolute;
+    inset:0;
+
+    background-size:cover;
+    background-position:center;
+    background-repeat:no-repeat;
+    background-color:#000; /* กันขอบดำดูเนียน */
+    filter:brightness(1.2) contrast(1.1); /* 🔥 ทำให้ชัดขึ้น */
+}
+
+/* OVERLAY */
+.overlay{
+    position:absolute;
+    inset:0;
+    background:linear-gradient(
+        to top,
+        rgba(0,0,0,0.85) 0%,
+        rgba(0,0,0,0.3) 40%,
+        rgba(0,0,0,0.1) 70%,
+        rgba(0,0,0,0) 100%
+    );
+}
+
+/* CONTENT */
+.content{
+    position:absolute;
+    bottom:0;
+    width:100%;
+
+    padding:10px;
+    padding-top:25px; /* 🔥 ต้องมากกว่า .top เล็กน้อย */
+
+    z-index:3;
+}
+
+/* TOP */
+.top{
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+
+    box-sizing:border-box; /* 🔥 สำคัญมาก */
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    padding:6px 10px;
+    font-size:12px;
+
+    background:linear-gradient(
+        to bottom,
+        rgba(0,0,0,0.7),
+        rgba(0,0,0,0)
+    );
+
+    z-index:2;
+}
+
+/* 🔥 TEAMS ใหม่ */
+.teams{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:12px;
+    margin-top:10px;
+}
+
+.team{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:4px;
+    max-width:40%;
+}
+
+.team span{
+    font-size:11px;
+    text-align:center;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+/* VS */
+.vs{
+    font-size:12px;
+    opacity:.6;
+}
+
+/* SERVERS */
+.servers{
+    margin-top:8px;
+    display:flex;
+    gap:4px;
+    flex-wrap:wrap;
+    justify-content:center;
+}
+.servers button{
+    font-size:10px;
+    padding:3px 6px;
+    border-radius:6px;
+    border:none;
+    background:#fff;
+    color:#000;
+    font-weight:bold;
+}
+
+/* PLAYER */
+#playerBox{
+    position:fixed;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+
+    width:80%;
+    max-width:1000px;
+    aspect-ratio:16/9;
+
+    background:#000;
+    border-radius:12px;
+    overflow:hidden;
+
+    display:none;
+    z-index:9999;
+}
+
+/* ฉากหลังมืด */
+#playerOverlay{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.7);
+    display:none;
+    z-index:9998;
+}
+
+video{
+    width:100%;
+    height:100%;
+    pointer-events:auto;
+}
+
+.close{
+    position:absolute;
+    top:5px;
+    right:5px;
+    background:red;
+    border:none;
+    color:#fff;
+}
+.close{
+    position:absolute;
+    top:8px;
+    right:8px;
+
+    z-index:10000; /* 🔥 เพิ่มตัวนี้ */
+
+    background:red;
+    border:none;
+    color:#fff;
+    padding:4px 8px;
+    border-radius:6px;
+    cursor:pointer;
+}
+
+.servers button{
+    font-size:11px;
+    padding:5px 10px;
+    border-radius:20px;
+    border:none;
+    background:#1f2a44;
+    color:#aaa;
+    font-weight:bold;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.servers button:hover{
+    background:#2e3b5f;
+    color:#fff;
+}
+
+/* 🔥 ปุ่มที่เลือก */
+.servers button.active{
+    background:#00c853;
+    color:#000;
+    box-shadow:0 0 8px rgba(0,200,83,0.7);
+}
+
+/* HD */
+.servers button:first-child{
+    background:#1976d2;
+    color:#fff;
+}
+
+/* HD ที่ถูกเลือก */
+.servers button.active:first-child{
+    background:#00e5ff;
+    color:#000;
+}
+
+.section-grid{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:14px;
+    padding:10px;
+}
+
+@media (max-width:1200px){
+    .section-grid{grid-template-columns:repeat(4,1fr);}
+}
+@media (max-width:900px){
+    .section-grid{grid-template-columns:repeat(3,1fr);}
+}
+@media (max-width:600px){
+    .section-grid{grid-template-columns:repeat(2,1fr);}
+}
+
+.tabs{
+    display:flex;
+    gap:8px;
+    padding:10px;
+    justify-content:center;
+}
+
+.tab{
+    padding:6px 14px;
+    border-radius:20px;
+    border:none;
+    background:#1f2a44;
+    color:#aaa;
+    cursor:pointer;
+    font-weight:bold;
+    transition:.2s;
+}
+
+.tab:hover{
+    background:#2e3b5f;
+    color:#fff;
+}
+
+.tab.active{
+    background:#00c853;
+    color:#000;
+}
+
+.channel-logo{
+    position:absolute;
+    top:10px;
+    left:105px;
+    z-index:3;
+
+    background:rgba(0,0,0,0.3);
+    backdrop-filter:blur(6px);
+
+    padding:4px 6px;
+    border-radius:8px;
+}
+
+.channel-logo img{
+    height:25px;
+    display:block;
+}
+
+.badge-hd{
+    position:absolute;
+    bottom:8px;
+    left:8px;
+
+    background:#00e5ff;
+    color:#000;
+    font-size:10px;
+    font-weight:bold;
+
+    padding:3px 6px;
+    border-radius:6px;
+}
+
+
+</style>
+</head>
+
+<body>
+
+<div class="tabs">
+    <button class="tab active" onclick="switchTab('📅 วันนี้')">วันนี้</button>
+    <button class="tab" onclick="switchTab('📅 พรุ่งนี้')">พรุ่งนี้</button>
+    <button class="tab" onclick="switchTab('📅 วันอื่นๆ')">อื่นๆ</button>
+</div>
+
+
+<div id="list" class="container"></div>
+<div id="playerOverlay" onclick="closePlayer()"></div>
+
+
+<!-- PLAYER -->
+<div id="playerBox">
+    <button class="close" onclick="closePlayer()">X</button>
+    <video id="video" controls autoplay></video>
+</div>
+
+<script>
+
+function switchTab(tab){
+    currentTab = tab;
+
+    // เปลี่ยน active ปุ่ม
+    document.querySelectorAll(".tab").forEach(b=>{
+        b.classList.remove("active");
+    });
+
+    event.target.classList.add("active");
+
+    render();
+}
+
+/* PLAYLIST */
+const URL = "https://broken-surf-7347.hssmnoy.workers.dev/?url=https://drive.google.com/uc?id=15Ye3NPw0cjNrJGTu2Q2aoqoApOp8GipC&export=download";
+
+let all = [];
+let currentUrl = ""; 
+let currentTab = "📅 วันนี้";
+
+
+/* LOAD */
+async function load(){
+    const res = await fetch(URL);
+    const json = await res.json();
+    all = await parse(json); // 🔥 ต้อง await
+    render();
+}
+
+/* PARSE */
+async function parse(data){
+    let arr=[];
+
+    async function walk(g){
+        if(g.stations){
+
+            let eventId = "";
+
+            if(g.image){
+                const m = g.image.match(/event\/(\d+)/);
+                if(m) eventId = m[1];
+            }
+
+            if(!eventId && g.stations[0]?.url){
+                const m = g.stations[0].url.match(/event\/(\d+)/);
+                if(m) eventId = m[1];
+            }
+
+            arr.push({
+    title: g.name,
+    teams: getTeams(g.name),
+    time: getTime(g.name),
+
+    dateGroup: getDateGroup(g.name), // 🔥 เพิ่มบรรทัดนี้
+
+    bg: g.image || "",
+    img: g.image || "",
+    servers: g.stations
+});
+        }
+
+        if(g.groups){
+            for(const sub of g.groups){
+                await walk(sub);
+            }
+        }
+    }
+
+    for(const g of data.groups){
+        await walk(g);
+    }
+
+    return arr;
+}
+
+/* TEAM */
+function getTeams(title){
+    let t = title.replace(/\(.*?\)/g,"");
+    let parts = t.split("vs");
+    if(parts.length<2) return ["Team A","Team B"];
+    return [parts[0].trim(), parts[1].trim()];
+}
+
+/* TIME */
+function getTime(name){
+    let m = name.match(/\d{2}:\d{2}/);
+    if(!m) return "--:--";
+
+    let [h,min] = m[0].split(":").map(Number);
+
+    // 🔥 ปรับ timezone (ลอง +7 หรือ +0 ตาม source)
+    h = (h + 0) % 24; 
+
+    return String(h).padStart(2,'0') + ":" + String(min).padStart(2,'0');
+}
+
+function getDateGroup(name){
+    const now = new Date();
+
+    let hourMin = name.match(/(\d{2}):(\d{2})/);
+    if(!hourMin) return "อื่นๆ";
+
+    const h = parseInt(hourMin[1]);
+    const m = parseInt(hourMin[2]);
+
+    const matchDate = new Date();
+    matchDate.setHours(h, m, 0, 0);
+
+    // ถ้าเวลาน้อยกว่าเวลาปัจจุบัน → ถือเป็นพรุ่งนี้ (สตรีมมักเป็นข้ามวัน)
+    if(matchDate < now){
+        matchDate.setDate(matchDate.getDate() + 1);
+    }
+
+    const today = new Date();
+    const tomorrow = new Date();
+    tomorrow.setDate(today.getDate()+1);
+
+    if(matchDate.toDateString() === today.toDateString()){
+        return "📅 วันนี้";
+    }else if(matchDate.toDateString() === tomorrow.toDateString()){
+        return "📅 พรุ่งนี้";
+    }else{
+        return "📅 วันอื่นๆ";
+    }
+}
+
+
+/* RENDER */
+function render(){
+    const list = document.getElementById("list");
+    list.innerHTML="";
+
+all.sort((a,b)=>{
+    const [ah,am] = a.time.split(":").map(Number);
+    const [bh,bm] = b.time.split(":").map(Number);
+
+    return (ah*60+am) - (bh*60+bm);
+});
+
+    // 🔥 group ตามวัน
+    const grouped = {};
+    all.forEach(m=>{
+        const key = m.dateGroup || "อื่นๆ";
+        if(!grouped[key]) grouped[key] = [];
+        grouped[key].push(m);
+    });
+
+    // 🔥 เรียงลำดับ
+    const order = ["📅 วันนี้","📅 พรุ่งนี้","📅 วันอื่นๆ"];
+
+    order.forEach(groupName=>{
+
+    if(groupName !== currentTab) return; // 🔥 แสดงเฉพาะแท็บที่เลือก
+
+        // 🔥 grid แยกแต่ละวัน
+        const section = document.createElement("div");
+        section.className = "section-grid";
+
+        grouped[groupName].forEach(m=>{
+            const card = document.createElement("div");
+            card.className="card";
+
+            const mainLogo = m.servers?.[0]?.image || "";
+
+const showLogo = mainLogo &&
+                 mainLogo.startsWith("http") &&
+                 mainLogo.includes("png");
+	    const hasLogo = mainLogo && mainLogo.trim() !== "";
+
+card.innerHTML = `
+    <div class="bg" 
+         style="${m.bg ? `background-image:url('${m.bg}')` : 'background:#111'}">
+    </div>
+
+    ${showLogo ? `
+<div class="channel-logo">
+    <img src="${mainLogo}" onerror="this.parentElement.style.display='none'">
+</div>
+` : ""}
+      		<div class="badge-hd">HD</div>
+                <div class="overlay"></div>
+
+                <div class="top">
+                    <div>⚽ ฟุตบอล</div>
+                    <div>🕒 ${m.time}</div>
+                </div>
+
+                <div class="content">
+                    <div class="teams">
+                        <div class="team">
+                            <span>${m.teams[0]}</span>
+                        </div>
+
+                        <div class="vs">VS</div>
+
+                        <div class="team">
+                            <span>${m.teams[1]}</span>
+                        </div>
+                    </div>
+
+                    <div class="servers">
+                        ${m.servers.slice(0,4).map((s,i)=>`
+                            <button 
+                                class="${currentUrl === s.url ? 'active' : ''}"
+                                onclick="event.stopPropagation(); play('${s.url}')">
+                                ${i==0?'HD':'สำรอง'}
+                            </button>
+                        `).join("")}
+                    </div>
+                </div>
+            `;
+
+            card.onclick = ()=>play(m.servers?.[0]?.url);
+            section.appendChild(card);
+        });
+
+        list.appendChild(section);
+    });
+}
+
+/* PLAYER */
+const video=document.getElementById("video");
+
+function play(url){
+    currentUrl = url; // 🔥 เพิ่ม
+
+    document.getElementById("playerBox").style.display="block";
+    document.getElementById("playerOverlay").style.display="block";
+
+    render(); // 🔥 เพิ่ม (อัปเดตปุ่ม)
+
+    if(Hls.isSupported()){
+        const hls=new Hls();
+        hls.loadSource(url);
+        hls.attachMedia(video);
+    }else{
+        video.src=url;
+    }
+}
+
+function closePlayer(){
+    document.getElementById("playerBox").style.display="none";
+    document.getElementById("playerOverlay").style.display="none";
+    video.pause();
+}
+
+load();
+
+</script>
+
+</body>
+</html>
