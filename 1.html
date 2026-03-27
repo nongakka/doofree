@@ -23,101 +23,32 @@ async function loadMatches() {
     const container = document.getElementById("matches");
     container.innerHTML = "";
 
-    // รองรับทั้ง array และ data.data
-    const matches = Array.isArray(data) ? data : data.data;
+    // 🔥 แปลง object → array ทั้งหมด
+    const matches = Object.values(data).flat();
 
     if (!matches || matches.length === 0) {
       container.innerHTML = "❌ ไม่มีข้อมูล";
       return;
     }
 
-    // เรียงตามเวลา
-    matches.sort((a,b) => new Date(a.event_time) - new Date(b.event_time));
-
     matches.forEach(m => {
-
       const home = m.teamhome?.name_th || m.teamhome?.name || "-";
       const away = m.teamaway?.name_th || m.teamaway?.name || "-";
 
-      const homeLogo = m.teamhome?.logo || "";
-      const awayLogo = m.teamaway?.logo || "";
-
-      const league = m.league_info?.name || "-";
-
-      const date = new Date(m.event_time);
-      const time = date.toLocaleTimeString("th-TH", {
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-
-      // สถานะ
-      let statusText = "";
-      let bgColor = "bg-gray-800";
-
-      if (m.status_short === "NS") {
-        statusText = "⏳ ยังไม่เริ่ม";
-      } else if (m.status_short === "1H" || m.status_short === "2H") {
-        statusText = `🔴 นาที ${m.elapsed}`;
-        bgColor = "bg-purple-900";
-      } else if (m.status_short === "HT") {
-        statusText = "⏸ พักครึ่ง";
-        bgColor = "bg-orange-500";
-      } else if (m.status_short === "FT") {
-        statusText = "✅ จบแล้ว";
-      } else {
-        statusText = m.status_long;
-      }
-
-      const score = (m.goals_home !== null)
-        ? `${m.goals_home} - ${m.goals_away}`
-        : "? - ?";
-
       container.innerHTML += `
-        <div class="${bgColor} p-4 rounded-xl shadow hover:scale-105 transition">
-
-          <div class="text-sm text-gray-300 mb-2 flex items-center gap-2">
-            <img src="${m.league_info?.logo}" class="w-4 h-4">
-            ${league}
-          </div>
-
-          <div class="flex justify-between items-center">
-
-            <div class="flex items-center gap-2">
-              <img src="${homeLogo}" class="w-6 h-6">
-              <span>${home}</span>
-            </div>
-
-            <span class="font-bold text-lg">${score}</span>
-
-            <div class="flex items-center gap-2">
-              <span>${away}</span>
-              <img src="${awayLogo}" class="w-6 h-6">
-            </div>
-
-          </div>
-
-          <div class="mt-3 text-sm flex justify-between items-center">
-            <span class="bg-black/30 px-2 py-1 rounded">
-              ${statusText}
-            </span>
-            <span>${time}</span>
-          </div>
-
+        <div class="bg-gray-800 p-4 rounded-xl mb-2">
+          <div>${home} vs ${away}</div>
         </div>
       `;
     });
 
   } catch (err) {
     console.error(err);
-    document.getElementById("matches").innerHTML = "❌ โหลดข้อมูลไม่ได้";
   }
 }
 
-// โหลดครั้งแรก
 loadMatches();
 
-// รีเฟรชทุก 30 วิ
-setInterval(loadMatches, 30000);
 </script>
 
 </body>
