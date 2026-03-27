@@ -65,6 +65,21 @@ function selectLeague(id) {
   selectedLeague = id;
   loadMatches();
 }
+  
+function formatThaiTime(dateStr) {
+  if (!dateStr) return "-";
+
+  // แปลงให้เป็น ISO ก่อน (สำคัญ)
+  const iso = dateStr.replace(" ", "T");
+
+  const d = new Date(iso);
+
+  return d.toLocaleTimeString("th-TH", {
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: "Asia/Bangkok"
+  });
+}
 
 // 🔥 โหลดแมตช์
 async function loadMatches() {
@@ -110,11 +125,7 @@ async function loadMatches() {
         const score = (m.goals_home !== null)
           ? `${m.goals_home} - ${m.goals_away}`
           : "? - ?";
-
-        const time = new Date(m.event_time).toLocaleTimeString("th-TH", {
-          hour: "2-digit",
-          minute: "2-digit"
-        });
+        const time = formatThaiTime(m.event_time);
 
         // 🔥 สถานะ + สี
         let status = m.status_short;
@@ -179,17 +190,36 @@ async function loadMatches() {
           </div>
 
           <!-- สถานะ -->
-          <div class="mt-auto flex justify-between items-center pt-2">
+          <div class="mt-auto pt-2 space-y-2">
 
-            <span class="text-xs px-2 py-1 rounded-md bg-white/10">
-              ${badge}
-            </span>
+  <!-- แถวสถานะ -->
+  <div class="flex justify-between items-center">
+    <span class="text-xs px-2 py-1 rounded-md bg-white/10">
+      ${badge}
+    </span>
 
-            <span class="text-xs text-orange-400 font-bold">
-              ${minute}
-            </span>
+    <span class="text-xs text-orange-400 font-bold">
+      ${minute}
+    </span>
+  </div>
 
-          </div>
+  <!-- แถวช่องถ่ายทอด -->
+  <div class="flex justify-between items-center">
+
+    <!-- ชื่อช่อง -->
+    <span class="text-[11px] text-gray-400 truncate">
+      📺 ${m.channel || "ไม่มีข้อมูล"}
+    </span>
+
+    <!-- ปุ่มดู -->
+    <button
+      class="text-xs px-2 py-1 rounded-md bg-blue-600 hover:bg-blue-500 transition">
+      ▶ ดูสด
+    </button>
+
+  </div>
+
+</div>
 
         </div>
         `;
