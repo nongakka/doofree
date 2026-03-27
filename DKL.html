@@ -58,19 +58,25 @@
   transform: translateY(-3px) scale(1.05);
 }
 
+/* 🔥 ปกติ (พื้นน้ำเงินแทนของเดิมจืดๆ) */
+.league-box {
+  background: linear-gradient(135deg, #1e3a8a, #1d4ed8);
+}
+
+/* 🔥 ตอนกด (เปลี่ยนเป็นส้ม) */
 .league-active {
   transform: scale(1.1);
 }
 
 .league-active .league-box {
-  background: linear-gradient(135deg, #6366f1, #3b82f6);
-  box-shadow: 0 0 15px rgba(59,130,246,0.6);
+  background: linear-gradient(135deg, #f97316, #fb923c);
+  box-shadow: 0 0 15px rgba(249,115,22,0.7);
 }
 
+/* 🔥 โลโก้ตอน active เด่นขึ้น */
 .league-active img {
-  filter: drop-shadow(0 0 6px rgba(255,255,255,0.7));
+  filter: drop-shadow(0 0 8px rgba(255,180,100,0.9));
 }
-
 
   
 </style>
