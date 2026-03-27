@@ -10,12 +10,48 @@
 
 <h1 class="text-2xl mb-4">⚽ ตารางแข่งวันนี้</h1>
 
+<!-- Tabs -->
+<div class="flex gap-2 mb-4">
+  <button onclick="setTab('national')" class="tab-btn bg-blue-600 px-3 py-1 rounded">ทีมชาติ</button>
+  <button onclick="setTab('top')" class="tab-btn bg-gray-700 px-3 py-1 rounded">ลีกสูงสุด</button>
+  <button onclick="setTab('second')" class="tab-btn bg-gray-700 px-3 py-1 rounded">ลีกรอง</button>
+  <button onclick="setTab('other')" class="tab-btn bg-gray-700 px-3 py-1 rounded">อื่นๆ</button>
+</div>
+  
 <div id="matches" class="grid md:grid-cols-3 gap-4"></div>
 
 <script>
+let currentTab = "top";
+
+// 🔥 กลุ่มลีก
+const NATIONAL = [1,2,3,848]; // บอลโลก / UCL / Nations
+const TOP = [39,140,135,78,61]; // ลีกใหญ่
+const SECOND = [40,141,136,79,62]; // ลีก 2
+
+function getLeagueType(id) {
+  if (NATIONAL.includes(id)) return "national";
+  if (TOP.includes(id)) return "top";
+  if (SECOND.includes(id)) return "second";
+  return "other";
+}
+
+function setTab(tab) {
+  currentTab = tab;
+
+  // เปลี่ยนสีปุ่ม
+  document.querySelectorAll(".tab-btn").forEach(btn => {
+    btn.classList.remove("bg-blue-600");
+    btn.classList.add("bg-gray-700");
+  });
+
+  event.target.classList.remove("bg-gray-700");
+  event.target.classList.add("bg-blue-600");
+
+  loadMatches();
+}
+
 async function loadMatches() {
   try {
-    // 🔥 โหลด fixtures + leagues พร้อมกัน
     const [res1, res2] = await Promise.all([
       fetch("https://corsproxy.io/?https://liveplayback.net/api/fixtures/date"),
       fetch("https://corsproxy.io/?https://liveplayback.net/api/leagues")
@@ -27,32 +63,32 @@ async function loadMatches() {
     const container = document.getElementById("matches");
     container.innerHTML = "";
 
-    // 🔥 map league_id → league info
     const leagues = {};
     leagueData.data.forEach(l => {
       leagues[l.league_id] = l;
     });
 
-    // 🔥 loop ตามวัน
     for (const date in fixtureData) {
 
+      let matches = fixtureData[date];
+
+      // 🔥 filter ตาม tab
+      matches = matches.filter(m => getLeagueType(m.league) === currentTab);
+
+      if (matches.length === 0) continue;
+
       container.innerHTML += `
-        <h2 class="col-span-3 text-lg mt-4 mb-2 text-gray-300">
+        <h2 class="col-span-3 text-lg mt-4 mb-2 text-yellow-400">
           📅 ${date}
         </h2>
       `;
 
-      let matches = fixtureData[date];
-
-      matches.sort((a,b) => new Date(a.event_time) - new Date(b.event_time));
-
       matches.forEach(m => {
 
-        const home = m.teamhome?.name_th || m.teamhome?.name || "-";
-        const away = m.teamaway?.name_th || m.teamaway?.name || "-";
+        const league = leagues[m.league];
 
-        const homeLogo = m.teamhome?.logo || "";
-        const awayLogo = m.teamaway?.logo || "";
+        const home = m.teamhome?.name_th || m.teamhome?.name;
+        const away = m.teamaway?.name_th || m.teamaway?.name;
 
         const score = (m.goals_home !== null)
           ? `${m.goals_home} - ${m.goals_away}`
@@ -63,63 +99,22 @@ async function loadMatches() {
           minute: "2-digit"
         });
 
-        // 🔥 ดึงลีก
-        const league = leagues[m.league];
-        const leagueName = league?.name_th || league?.name || "ไม่ทราบลีก";
-        const leagueLogo = league?.logo || "";
-
-        // 🔥 แปลสถานะ
-        let status = m.status_short;
-        let bg = "bg-gray-800";
-
-        if (status === "NS") status = "ยังไม่เริ่ม";
-        else if (status === "1H") {
-          status = "ครึ่งแรก";
-          bg = "bg-purple-900";
-        }
-        else if (status === "2H") {
-          status = "ครึ่งหลัง";
-          bg = "bg-purple-900";
-        }
-        else if (status === "HT") {
-          status = "พักครึ่ง";
-          bg = "bg-orange-500";
-        }
-        else if (status === "FT") {
-          status = "จบแล้ว";
-          bg = "bg-green-700";
-        }
-
         container.innerHTML += `
-          <div class="${bg} p-4 rounded-xl shadow hover:scale-105 transition">
+          <div class="bg-gray-800 p-4 rounded-xl">
 
-            <!-- ลีก -->
-            <div class="flex items-center gap-2 text-sm text-gray-300 mb-2">
-              <img src="${leagueLogo}" class="w-4 h-4">
-              <span>${leagueName}</span>
+            <div class="text-sm text-gray-400 mb-1">
+              ${league?.name}
             </div>
 
-            <!-- ทีม -->
-            <div class="flex justify-between items-center">
-
-              <div class="flex items-center gap-2">
-                <img src="${homeLogo}" class="w-5 h-5">
-                <span>${home}</span>
-              </div>
-
-              <span class="font-bold text-lg">${score}</span>
-
-              <div class="flex items-center gap-2">
-                <span>${away}</span>
-                <img src="${awayLogo}" class="w-5 h-5">
-              </div>
-
+            <div class="flex justify-between">
+              <span>${home}</span>
+              <span class="font-bold">${score}</span>
+              <span>${away}</span>
             </div>
 
-            <!-- เวลา + สถานะ -->
-            <div class="mt-2 text-sm flex justify-between text-gray-300">
+            <div class="text-sm text-gray-400 mt-1 flex justify-between">
               <span>${time}</span>
-              <span>${status}</span>
+              <span>${m.status_short}</span>
             </div>
 
           </div>
@@ -129,12 +124,10 @@ async function loadMatches() {
 
   } catch (err) {
     console.error(err);
-    document.getElementById("matches").innerHTML = "❌ โหลดข้อมูลไม่ได้";
   }
 }
 
 loadMatches();
-setInterval(loadMatches, 30000);
 </script>
 
 </body>
