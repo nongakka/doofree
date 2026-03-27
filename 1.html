@@ -144,7 +144,7 @@ async function loadMatches() {
         const awayWin = m.goals_away > m.goals_home;
 
         container.innerHTML += `
-        <div class="${bg} rounded-xl p-4 shadow-md transition hover:scale-105">
+        <div class="${bg} rounded-xl p-4 shadow-md flex flex-col h-full">
 
           <!-- ลีก -->
           <div class="flex justify-between mb-2 text-sm text-gray-300">
@@ -158,9 +158,9 @@ async function loadMatches() {
           <!-- ทีม -->
           <div class="flex justify-between items-center">
 
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 min-w-0">
               <img src="${homeLogo}" class="w-6 h-6">
-              <span class="${homeWin ? 'font-bold text-white' : ''}">
+              <span class="text-sm truncate max-w-[90px] ${homeWin ? 'font-bold text-white' : 'text-gray-300'}">
                 ${home}
               </span>
             </div>
@@ -169,8 +169,8 @@ async function loadMatches() {
               ${score}
             </span>
 
-            <div class="flex items-center gap-2">
-              <span class="${awayWin ? 'font-bold text-white' : ''}">
+          <div class="flex items-center gap-2 min-w-0">
+              <span class="text-sm truncate max-w-[90px] ${awayWin ? 'font-bold text-white' : 'text-gray-300'}">
                 ${away}
               </span>
               <img src="${awayLogo}" class="w-6 h-6">
@@ -179,7 +179,7 @@ async function loadMatches() {
           </div>
 
           <!-- สถานะ -->
-          <div class="mt-2 flex justify-between items-center">
+          <div class="mt-auto flex justify-between items-center pt-2">
 
             <span class="text-xs px-2 py-1 rounded-md bg-white/10">
               ${badge}
