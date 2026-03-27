@@ -242,25 +242,21 @@ async function loadMatches() {
   </div>
 
   <!-- แถวช่องถ่ายทอด -->
-  <div class="flex justify-between items-center">
+<div class="flex justify-between items-center">
 
-    <!-- ชื่อช่อง -->
-    <span class="text-[11px] text-gray-400 truncate">
-      <div class="flex items-center gap-2 text-[11px] text-gray-400 truncate">
-  ${streamLogo ? `<img src="${streamLogo}" class="w-4 h-4">` : "📺"}
-  <span>${m.channel || "ไม่มีข้อมูล"}</span>
-</div>
-    </span>
-
-    <!-- ปุ่มดู -->
-    <button
-      <a href="${streamUrl}" target="_blank"
-  class="text-xs px-2 py-1 rounded-md bg-blue-600 hover:bg-blue-500 transition">
-  ▶ ดูสด
-</a>
-    </button>
-
+  <!-- ชื่อช่อง + โลโก้ -->
+  <div class="flex items-center gap-2 text-[11px] text-gray-400 truncate">
+    ${streamLogo ? `<img src="${streamLogo}" class="w-4 h-4">` : "📺"}
+    <span>${m.channel || "ไม่มีข้อมูล"}</span>
   </div>
+
+  <!-- ปุ่มดู -->
+  <a href="${streamUrl}" target="_blank"
+    class="text-xs px-2 py-1 rounded-md bg-blue-600 hover:bg-blue-500 transition">
+    ▶ ดูสด
+  </a>
+
+</div>
 
 </div>
 
