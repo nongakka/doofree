@@ -99,6 +99,10 @@ async function loadMatches() {
 
         const league = leaguesMap[m.league];
 
+// ✅ fallback
+const leagueLogo = league?.logo || "https://via.placeholder.com/20";
+const leagueName = league?.name || "ไม่ทราบลีก";
+
         const home = m.teamhome?.name_th || m.teamhome?.name || "-";
         const away = m.teamaway?.name_th || m.teamaway?.name || "-";
 
@@ -147,8 +151,8 @@ async function loadMatches() {
           <!-- ลีก -->
           <div class="flex justify-between mb-2 text-sm text-gray-300">
             <div class="flex items-center gap-2">
-              <img src="${league?.logo}" class="w-5 h-5">
-              <span class="font-semibold">${league?.name}</span>
+              <img src="${leagueLogo}" class="w-5 h-5">
+              <span class="font-semibold">${leagueName}</span>
             </div>
             <span>${time}</span>
           </div>
