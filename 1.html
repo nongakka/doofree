@@ -69,10 +69,13 @@ function selectLeague(id) {
 function formatThaiTime(dateStr) {
   if (!dateStr) return "-";
 
-  // แปลงให้เป็น ISO ก่อน (สำคัญ)
-  const iso = dateStr.replace(" ", "T");
+  const iso = dateStr
+    .replace(" ", "T")
+    .replace("+07", "+07:00"); // ✅ แก้ตรงนี้
 
   const d = new Date(iso);
+
+  if (isNaN(d)) return "-"; // กันพัง
 
   return d.toLocaleTimeString("th-TH", {
     hour: "2-digit",
@@ -167,27 +170,32 @@ async function loadMatches() {
           </div>
 
           <!-- ทีม -->
-          <div class="flex justify-between items-center">
+          <div class="flex items-center justify-between">
 
-            <div class="flex items-center gap-2 min-w-0">
-              <img src="${homeLogo}" class="w-6 h-6">
-              <span class="text-sm truncate max-w-[90px] ${homeWin ? 'font-bold text-white' : 'text-gray-300'}">
-                ${home}
-              </span>
-            </div>
+  <!-- ทีมเหย้า -->
+  <div class="flex items-center gap-2 flex-1">
+    <img src="${homeLogo}" class="w-6 h-6">
+    <span class="text-sm leading-tight break-words ${homeWin ? 'font-bold text-white' : 'text-gray-300'}">
+      ${home}
+    </span>
+  </div>
 
-            <span class="text-lg font-bold text-green-400">
-              ${score}
-            </span>
+  <!-- score -->
+  <div class="px-2 shrink-0">
+    <span class="text-lg font-bold text-green-400 whitespace-nowrap">
+      ${score}
+    </span>
+  </div>
 
-          <div class="flex items-center gap-2 min-w-0">
-              <span class="text-sm truncate max-w-[90px] ${awayWin ? 'font-bold text-white' : 'text-gray-300'}">
-                ${away}
-              </span>
-              <img src="${awayLogo}" class="w-6 h-6">
-            </div>
+  <!-- ทีมเยือน -->
+  <div class="flex items-center gap-2 flex-1 justify-end text-right">
+    <span class="text-sm leading-tight break-words ${awayWin ? 'font-bold text-white' : 'text-gray-300'}">
+      ${away}
+    </span>
+    <img src="${awayLogo}" class="w-6 h-6">
+  </div>
 
-          </div>
+</div>
 
           <!-- สถานะ -->
           <div class="mt-auto pt-2 space-y-2">
