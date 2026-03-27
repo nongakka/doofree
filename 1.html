@@ -19,6 +19,34 @@
 <script>
 let selectedLeague = null;
 let leaguesMap = {};
+let PLAYLIST = [];
+
+async function loadPlaylist() {
+  try {
+    const res = await fetch("https://raw.githubusercontent.com/nongakka/shortmovie/main/playlist.json");
+    PLAYLIST = await res.json();
+    console.log("✅ โหลด playlist แล้ว", PLAYLIST.length);
+  } catch (e) {
+    console.error("❌ โหลด playlist ไม่ได้", e);
+  }
+}
+
+function normalize(str) {
+  return (str || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "");
+}
+
+function findStream(channelName) {
+  if (!channelName || PLAYLIST.length === 0) return null;
+
+  const cleanChannel = normalize(channelName);
+
+  return PLAYLIST.find(p => {
+    const cleanTitle = normalize(p.title);
+    return cleanTitle.includes(cleanChannel) || cleanChannel.includes(cleanTitle);
+  });
+}
 
 // 🔥 โหลดลีก
 async function loadLeagues() {
@@ -114,7 +142,9 @@ async function loadMatches() {
       matches.sort((a,b) => new Date(a.event_time) - new Date(b.event_time));
 
       matches.forEach(m => {
-
+        const stream = findStream(m.channel);
+        const streamUrl = stream?.servers?.[0]?.url || "#";
+        const streamLogo = stream?.logo || "";
         const league = leaguesMap[m.league] || m.league_info;
         const leagueLogo = league?.logo;
         const leagueName = league?.name || league?.name_th;
@@ -216,13 +246,18 @@ async function loadMatches() {
 
     <!-- ชื่อช่อง -->
     <span class="text-[11px] text-gray-400 truncate">
-      📺 ${m.channel || "ไม่มีข้อมูล"}
+      <div class="flex items-center gap-2 text-[11px] text-gray-400 truncate">
+  ${streamLogo ? `<img src="${streamLogo}" class="w-4 h-4">` : "📺"}
+  <span>${m.channel || "ไม่มีข้อมูล"}</span>
+</div>
     </span>
 
     <!-- ปุ่มดู -->
     <button
-      class="text-xs px-2 py-1 rounded-md bg-blue-600 hover:bg-blue-500 transition">
-      ▶ ดูสด
+      <a href="${streamUrl}" target="_blank"
+  class="text-xs px-2 py-1 rounded-md bg-blue-600 hover:bg-blue-500 transition">
+  ▶ ดูสด
+</a>
     </button>
 
   </div>
@@ -241,9 +276,12 @@ async function loadMatches() {
 }
 
 // 🚀 เริ่มทำงาน
-loadLeagues();
-loadMatches();
-setInterval(loadMatches, 30000);
+(async () => {
+  await loadPlaylist();
+  loadLeagues();
+  loadMatches();
+  setInterval(loadMatches, 30000);
+})();
 </script>
 
 </body>
