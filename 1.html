@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <title>Live Score</title>
   <script src="https://cdn.tailwindcss.com"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 </head>
 
 <body class="bg-gray-900 text-white p-4">
@@ -271,7 +273,7 @@ async function loadMatches() {
     ${
       streamUrl && streamUrl !== "#"
       ? `
-      <button onclick="openPlayer('${streamUrl}')"
+      <button onclick='openPlayer("${streamUrl}", ${JSON.stringify(stream?.servers || [])})'
   class="text-xs px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 transition font-semibold">
   ▶ ดูสด
 </button>
@@ -306,54 +308,109 @@ async function loadMatches() {
   setInterval(loadMatches, 30000);
 })();
 
-function openPlayer(url) {
-  if (!url || url === "#") return;
+let hls;
+let currentServers = [];
+
+// เปิด player
+function openPlayer(url, servers = []) {
+  if (!url) return;
 
   const modal = document.getElementById("playerModal");
-  const frame = document.getElementById("playerFrame");
+  const video = document.getElementById("videoPlayer");
+  const list = document.getElementById("serverList");
 
-  frame.src = url;
+  currentServers = servers;
+
+  playStream(url);
+
+  // 🔥 render server buttons
+  list.innerHTML = "";
+  servers.forEach((s, i) => {
+    list.innerHTML += `
+      <button onclick="switchServer('${s.url}')"
+        class="px-3 py-1 text-xs rounded bg-white/10 hover:bg-blue-600 transition">
+        ${s.name || "Server " + (i+1)}
+      </button>
+    `;
+  });
+
   modal.classList.remove("hidden");
   modal.classList.add("flex");
 }
 
+// เล่น stream
+function playStream(url) {
+  const video = document.getElementById("videoPlayer");
+
+  if (hls) {
+    hls.destroy();
+  }
+
+  if (Hls.isSupported()) {
+    hls = new Hls();
+    hls.loadSource(url);
+    hls.attachMedia(video);
+    hls.on(Hls.Events.MANIFEST_PARSED, function () {
+      video.play();
+    });
+  } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+    video.src = url;
+    video.play();
+  }
+}
+
+// เปลี่ยน server
+function switchServer(url) {
+  playStream(url);
+}
+
+// ปิด
 function closePlayer() {
   const modal = document.getElementById("playerModal");
-  const frame = document.getElementById("playerFrame");
+  const video = document.getElementById("videoPlayer");
 
-  frame.src = "";
+  if (hls) hls.destroy();
+  video.pause();
+  video.src = "";
+
   modal.classList.add("hidden");
   modal.classList.remove("flex");
 }
 
-// 🔥 กด ESC ปิด
+// ESC ปิด
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") closePlayer();
 });
 
 </script>
 
-<!-- 🔥 PLAYER MODAL -->
+<!-- 🔥 PLAYER MODAL PRO -->
 <div id="playerModal"
   onclick="closePlayer()"
-  class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50">
+  class="fixed inset-0 bg-black/90 hidden items-center justify-center z-50">
 
-  <div class="relative w-full max-w-4xl mx-4">
+  <div class="relative w-full max-w-5xl mx-4"
+       onclick="event.stopPropagation()">
 
-    <!-- ปุ่มปิด -->
+    <!-- ปิด -->
     <button onclick="closePlayer()"
       class="absolute -top-10 right-0 text-white text-xl bg-red-500 px-3 py-1 rounded">
       ✕
     </button>
 
-    <!-- iframe player -->
-    <div class="bg-black rounded-xl overflow-hidden aspect-video">
-      <iframe id="playerFrame"
-        src=""
-        class="w-full h-full"
-        allowfullscreen
-        allow="autoplay">
-      </iframe>
+    <!-- video -->
+    <div class="bg-black rounded-xl overflow-hidden">
+      <video id="videoPlayer"
+        class="w-full aspect-video"
+        controls
+        autoplay
+        muted>
+      </video>
+    </div>
+
+    <!-- server -->
+    <div id="serverList"
+      class="mt-3 flex flex-wrap gap-2 justify-center">
     </div>
 
   </div>
