@@ -18,6 +18,13 @@
 <!-- 🔥 แมตช์ -->
 <div id="matches" class="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"></div>
 
+  
+<style>
+.active-server {
+  box-shadow: 0 0 10px #3b82f6;
+  transform: scale(1.05);
+}
+</style>
 <script>
 let selectedLeague = null;
 let leaguesMap = {};
@@ -326,13 +333,14 @@ function openPlayer(url, servers = []) {
   // 🔥 render server buttons
   list.innerHTML = "";
   servers.forEach((s, i) => {
-    list.innerHTML += `
-      <button onclick="switchServer('${s.url}')"
-        class="px-3 py-1 text-xs rounded bg-white/10 hover:bg-blue-600 transition">
-        ${s.name || "Server " + (i+1)}
-      </button>
-    `;
-  });
+  list.innerHTML += `
+   <button onclick="switchServer('${s.url}', this)"
+      class="server-btn px-3 py-1 rounded text-xs
+      ${i === 0 ? 'bg-blue-600' : 'bg-white/10 hover:bg-blue-600'}">
+      ${s.name || 'Server ' + (i+1)}
+    </button>
+  `;
+});
 
   modal.classList.remove("hidden");
   modal.classList.add("flex");
@@ -382,6 +390,21 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") closePlayer();
 });
 
+
+function switchServer(url, el) {
+  playStream(url);
+
+  // ลบ active จากทุกปุ่ม
+  document.querySelectorAll(".server-btn").forEach(btn => {
+    btn.classList.remove("bg-blue-600", "active-server");
+    btn.classList.add("bg-white/10");
+  });
+
+  // ใส่ active ให้ปุ่มที่กด
+  el.classList.remove("bg-white/10");
+  el.classList.add("bg-blue-600", "active-server");
+}
+
 </script>
 
 <!-- 🔥 PLAYER MODAL PRO -->
@@ -415,6 +438,6 @@ document.addEventListener("keydown", (e) => {
 
   </div>
 </div>
-
+  
 </body>
 </html>
