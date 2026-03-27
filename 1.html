@@ -200,9 +200,7 @@ async function loadMatches() {
         const score = (m.goals_home !== null)
           ? `${m.goals_home} - ${m.goals_away}`
           : "? - ?";
-        const time = (m.status_short === "NS")
-  ? getCountdown(m.event_time)
-  : formatThaiTime(m.event_time);
+        const time = formatThaiTime(m.event_time);
 
         // 🔥 สถานะ + สี
         let status = m.status_short;
