@@ -350,11 +350,7 @@ async function loadMatches() {
   loadLeagues();
   loadMatches();
   setInterval(loadMatches, 30000);
-  setInterval(() => {
-  document.querySelectorAll(".match-time").forEach(el => {
-    el.innerText = getCountdown(el.dataset.time);
-  });
-}, 1000);
+  
 })();
 
 let hls;
