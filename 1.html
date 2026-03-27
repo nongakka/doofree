@@ -97,12 +97,10 @@ async function loadMatches() {
 
       matches.forEach(m => {
 
-        const league = leaguesMap[m.league];
-
-// ✅ fallback
-const leagueLogo = league?.logo || "https://via.placeholder.com/20";
-const leagueName = league?.name || "ไม่ทราบลีก";
-
+        const league = leaguesMap[m.league] || m.league_info;
+        const leagueLogo = league?.logo;
+        const leagueName = league?.name || league?.name_th;
+        
         const home = m.teamhome?.name_th || m.teamhome?.name || "-";
         const away = m.teamaway?.name_th || m.teamaway?.name || "-";
 
