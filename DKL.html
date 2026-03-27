@@ -9,7 +9,6 @@
 </head>
 
 <body class="bg-gray-900 text-white p-4">
-<div class="flex items-center justify-between mb-4">
 
   <!-- 🔥 HEADER FIXED -->
 <div class="sticky top-0 z-50 bg-gray-900/95 backdrop-blur border-b border-white/10">
@@ -17,22 +16,18 @@
   <!-- 🔥 แถวบน -->
   <div class="flex items-center justify-between px-2 py-2">
 
-    <!-- ปุ่มกลับ -->
     <button onclick="goBack()"
       class="group flex items-center gap-2 px-4 py-2 rounded-xl
       bg-gradient-to-r from-indigo-500/80 to-blue-600/80
       text-white text-sm font-semibold shadow-lg">
-
       <span class="transition-transform group-hover:-translate-x-1">⬅</span>
       <span>หน้าหลัก</span>
     </button>
 
-    <!-- หัวข้อ -->
     <h1 class="text-xl text-center flex-1">
       ⚽ หรรมน้อย ออนไลน์ ⚽
     </h1>
 
-    <!-- dummy ขวา -->
     <div class="w-[90px]"></div>
   </div>
 
@@ -40,6 +35,8 @@
   <div id="leagueBar"
     class="flex gap-4 overflow-x-auto px-2 pb-2">
   </div>
+
+</div> <!-- ✅ ปิด header ตรงนี้ -->
 
 <!-- 🔥 แมตช์ -->
 <div id="matches"
