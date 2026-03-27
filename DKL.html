@@ -9,11 +9,23 @@
 </head>
 
 <body class="bg-gray-900 text-white p-4">
-<button onclick="goBack()"
-  class="fixed top-4 left-4 z-50 bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg text-sm backdrop-blur">
-  ⬅ หน้าหลัก
-</button>
-<h1 class="text-2xl mb-4">⚽ ตารางแข่งขัน</h1>
+<div class="flex items-center justify-between mb-4">
+
+  <!-- ปุ่มกลับ -->
+  <button onclick="goBack()"
+    class="bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg text-sm">
+    ⬅ กลับ
+  </button>
+
+  <!-- หัวข้อ -->
+  <h1 class="text-2xl text-center flex-1">
+    ⚽ หรรมน้อย ออนไลน์ ⚽
+  </h1>
+
+  <!-- ช่องว่างฝั่งขวา (บาลานซ์กลาง) -->
+  <div class="w-[70px]"></div>
+
+</div>
 
 <!-- 🔥 แถบลีก -->
 <div id="leagueBar" class="flex gap-4 overflow-x-auto pb-2 mb-4"></div>
@@ -439,9 +451,9 @@ function switchServer(url, el) {
   el.classList.add("bg-blue-600", "active-server");
 }
   
-document.getElementById("backHome").addEventListener("click", () => {
-    window.location.href = "https://nongakka.github.io/doofree/index.html";
-});
+function goBack() {
+  window.location.href = "https://nongakka.github.io/doofree/index.html";
+}
 </script>
 
 <!-- 🔥 PLAYER MODAL PRO -->
