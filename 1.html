@@ -1,172 +1,209 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-<meta charset="UTF-8">
-<title>Live Fixtures PRO</title>
-<script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8">
+  <title>Live Score</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
 <body class="bg-gray-900 text-white p-4">
 
 <h1 class="text-2xl mb-4">⚽ ตารางแข่งขัน</h1>
 
-<!-- Tabs -->
-<div class="flex gap-2 mb-4">
-  <button onclick="setTab('all')" class="tab px-3 py-1 bg-blue-500 rounded">ทั้งหมด</button>
-  <button onclick="setTab('national')" class="tab px-3 py-1 bg-gray-700 rounded">ทีมชาติ</button>
-  <button onclick="setTab('top')" class="tab px-3 py-1 bg-gray-700 rounded">ลีกหลัก</button>
-  <button onclick="setTab('other')" class="tab px-3 py-1 bg-gray-700 rounded">อื่นๆ</button>
-</div>
+<!-- 🔥 แถบลีก -->
+<div id="leagueBar" class="flex gap-4 overflow-x-auto pb-2 mb-4"></div>
 
-<div id="matches" class="grid md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+<!-- 🔥 แมตช์ -->
+<div id="matches" class="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"></div>
 
 <script>
-let allMatches = [];
-let currentTab = "all";
+let selectedLeague = null;
+let leaguesMap = {};
 
-// 🔥 โหลด list
-async function loadFixtures() {
-  const res = await fetch("https://corsproxy.io/?https://liveplayback.net/api/fixtures/date");
+// 🔥 โหลดลีก
+async function loadLeagues() {
+  const res = await fetch("https://corsproxy.io/?https://liveplayback.net/api/leagues");
   const data = await res.json();
-  return Object.values(data).flat();
-}
 
-// 🔥 โหลด detail ทีเดียว (เร็ว)
-async function loadDetails(ids) {
-  const requests = ids.map(id =>
-    fetch(`https://corsproxy.io/?https://liveplayback.net/api/fixture/${id}`)
-      .then(r => r.json())
-  );
-  return await Promise.all(requests);
-}
+  const bar = document.getElementById("leagueBar");
+  bar.innerHTML = "";
 
-// 🎯 จัดหมวดอัตโนมัติ
-function getCategory(m) {
-  const name = m.league?.name || "";
+  data.data.forEach(l => {
+    leaguesMap[l.league_id] = l;
+  });
 
-  if (name.includes("World") || name.includes("Cup") || name.includes("Qualification") || name.includes("Friendlies"))
-    return "national";
+  data.data.sort((a,b) => a.league_order - b.league_order);
 
-  if (
-    name.includes("Premier League") ||
-    name.includes("La Liga") ||
-    name.includes("Serie A") ||
-    name.includes("Bundesliga") ||
-    name.includes("Ligue 1") ||
-    name.includes("Champions League")
-  )
-    return "top";
-
-  return "other";
-}
-
-// 🎨 สีตามสถานะ
-function getCardStyle(status) {
-  if (status === "FT") return "bg-green-500/20 border border-green-400";
-  if (status === "HT") return "bg-yellow-500/20 border border-yellow-400";
-  if (status === "1H" || status === "2H") return "bg-pink-500/20 border border-pink-400 animate-pulse";
-  return "bg-gray-800";
-}
-
-// 🧠 แปลสถานะ
-function getStatusText(s) {
-  return {
-    NS: "กำลังจะเริ่ม",
-    1H: "ครึ่งแรก",
-    HT: "พักครึ่ง",
-    2H: "ครึ่งหลัง",
-    FT: "จบการแข่งขัน"
-  }[s] || s;
-}
-
-// 🧩 render การ์ด
-function renderMatch(m) {
-  const home = m.teamhome?.name_th || m.teamhome?.name;
-  const away = m.teamaway?.name_th || m.teamaway?.name;
-
-  const homeLogo = m.teamhome?.logo;
-  const awayLogo = m.teamaway?.logo;
-
-  const leagueName = m.league?.name;
-  const leagueLogo = m.league?.logo;
-
-  const score = m.goals_home != null
-    ? `${m.goals_home} - ${m.goals_away}`
-    : "? - ?";
-
-  const time = new Date(m.event_time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-
-  return `
-  <div class="p-4 rounded-xl ${getCardStyle(m.status_short)}">
-    
-    <div class="flex justify-between mb-2">
-      <div class="flex items-center gap-2">
-        <img src="${leagueLogo}" class="w-5 h-5">
-        <span class="text-sm">${leagueName}</span>
+  // ปุ่มทั้งหมด
+  bar.innerHTML += `
+    <div onclick="selectLeague(null)"
+      class="shrink-0 w-20 flex flex-col items-center cursor-pointer">
+      <div class="w-16 h-16 rounded-xl bg-blue-600 flex items-center justify-center">
+        🌍
       </div>
-      <span class="text-xs text-gray-400">${time}</span>
+      <span class="mt-2 text-xs">ทั้งหมด</span>
     </div>
-
-    <div class="flex justify-between items-center">
-      <div class="flex items-center gap-2">
-        <img src="${homeLogo}" class="w-6 h-6">
-        <span>${home}</span>
-      </div>
-
-      <span class="font-bold text-lg">${score}</span>
-
-      <div class="flex items-center gap-2">
-        <img src="${awayLogo}" class="w-6 h-6">
-        <span>${away}</span>
-      </div>
-    </div>
-
-    <div class="mt-2 text-xs text-gray-300">
-      ${getStatusText(m.status_short)}
-    </div>
-  </div>
   `;
+
+  data.data.forEach(l => {
+    bar.innerHTML += `
+      <div onclick="selectLeague(${l.league_id})"
+        class="shrink-0 w-20 flex flex-col items-center cursor-pointer">
+
+        <div class="w-16 h-16 rounded-xl bg-white/10 flex items-center justify-center">
+          <img src="${l.logo}" class="w-10 h-10 object-contain">
+        </div>
+
+        <span class="mt-2 text-xs text-center">${l.name}</span>
+      </div>
+    `;
+  });
 }
 
-// 🔄 render ตาม tab
-function render() {
-  const container = document.getElementById("matches");
+// 🔥 เลือกลีก
+function selectLeague(id) {
+  selectedLeague = id;
+  loadMatches();
+}
 
-  let list = allMatches;
+// 🔥 โหลดแมตช์
+async function loadMatches() {
+  try {
+    const res = await fetch("https://corsproxy.io/?https://liveplayback.net/api/fixtures/date");
+    const data = await res.json();
 
-  if (currentTab !== "all") {
-    list = list.filter(m => getCategory(m) === currentTab);
+    const container = document.getElementById("matches");
+    container.innerHTML = "";
+
+    for (const date in data) {
+
+      let matches = data[date];
+
+      // filter ลีก
+      if (selectedLeague) {
+        matches = matches.filter(m => m.league === selectedLeague);
+      }
+
+      if (matches.length === 0) continue;
+
+      // หัววันที่
+      container.innerHTML += `
+        <h2 class="col-span-full text-lg mt-4 mb-2 text-yellow-400">
+          📅 ${date}
+        </h2>
+      `;
+
+      matches.sort((a,b) => new Date(a.event_time) - new Date(b.event_time));
+
+      matches.forEach(m => {
+
+        const league = leaguesMap[m.league];
+
+        const home = m.teamhome?.name_th || m.teamhome?.name || "-";
+        const away = m.teamaway?.name_th || m.teamaway?.name || "-";
+
+        const homeLogo = m.teamhome?.logo || "";
+        const awayLogo = m.teamaway?.logo || "";
+
+        const score = (m.goals_home !== null)
+          ? `${m.goals_home} - ${m.goals_away}`
+          : "? - ?";
+
+        const time = new Date(m.event_time).toLocaleTimeString("th-TH", {
+          hour: "2-digit",
+          minute: "2-digit"
+        });
+
+        // 🔥 สถานะ + สี
+        let status = m.status_short;
+        let bg = "bg-gray-800";
+        let badge = "";
+        let minute = "";
+
+        if (status === "NS") {
+          badge = "กำลังจะเริ่ม";
+          bg = "bg-white/5";
+        }
+        else if (status === "1H" || status === "2H") {
+          badge = status === "1H" ? "ครึ่งแรก" : "ครึ่งหลัง";
+          bg = "bg-pink-500/20 border border-pink-500 animate-pulse";
+          minute = m.elapsed ? m.elapsed + "'" : "";
+        }
+        else if (status === "HT") {
+          badge = "พักครึ่ง";
+          bg = "bg-orange-500/20 border border-orange-400";
+        }
+        else if (status === "FT") {
+          badge = "จบการแข่งขัน";
+          bg = "bg-green-500/20 border border-green-400";
+        }
+
+        const homeWin = m.goals_home > m.goals_away;
+        const awayWin = m.goals_away > m.goals_home;
+
+        container.innerHTML += `
+        <div class="${bg} rounded-xl p-4 shadow-md transition hover:scale-105">
+
+          <!-- ลีก -->
+          <div class="flex justify-between mb-2 text-sm text-gray-300">
+            <div class="flex items-center gap-2">
+              <img src="${league?.logo}" class="w-5 h-5">
+              <span class="font-semibold">${league?.name}</span>
+            </div>
+            <span>${time}</span>
+          </div>
+
+          <!-- ทีม -->
+          <div class="flex justify-between items-center">
+
+            <div class="flex items-center gap-2">
+              <img src="${homeLogo}" class="w-6 h-6">
+              <span class="${homeWin ? 'font-bold text-white' : ''}">
+                ${home}
+              </span>
+            </div>
+
+            <span class="text-lg font-bold text-green-400">
+              ${score}
+            </span>
+
+            <div class="flex items-center gap-2">
+              <span class="${awayWin ? 'font-bold text-white' : ''}">
+                ${away}
+              </span>
+              <img src="${awayLogo}" class="w-6 h-6">
+            </div>
+
+          </div>
+
+          <!-- สถานะ -->
+          <div class="mt-2 flex justify-between items-center">
+
+            <span class="text-xs px-2 py-1 rounded-md bg-white/10">
+              ${badge}
+            </span>
+
+            <span class="text-xs text-orange-400 font-bold">
+              ${minute}
+            </span>
+
+          </div>
+
+        </div>
+        `;
+      });
+    }
+
+  } catch (err) {
+    console.error(err);
+    document.getElementById("matches").innerHTML = "❌ โหลดข้อมูลไม่ได้";
   }
-
-  container.innerHTML = list.map(renderMatch).join("");
 }
 
-// 🎛️ เปลี่ยน tab
-function setTab(tab) {
-  currentTab = tab;
-
-  document.querySelectorAll(".tab").forEach(b => b.classList.remove("bg-blue-500"));
-  event.target.classList.add("bg-blue-500");
-
-  render();
-}
-
-// 🚀 init
-async function init() {
-  const fixtures = await loadFixtures();
-
-  // เอาแค่ 15 แมตแรก (กันช้า)
-  const ids = fixtures.slice(0, 15).map(m => m.id);
-
-  const details = await loadDetails(ids);
-
-  allMatches = details;
-
-  render();
-}
-
-init();
-
+// 🚀 เริ่มทำงาน
+loadLeagues();
+loadMatches();
+setInterval(loadMatches, 30000);
 </script>
 
 </body>
