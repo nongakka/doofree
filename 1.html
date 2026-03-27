@@ -177,7 +177,7 @@ async function loadMatches() {
       // หัววันที่
       container.innerHTML += `
         <h2 class="col-span-full text-lg mt-4 mb-2 text-yellow-400">
-          📅 ${formatThaiDate(date)}
+          📅 ${date}
         </h2>
       `;
 
@@ -211,9 +211,9 @@ async function loadMatches() {
         let minute = "";
 
         if (status === "NS") {
-          badge = "กำลังจะเริ่ม";
-          bg = "bg-white/5";
-        }
+  badge = getCountdown(m.event_time);
+  bg = "bg-white/5";
+}
         else if (status === "1H" || status === "2H") {
           badge = status === "1H" ? "ครึ่งแรก" : "ครึ่งหลัง";
           bg = "bg-pink-500/20 border border-pink-500 animate-pulse";
