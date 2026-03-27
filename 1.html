@@ -271,10 +271,10 @@ async function loadMatches() {
     ${
       streamUrl && streamUrl !== "#"
       ? `
-      <a href="${streamUrl}" target="_blank"
-        class="text-xs px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 transition font-semibold">
-        ▶ ดูสด
-      </a>
+      <button onclick="openPlayer('${streamUrl}')"
+  class="text-xs px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 transition font-semibold">
+  ▶ ดูสด
+</button>
       `
       : `
       <span class="text-xs text-gray-500">
@@ -305,7 +305,59 @@ async function loadMatches() {
   loadMatches();
   setInterval(loadMatches, 30000);
 })();
+
+function openPlayer(url) {
+  if (!url || url === "#") return;
+
+  const modal = document.getElementById("playerModal");
+  const frame = document.getElementById("playerFrame");
+
+  frame.src = url;
+  modal.classList.remove("hidden");
+  modal.classList.add("flex");
+}
+
+function closePlayer() {
+  const modal = document.getElementById("playerModal");
+  const frame = document.getElementById("playerFrame");
+
+  frame.src = "";
+  modal.classList.add("hidden");
+  modal.classList.remove("flex");
+}
+
+// 🔥 กด ESC ปิด
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") closePlayer();
+});
+
 </script>
+
+<!-- 🔥 PLAYER MODAL -->
+<div id="playerModal"
+  onclick="closePlayer()"
+  class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50">
+
+  <div class="relative w-full max-w-4xl mx-4">
+
+    <!-- ปุ่มปิด -->
+    <button onclick="closePlayer()"
+      class="absolute -top-10 right-0 text-white text-xl bg-red-500 px-3 py-1 rounded">
+      ✕
+    </button>
+
+    <!-- iframe player -->
+    <div class="bg-black rounded-xl overflow-hidden aspect-video">
+      <iframe id="playerFrame"
+        src=""
+        class="w-full h-full"
+        allowfullscreen
+        allow="autoplay">
+      </iframe>
+    </div>
+
+  </div>
+</div>
 
 </body>
 </html>
