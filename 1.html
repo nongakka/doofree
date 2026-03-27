@@ -227,36 +227,63 @@ async function loadMatches() {
 
 </div>
 
-          <!-- สถานะ -->
-          <div class="mt-auto pt-2 space-y-2">
+        <!-- สถานะ + ช่อง + ปุ่ม -->
+<div class="mt-auto pt-3 border-t border-white/10 space-y-2">
 
   <!-- แถวสถานะ -->
   <div class="flex justify-between items-center">
-    <span class="text-xs px-2 py-1 rounded-md bg-white/10">
+
+    <!-- badge -->
+    <span class="text-[11px] px-2 py-1 rounded-md
+      ${status === '1H' || status === '2H'
+        ? 'bg-pink-500 text-white animate-pulse'
+        : status === 'FT'
+        ? 'bg-green-400 text-black'
+        : 'bg-white/10 text-gray-300'}">
       ${badge}
     </span>
 
-    <span class="text-xs text-orange-400 font-bold">
+    <!-- นาที -->
+    <span class="text-[11px] text-orange-400 font-bold">
       ${minute}
     </span>
+
   </div>
 
   <!-- แถวช่องถ่ายทอด -->
-<div class="flex justify-between items-center">
+  <div class="flex items-center justify-between gap-2">
 
-  <!-- ชื่อช่อง + โลโก้ -->
-  <div class="flex items-center gap-2 text-[11px] text-gray-400 truncate">
-    ${streamLogo ? `<img src="${streamLogo}" class="w-4 h-4">` : "📺"}
-    <span>${m.channel || "ไม่มีข้อมูล"}</span>
+    <!-- ซ้าย: โลโก้ + ชื่อช่อง -->
+    <div class="flex items-center gap-2 min-w-0">
+
+      ${streamLogo
+        ? `<img src="${streamLogo}" class="w-5 h-5 rounded">`
+        : `<div class="w-5 h-5 flex items-center justify-center bg-white/10 rounded">📺</div>`
+      }
+
+      <span class="text-xs text-gray-300 truncate">
+        ${m.channel || "ไม่มีข้อมูล"}
+      </span>
+
+    </div>
+
+    <!-- ขวา: ปุ่ม -->
+    ${
+      streamUrl && streamUrl !== "#"
+      ? `
+      <a href="${streamUrl}" target="_blank"
+        class="text-xs px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 transition font-semibold">
+        ▶ ดูสด
+      </a>
+      `
+      : `
+      <span class="text-xs text-gray-500">
+        ไม่มีลิ้ง
+      </span>
+      `
+    }
+
   </div>
-
-  <!-- ปุ่มดู -->
-  <a href="${streamUrl}" target="_blank"
-    class="text-xs px-2 py-1 rounded-md bg-blue-600 hover:bg-blue-500 transition">
-    ▶ ดูสด
-  </a>
-
-</div>
 
 </div>
 
