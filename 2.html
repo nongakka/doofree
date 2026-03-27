@@ -9,7 +9,7 @@
 
 <body class="bg-gradient-to-br from-gray-900 via-slate-800 to-gray-900 text-white p-4">
 
-<!-- 🔥 background glow -->
+<!-- 🔥 glow background -->
 <div class="fixed inset-0 -z-10
   bg-[radial-gradient(circle_at_20%_20%,#3b82f633,transparent),
       radial-gradient(circle_at_80%_80%,#06b6d433,transparent)]">
@@ -17,10 +17,7 @@
 
 <h1 class="text-2xl mb-4 font-bold tracking-wide">⚽ ตารางแข่งขัน</h1>
 
-<!-- 🔥 แถบลีก -->
 <div id="leagueBar" class="flex gap-4 overflow-x-auto pb-2 mb-4"></div>
-
-<!-- 🔥 แมตช์ -->
 <div id="matches" class="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"></div>
 
 <style>
@@ -35,13 +32,10 @@ let selectedLeague = null;
 let leaguesMap = {};
 let PLAYLIST = [];
 
-/* ===== เดิมทั้งหมด ไม่แตะ ===== */
-
+/* ===== เดิมทั้งหมด ===== */
 async function loadPlaylist() {
-  try {
-    const res = await fetch("https://raw.githubusercontent.com/nongakka/shortmovie/main/playlist.json");
-    PLAYLIST = await res.json();
-  } catch (e) {}
+  const res = await fetch("https://raw.githubusercontent.com/nongakka/shortmovie/main/playlist.json");
+  PLAYLIST = await res.json();
 }
 
 function normalize(str) {
@@ -57,7 +51,7 @@ function findStream(channelName) {
   });
 }
 
-/* ===== UI ลีก (ปรับ hover) ===== */
+/* ===== ลีก (เพิ่ม hover) ===== */
 async function loadLeagues() {
   const res = await fetch("https://corsproxy.io/?https://liveplayback.net/api/leagues");
   const data = await res.json();
@@ -99,7 +93,6 @@ function selectLeague(id) {
   loadMatches();
 }
 
-/* ===== เวลา ===== */
 function formatThaiTime(dateStr) {
   if (!dateStr) return "-";
   const iso = dateStr.replace(" ", "T").replace("+07", "+07:00");
@@ -113,7 +106,7 @@ function formatThaiTime(dateStr) {
   });
 }
 
-/* ===== UI การ์ด ===== */
+/* ===== การ์ด (UI upgrade แต่ข้อมูลเดิมครบ) ===== */
 async function loadMatches() {
   const res = await fetch("https://corsproxy.io/?https://liveplayback.net/api/fixtures/date");
   const data = await res.json();
@@ -133,9 +126,15 @@ async function loadMatches() {
       </h2>
     `;
 
+    matches.sort((a,b) => new Date(a.event_time) - new Date(b.event_time));
+
     matches.forEach(m => {
+
       const stream = findStream(m.channel);
       const streamUrl = stream?.servers?.[0]?.url || "#";
+      const streamLogo = stream?.logo || "";
+
+      const league = leaguesMap[m.league] || m.league_info;
 
       let bg = "bg-white/10 backdrop-blur-md border border-white/10 hover:scale-[1.02] hover:shadow-xl transition";
 
@@ -146,20 +145,46 @@ async function loadMatches() {
       container.innerHTML += `
       <div class="${bg} rounded-xl p-4 flex flex-col h-full">
 
-        <div class="flex justify-between text-sm text-gray-200 mb-2">
-          <span>${m.league_info?.name}</span>
+        <!-- ลีก -->
+        <div class="flex justify-between mb-2 text-sm text-gray-200">
+          <div class="flex items-center gap-2">
+            <img src="${league?.logo}" class="w-5 h-5">
+            <span class="font-semibold">${league?.name}</span>
+          </div>
           <span>${formatThaiTime(m.event_time)}</span>
         </div>
 
-        <div class="flex justify-between items-center">
-          <span class="text-white/90">${m.teamhome?.name}</span>
-          <span class="text-green-400 font-bold">${m.goals_home ?? "?"} - ${m.goals_away ?? "?"}</span>
-          <span class="text-white/90">${m.teamaway?.name}</span>
+        <!-- ทีม -->
+        <div class="flex items-center justify-between">
+
+          <div class="flex items-center gap-2 flex-1">
+            <img src="${m.teamhome?.logo}" class="w-6 h-6">
+            <span class="text-sm text-white/90">${m.teamhome?.name}</span>
+          </div>
+
+          <div class="px-2">
+            <span class="text-lg font-bold text-green-400">
+              ${m.goals_home ?? "?"} - ${m.goals_away ?? "?"}
+            </span>
+          </div>
+
+          <div class="flex items-center gap-2 flex-1 justify-end">
+            <span class="text-sm text-white/90">${m.teamaway?.name}</span>
+            <img src="${m.teamaway?.logo}" class="w-6 h-6">
+          </div>
+
         </div>
 
+        <!-- ช่อง -->
         <div class="mt-auto pt-3 border-t border-white/10 flex justify-between items-center">
 
-          <span class="text-xs text-gray-200">${m.channel || "-"}</span>
+          <div class="flex items-center gap-2">
+            ${streamLogo
+              ? `<img src="${streamLogo}" class="w-5 h-5 rounded">`
+              : `<div class="w-5 h-5 bg-white/10 rounded flex items-center justify-center">📺</div>`
+            }
+            <span class="text-xs text-gray-200">${m.channel || "-"}</span>
+          </div>
 
           ${
             streamUrl !== "#"
@@ -180,14 +205,15 @@ async function loadMatches() {
   }
 }
 
-/* ===== INIT ===== */
+/* ===== init ===== */
 (async () => {
   await loadPlaylist();
   loadLeagues();
   loadMatches();
+  setInterval(loadMatches, 30000);
 })();
 
-/* ===== PLAYER ===== */
+/* ===== player ===== */
 let hls;
 
 function openPlayer(url, servers = []) {
@@ -242,7 +268,6 @@ function closePlayer() {
   document.getElementById("playerModal").classList.add("hidden");
 }
 
-/* ESC */
 document.addEventListener("keydown", e => {
   if (e.key === "Escape") closePlayer();
 });
