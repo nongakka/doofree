@@ -120,6 +120,39 @@ function formatThaiTime(dateStr) {
     timeZone: "Asia/Bangkok"
   });
 }
+  
+function formatThaiDate(dateStr) {
+  const d = new Date(dateStr);
+
+  if (isNaN(d)) return dateStr;
+
+  return d.toLocaleDateString("th-TH", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+    year: "numeric"
+  });
+}
+  
+function getCountdown(timeStr) {
+  if (!timeStr) return "-";
+
+  const iso = timeStr.replace(" ", "T").replace("+07", "+07:00");
+  const target = new Date(iso);
+  const now = new Date();
+
+  const diff = target - now;
+
+  if (diff <= 0) return "เริ่มแล้ว";
+
+  const h = Math.floor(diff / 1000 / 60 / 60);
+  const m = Math.floor((diff / 1000 / 60) % 60);
+  const s = Math.floor((diff / 1000) % 60);
+
+  if (h > 0) return `อีก ${h} ชม. ${m} นาที`;
+  if (m > 0) return `อีก ${m} นาที`;
+  return `อีก ${s} วิ`;
+}
 
 // 🔥 โหลดแมตช์
 async function loadMatches() {
@@ -144,7 +177,7 @@ async function loadMatches() {
       // หัววันที่
       container.innerHTML += `
         <h2 class="col-span-full text-lg mt-4 mb-2 text-yellow-400">
-          📅 ${date}
+          📅 ${formatThaiDate(date)}
         </h2>
       `;
 
@@ -167,7 +200,9 @@ async function loadMatches() {
         const score = (m.goals_home !== null)
           ? `${m.goals_home} - ${m.goals_away}`
           : "? - ?";
-        const time = formatThaiTime(m.event_time);
+        const time = (m.status_short === "NS")
+  ? getCountdown(m.event_time)
+  : formatThaiTime(m.event_time);
 
         // 🔥 สถานะ + สี
         let status = m.status_short;
@@ -205,7 +240,9 @@ async function loadMatches() {
               <img src="${leagueLogo}" class="w-5 h-5">
               <span class="font-semibold">${leagueName}</span>
             </div>
-            <span>${time}</span>
+            <span class="match-time" data-time="${m.event_time}">
+              ${time}
+            </span>
           </div>
 
           <!-- ทีม -->
@@ -313,6 +350,11 @@ async function loadMatches() {
   loadLeagues();
   loadMatches();
   setInterval(loadMatches, 30000);
+  setInterval(() => {
+  document.querySelectorAll(".match-time").forEach(el => {
+    el.innerText = getCountdown(el.dataset.time);
+  });
+}, 1000);
 })();
 
 let hls;
