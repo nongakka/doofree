@@ -23,32 +23,64 @@ async function loadMatches() {
     const container = document.getElementById("matches");
     container.innerHTML = "";
 
-    // 🔥 แปลง object → array ทั้งหมด
-    const matches = Object.values(data).flat();
+    // 🔥 รวมทุกวัน
+    let matches = [];
 
-    if (!matches || matches.length === 0) {
+    for (const date in data) {
+      if (Array.isArray(data[date])) {
+        matches = matches.concat(data[date]);
+      }
+    }
+
+    if (matches.length === 0) {
       container.innerHTML = "❌ ไม่มีข้อมูล";
       return;
     }
 
+    // 🔥 เรียงตามเวลา
+    matches.sort((a,b) => new Date(a.event_time) - new Date(b.event_time));
+
     matches.forEach(m => {
-      const home = m.teamhome?.name_th || m.teamhome?.name || "-";
-      const away = m.teamaway?.name_th || m.teamaway?.name || "-";
+
+      const home = m.teamhome?.name_th || m.teamhome?.name || "ไม่ทราบทีม";
+      const away = m.teamaway?.name_th || m.teamaway?.name || "ไม่ทราบทีม";
+
+      const time = m.event_time
+        ? new Date(m.event_time).toLocaleTimeString("th-TH", {
+            hour: "2-digit",
+            minute: "2-digit"
+          })
+        : "--:--";
+
+      const score = (m.goals_home !== null)
+        ? `${m.goals_home} - ${m.goals_away}`
+        : "? - ?";
 
       container.innerHTML += `
-        <div class="bg-gray-800 p-4 rounded-xl mb-2">
-          <div>${home} vs ${away}</div>
+        <div class="bg-gray-800 p-4 rounded-xl shadow hover:scale-105 transition">
+
+          <div class="flex justify-between items-center">
+            <span>${home}</span>
+            <span class="font-bold">${score}</span>
+            <span>${away}</span>
+          </div>
+
+          <div class="mt-2 text-sm flex justify-between text-gray-400">
+            <span>${time}</span>
+            <span>${m.status_short || ""}</span>
+          </div>
+
         </div>
       `;
     });
 
   } catch (err) {
     console.error(err);
+    document.getElementById("matches").innerHTML = "❌ โหลดข้อมูลไม่ได้";
   }
 }
 
 loadMatches();
-
 </script>
 
 </body>
