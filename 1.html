@@ -157,7 +157,7 @@ function getCountdown(timeStr) {
 // 🔥 โหลดแมตช์
 async function loadMatches() {
   try {
-    const res = await fetch("https://corsproxy.io/?https://liveplayback.net/api/fixtures/date");
+    const res = await fetch("https://liveplayback.net/api/fixtures/date");
     const data = await res.json();
 
     const container = document.getElementById("matches");
