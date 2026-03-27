@@ -15,22 +15,34 @@
 <script>
 async function loadMatches() {
   try {
-    const res = await fetch("https://corsproxy.io/?https://liveplayback.net/api/fixtures/date");
-    const data = await res.json();
+    // 🔥 โหลด fixtures + leagues พร้อมกัน
+    const [res1, res2] = await Promise.all([
+      fetch("https://corsproxy.io/?https://liveplayback.net/api/fixtures/date"),
+      fetch("https://corsproxy.io/?https://liveplayback.net/api/leagues")
+    ]);
+
+    const fixtureData = await res1.json();
+    const leagueData = await res2.json();
 
     const container = document.getElementById("matches");
     container.innerHTML = "";
 
-    for (const date in data) {
+    // 🔥 map league_id → league info
+    const leagues = {};
+    leagueData.data.forEach(l => {
+      leagues[l.league_id] = l;
+    });
 
-      // 🔥 หัวข้อวัน
+    // 🔥 loop ตามวัน
+    for (const date in fixtureData) {
+
       container.innerHTML += `
         <h2 class="col-span-3 text-lg mt-4 mb-2 text-gray-300">
           📅 ${date}
         </h2>
       `;
 
-      let matches = data[date];
+      let matches = fixtureData[date];
 
       matches.sort((a,b) => new Date(a.event_time) - new Date(b.event_time));
 
@@ -51,21 +63,43 @@ async function loadMatches() {
           minute: "2-digit"
         });
 
-        // 🔥 สีตามสถานะ
-        let bg = "bg-gray-800";
-        let status = m.status_short;
+        // 🔥 ดึงลีก
+        const league = leagues[m.league];
+        const leagueName = league?.name_th || league?.name || "ไม่ทราบลีก";
+        const leagueLogo = league?.logo || "";
 
-        if (status === "1H" || status === "2H") {
-          bg = "bg-purple-900"; // live
-        } else if (status === "HT") {
+        // 🔥 แปลสถานะ
+        let status = m.status_short;
+        let bg = "bg-gray-800";
+
+        if (status === "NS") status = "ยังไม่เริ่ม";
+        else if (status === "1H") {
+          status = "ครึ่งแรก";
+          bg = "bg-purple-900";
+        }
+        else if (status === "2H") {
+          status = "ครึ่งหลัง";
+          bg = "bg-purple-900";
+        }
+        else if (status === "HT") {
+          status = "พักครึ่ง";
           bg = "bg-orange-500";
-        } else if (status === "FT") {
+        }
+        else if (status === "FT") {
+          status = "จบแล้ว";
           bg = "bg-green-700";
         }
 
         container.innerHTML += `
           <div class="${bg} p-4 rounded-xl shadow hover:scale-105 transition">
 
+            <!-- ลีก -->
+            <div class="flex items-center gap-2 text-sm text-gray-300 mb-2">
+              <img src="${leagueLogo}" class="w-4 h-4">
+              <span>${leagueName}</span>
+            </div>
+
+            <!-- ทีม -->
             <div class="flex justify-between items-center">
 
               <div class="flex items-center gap-2">
@@ -82,6 +116,7 @@ async function loadMatches() {
 
             </div>
 
+            <!-- เวลา + สถานะ -->
             <div class="mt-2 text-sm flex justify-between text-gray-300">
               <span>${time}</span>
               <span>${status}</span>
@@ -94,6 +129,7 @@ async function loadMatches() {
 
   } catch (err) {
     console.error(err);
+    document.getElementById("matches").innerHTML = "❌ โหลดข้อมูลไม่ได้";
   }
 }
 
