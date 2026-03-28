@@ -125,16 +125,16 @@ function normalize(str) {
   return (str || "")
     .toLowerCase()
 
-    // 🔥 ลบคำคุณภาพ
-    .replace(/4k|uhd|fhd|hd|sd|720p?|1080p?/g, "")
+    // ✅ ตัด prefix หน้าเดียว (มี - เท่านั้น)
+    .replace(/^[a-z]+-/, "")
 
-    // 🔥 ลบ -01 _01
-    .replace(/[-_]\d+/g, "")
+    // ✅ ลบ quality
+    .replace(/hd|fhd|uhd/g, "")
 
-    // 🔥 ลบคำทั่วไป
-    .replace(/sports?|channel|tv/g, "")
+    // ✅ ลบ space dash underscore ที่เหลือ
+    .replace(/[\s_-]/g, "")
 
-    // 🔥 ลบ symbol + space
+    // ✅ ลบตัวแปลก
     .replace(/[^a-z0-9]/g, "");
 }
 function findStream(channelName) {
@@ -486,10 +486,10 @@ if (selectedSport === "volleyball") {
   const homeLogo = m.teamhome?.logo || "";
   const awayLogo = m.teamaway?.logo || "";
 
-  const league = m.league_info || {};
-  const leagueLogo = league.logo || "";
-  const leagueName = league.name || "Volleyball";
+  const leagueName = m.league_info?.name || "Volleyball";
+  const leagueLogo = m.league_info?.logo || "";
 
+  // 🔥 แก้ null score
   const score =
     (m.scores_home != null && m.scores_away != null)
       ? `${m.scores_home} - ${m.scores_away}`
@@ -497,62 +497,59 @@ if (selectedSport === "volleyball") {
 
   const time = formatThaiTime(m.event_time);
 
-  const status = m.status_short || "NS";
-
-  const badge =
-    status === "NS"
-      ? getCountdown(m.event_time)
-      : status === "FT"
-      ? "จบ"
-      : status;
+  // 🔥 stream
+  const stream = findStream(m.channel);
+  const streamUrl = stream?.servers?.[0]?.url || "#";
 
   container.innerHTML += `
-    <div class="bg-gray-800 rounded-xl p-4 flex flex-col gap-2">
+    <div class="bg-gray-800 rounded-xl p-4 flex flex-col gap-3">
 
-      <!-- 🔥 ลีก -->
+      <!-- ลีก -->
       <div class="flex items-center gap-2 text-xs text-gray-300">
-        ${leagueLogo 
-          ? `<img src="${leagueLogo}" class="w-5 h-5">` 
-          : ""
-        }
+        <img src="${leagueLogo}" class="w-5 h-5">
         <span>${leagueName}</span>
       </div>
 
       <!-- เวลา -->
       <div class="text-xs text-gray-400">${time}</div>
 
-      <!-- 🔥 ทีม -->
+      <!-- ทีม -->
       <div class="flex items-center justify-between">
 
         <!-- ทีมเหย้า -->
         <div class="flex items-center gap-2 flex-1">
-          ${homeLogo 
-            ? `<img src="${homeLogo}" class="w-6 h-6">` 
-            : ""
-          }
+          <img src="${homeLogo}" class="w-6 h-6">
           <span class="text-sm">${home}</span>
         </div>
 
         <!-- score -->
-        <div class="px-2 shrink-0 text-green-400 font-bold">
+        <div class="px-2 text-green-400 font-bold">
           ${score}
         </div>
 
         <!-- ทีมเยือน -->
         <div class="flex items-center gap-2 flex-1 justify-end text-right">
           <span class="text-sm">${away}</span>
-          ${awayLogo 
-            ? `<img src="${awayLogo}" class="w-6 h-6">` 
-            : ""
-          }
+          <img src="${awayLogo}" class="w-6 h-6">
         </div>
 
       </div>
 
-      <!-- 🔥 สถานะ -->
-      <div class="text-xs text-blue-400 text-center">
-        ${badge}
-      </div>
+      <!-- 🔥 ปุ่มดูสด -->
+      ${
+        streamUrl !== "#"
+        ? `
+        <button onclick='openPlayer("${streamUrl}", ${JSON.stringify(stream?.servers || [])})'
+          class="mt-2 w-full text-xs py-2 rounded-lg bg-blue-600 hover:bg-blue-500">
+          ▶ ดูสด
+        </button>
+        `
+        : `
+        <div class="text-xs text-gray-500 text-center">
+          ไม่มีลิ้ง
+        </div>
+        `
+      }
 
     </div>
   `;
