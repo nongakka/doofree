@@ -36,9 +36,20 @@
     class="flex gap-4 overflow-x-auto px-2 pb-2">
   </div>
 
-<div id="dateTabs"
-  class="flex gap-2 overflow-x-auto px-3 py-3 mt-2
-  bg-slate-800/80 backdrop-blur-lg rounded-xl border border-white/5 shadow-inner">
+<div class="flex items-center gap-3 mt-2">
+
+  <!-- 🔥 หมวดกีฬา -->
+  <div id="sportTabs"
+    class="flex gap-2 overflow-x-auto px-2 py-2
+    bg-slate-800/80 rounded-xl border border-white/5">
+  </div>
+
+  <!-- 🔥 วันที่ -->
+  <div id="dateTabs"
+    class="flex gap-2 overflow-x-auto px-3 py-2 flex-1
+    bg-slate-800/60 backdrop-blur rounded-xl border border-white/5">
+  </div>
+
 </div>
   
 </div> <!-- ✅ ปิด header ตรงนี้ -->
@@ -97,6 +108,8 @@ let selectedLeague = null;
 let leaguesMap = {};
 let PLAYLIST = [];
 let selectedDate = null;
+let selectedSport = "football"; // football | other | volleyball
+
   
 async function loadPlaylist() {
   try {
@@ -184,7 +197,42 @@ function selectLeague(id, el) {
 
   loadMatches();
 }
+  
+function renderSportTabs() {
+  const tab = document.getElementById("sportTabs");
 
+  const sports = [
+    { id: "football", name: "⚽ ฟุตบอล" },
+    { id: "volleyball", name: "🏐 วอลเลย์" },
+    { id: "other", name: "🏀 กีฬาอื่น" }
+  ];
+
+  tab.innerHTML = "";
+
+  sports.forEach(s => {
+    const active = s.id === selectedSport;
+
+    tab.innerHTML += `
+      <button onclick="selectSport('${s.id}', this)"
+        class="px-3 py-1.5 text-xs rounded-lg whitespace-nowrap transition border
+        ${active
+          ? 'bg-blue-500 text-white border-blue-400 shadow'
+          : 'bg-slate-700/60 text-slate-200 border-white/5 hover:bg-blue-500 hover:text-white'}
+        ">
+        ${s.name}
+      </button>
+    `;
+  });
+}
+  
+function selectSport(sport, el) {
+  selectedSport = sport;
+  selectedDate = null;
+
+  renderSportTabs();
+  loadMatches();
+}  
+  
 function renderDateTabs(dates) {
   const tab = document.getElementById("dateTabs");
   tab.innerHTML = "";
@@ -280,8 +328,20 @@ function getCountdown(timeStr) {
 // 🔥 โหลดแมตช์
 async function loadMatches() {
   try {
-    const res = await fetch("https://liveplayback.net/api/fixtures/date");
-    const data = await res.json();
+let url = "";
+
+if (selectedSport === "football") {
+  url = "https://liveplayback.net/api/fixtures/date";
+}
+else if (selectedSport === "volleyball") {
+  url = "https://liveplayback.net/api/volleyball/fixtures";
+}  
+else if (selectedSport === "other") {
+  url = "https://liveplayback.net/api/events";
+}
+
+const res = await fetch(url);
+const data = await res.json();
     const dates = Object.keys(data);
     renderDateTabs(dates);
     const container = document.getElementById("matches");
@@ -475,6 +535,7 @@ border border-blue-400/20 rounded-lg text-blue-200 font-medium">
 (async () => {
   await loadPlaylist();
   loadLeagues();
+  renderSportTabs();
   loadMatches();
   setInterval(loadMatches, 30000);
   
