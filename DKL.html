@@ -375,20 +375,6 @@ if (selectedSport === "football") {
   grouped = data;
 }
 
-// 🟡 events (บาส / เทนนิส / กอล์ฟ / other)
-else {
-
-  data.forEach(e => {
-
-    if (!e.start) return;
-
-    const date = e.start.split(" ")[0];
-
-    if (!grouped[date]) grouped[date] = [];
-    grouped[date].push(e);
-  });
-}
-
 // 🟣 วอลเลย์
 else if (selectedSport === "volleyball") {
 
@@ -400,6 +386,20 @@ else if (selectedSport === "volleyball") {
 
     if (!grouped[date]) grouped[date] = [];
     grouped[date].push(m);
+  });
+}
+
+// 🟡 กีฬาอื่น
+else {
+
+  data.forEach(e => {
+
+    if (!e.start) return;
+
+    const date = e.start.split(" ")[0];
+
+    if (!grouped[date]) grouped[date] = [];
+    grouped[date].push(e);
   });
 }
 
