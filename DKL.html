@@ -138,6 +138,17 @@ function findStream(channelName) {
   });
 }
 
+function detectSportFromTitle(title) {
+  const t = title || "";
+
+  if (t.includes("⚽")) return "football";
+  if (t.includes("🏐")) return "volleyball";
+  if (t.includes("🏀")) return "basketball";
+  if (t.includes("🎾")) return "tennis";
+  if (t.includes("⛳")) return "golf";
+
+  return "other";
+}  
 // 🔥 โหลดลีก
 async function loadLeagues() {
   const res = await fetch("https://liveplayback.net/api/leagues");
@@ -354,8 +365,13 @@ else if (selectedSport === "other") {
 
   data.forEach(e => {
 
-    // ✅ ต้องเป็น event จริง
     if (!e.event_id || !e.start) return;
+
+    // ✅ เพิ่มตรงนี้
+    const sportType = detectSportFromTitle(e.title);
+
+    // ❗ เอาเฉพาะ other จริงๆ
+    if (sportType !== "other") return;
 
     const date = e.start.split(" ")[0];
 
@@ -380,7 +396,7 @@ else if (selectedSport === "volleyball") {
 }
 
 // 👉 เอา key มาเป็น date tabs
-const dates = Object.keys(grouped);
+const dates = Object.keys(grouped).sort();
 renderDateTabs(dates);
     const container = document.getElementById("matches");
     container.innerHTML = "";
