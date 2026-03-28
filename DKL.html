@@ -414,9 +414,33 @@ else if (selectedSport !== "football" && selectedSport !== "volleyball") {
 // 🟣 วอลเลย์
 else if (selectedSport === "volleyball") {
 
-  (data.data || data).forEach(e => {
+  // 🔥 1. โหลด volleyball API
+  let volleyData = [];
+  if (url.includes("volleyball")) {
+    volleyData = (data.data || data);
+  }
 
-    const time = e.event_time || e.start_time || e.time;
+  // 🔥 2. โหลด events API เพิ่ม
+  let eventRes = await fetch("https://liveplayback.net/api/events");
+  let eventData = await eventRes.json();
+
+  // 🔥 filter เอาเฉพาะ 🏐
+  const volleyEvents = eventData.filter(e => {
+    return detectSportFromTitle(e.title) === "volleyball";
+  });
+
+  // 🔥 3. รวมข้อมูล
+  const all = [...volleyData, ...volleyEvents];
+
+  // 🔥 4. จัดกลุ่ม
+  all.forEach(e => {
+
+    const time =
+      e.event_time ||
+      e.start ||
+      e.start_time ||
+      e.time;
+
     if (!time) return;
 
     const date = time.split(" ")[0];
@@ -503,7 +527,10 @@ if (selectedSport === "volleyball") {
 
   const home = m.teamhome?.name || "-";
   const away = m.teamaway?.name || "-";
-  const score = `${m.scores_home} - ${m.scores_away}`;
+  const score =
+  (m.scores_home != null && m.scores_away != null)
+    ? `${m.scores_home} - ${m.scores_away}`
+    : "? - ?";
   const time = formatThaiTime(m.event_time);
 
   container.innerHTML += `
