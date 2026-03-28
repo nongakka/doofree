@@ -351,13 +351,13 @@ if (selectedSport === "football") {
 
 // 🟡 กีฬาอื่น
 else if (selectedSport === "other") {
+
   data.forEach(e => {
 
-    if (!e.start) return; // กันข้อมูลผิด
+    // ✅ ต้องเป็น event จริง
+    if (!e.event_id || !e.start) return;
 
-    const time = e.start; // ✅ FIX ตรงนี้
-
-    const date = time.split(" ")[0];
+    const date = e.start.split(" ")[0];
 
     if (!grouped[date]) grouped[date] = [];
     grouped[date].push(e);
@@ -366,9 +366,11 @@ else if (selectedSport === "other") {
 
 // 🟣 วอลเลย์
 else if (selectedSport === "volleyball") {
+
   data.data?.forEach(e => {
 
-    if (!e.event_time) return; // 🔴 กัน null
+    // ✅ ต้องเป็นวอลเลย์จริง
+    if (!e.fixture_id || !e.event_time) return;
 
     const date = e.event_time.split(" ")[0];
 
@@ -489,9 +491,17 @@ if (selectedSport === "volleyball") {
 
         let score = "-";
 
-// ฟุตบอล
-if (m.goals_home != null && m.goals_away != null) {
-  score = `${m.goals_home} - ${m.goals_away}`;
+// 🔥 ใช้ status คุมแทน (สำคัญ)
+if (m.status_short && m.status_short !== "NS") {
+
+  if (m.goals_home != null && m.goals_away != null) {
+    score = `${m.goals_home} - ${m.goals_away}`;
+  }
+
+  else if (m.scores_home != null && m.scores_away != null) {
+    score = `${m.scores_home} - ${m.scores_away}`;
+  }
+
 }
 
 // วอลเลย์
