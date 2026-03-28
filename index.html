@@ -290,13 +290,18 @@ background:red;
      data-url="https://nongakka.github.io/doofree/ball66.html"
      data-type="page">DOOBALL66
 </div>   
+<div style="margin-top:10px; font-size:14px; color:#aaa; padding-left:5px;">
+ ตารางการแข่งขัน
+</div>
+
 <div class="menu-link"
      data-url="https://nongakka.github.io/doofree/live66.html"
-     data-type="page">ตารางแข่ง Ball66
+     data-type="page">Ball66
 </div>   
+
 <div class="menu-link"
      data-url="https://nongakka.github.io/doofree/DKL.html"
-     data-type="page">ตารางแข่ง DKL
+     data-type="page">DKL
 </div>   
 </div>
 
@@ -480,7 +485,7 @@ links.forEach(link=>{
         }
 
     }
-    localStorage.setItem("activeMenu", link.dataset.url);
+    
     links.forEach(l=>l.classList.remove("active"));
     link.classList.add("active");
     link.scrollIntoView({block:"center"});
@@ -520,29 +525,7 @@ mobileToggle.addEventListener("click",()=>{
   sidebar.classList.toggle("hidden");
 });
 
-// ⭐ restore menu highlight แบบไม่เปิด submenu
-window.addEventListener("load", () => {
 
-  const saved = localStorage.getItem("activeMenu");
-
-  if(!saved) return;  // ถ้าไม่มีค่า อย่าเปิดเมนูใดๆ
-
-  links.forEach(link => {
-    if(link.dataset.url === saved){
-      // ไฮไลท์เฉพาะลิงก์
-      link.classList.add("active");
-      link.scrollIntoView({block:"center"});
-
-      // ไม่เปิด submenu
-      const menu = link.closest(".submenu");
-      if(menu){
-        const title = menu.previousElementSibling;
-        if(title) title.classList.add("active-title"); // ไฮไลท์ title แต่ไม่เปิด
-      }
-    }
-  });
-
-});
 
 const favs=document.querySelectorAll(".fav-channel");
 const floatPlayer=document.getElementById("floatingPlayer");
