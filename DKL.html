@@ -114,7 +114,7 @@ function findStream(channelName) {
 
 // 🔥 โหลดลีก
 async function loadLeagues() {
-  const res = await fetch("https://corsproxy.io/?https://liveplayback.net/api/leagues");
+  const res = await fetch("https://liveplayback.net/api/leagues");
   const data = await res.json();
 
   const bar = document.getElementById("leagueBar");
