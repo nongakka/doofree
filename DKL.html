@@ -124,31 +124,42 @@ async function loadPlaylist() {
 function normalize(str) {
   return (str || "")
     .toLowerCase()
+
+    // 🔥 ลบคำคุณภาพ
+    .replace(/4k|uhd|fhd|hd|sd|720p?|1080p?/g, "")
+
+    // 🔥 ลบ -01 _01
+    .replace(/[-_]\d+/g, "")
+
+    // 🔥 ลบคำทั่วไป
+    .replace(/sports?|channel|tv/g, "")
+
+    // 🔥 ลบ symbol + space
     .replace(/[^a-z0-9]/g, "");
 }
-
 function findStream(channelName) {
   if (!channelName || PLAYLIST.length === 0) return null;
 
   const cleanChannel = normalize(channelName);
 
-  return PLAYLIST.find(p => {
+  let best = null;
+  let bestLen = 0;
+
+  for (const p of PLAYLIST) {
     const cleanTitle = normalize(p.title);
 
-    // ✅ ตรงแบบ contains
-    if (cleanTitle.includes(cleanChannel)) return true;
-    if (cleanChannel.includes(cleanTitle)) return true;
+    if (cleanTitle.includes(cleanChannel) || cleanChannel.includes(cleanTitle)) {
 
-    // ✅ กัน bein1 vs bein
-    const numChannel = cleanChannel.match(/\d+/)?.[0];
-    const numTitle = cleanTitle.match(/\d+/)?.[0];
+      const len = Math.min(cleanTitle.length, cleanChannel.length);
 
-    if (numChannel && numTitle) {
-      return cleanChannel.includes(numTitle) || cleanTitle.includes(numChannel);
+      if (len > bestLen) {
+        best = p;
+        bestLen = len;
+      }
     }
+  }
 
-    return false;
-  });
+  return best;
 }
 
 function detectSportFromTitle(title) {
