@@ -359,12 +359,12 @@ const res = await fetch(url);
 const data = await res.json();
     let grouped = {};
 
-// 🟢 ฟุตบอล (เหมือนเดิม)
+// 🟢 ฟุตบอล
 if (selectedSport === "football") {
   grouped = data;
 }
 
-// 🟡 กีฬา events ทั้งหมด (basketball / tennis / golf / other)
+// 🟡 events (บาส / เทนนิส / กอล์ฟ / other)
 else if (selectedSport !== "football" && selectedSport !== "volleyball") {
 
   data.forEach(e => {
@@ -373,25 +373,7 @@ else if (selectedSport !== "football" && selectedSport !== "volleyball") {
 
     const sportType = detectSportFromTitle(e.title);
 
-    // ✅ filter ตาม tab
     if (sportType !== selectedSport) return;
-
-    const date = e.start.split(" ")[0];
-
-    if (!grouped[date]) grouped[date] = [];
-    grouped[date].push(e);
-  });
-}
-
-  data.forEach(e => {
-
-    if (!e.event_id || !e.start) return;
-
-    // ✅ เพิ่มตรงนี้
-    const sportType = detectSportFromTitle(e.title);
-
-    // ❗ เอาเฉพาะ other จริงๆ
-    if (sportType !== "other") return;
 
     const date = e.start.split(" ")[0];
 
@@ -405,7 +387,6 @@ else if (selectedSport === "volleyball") {
 
   data.data?.forEach(e => {
 
-    // ✅ ต้องเป็นวอลเลย์จริง
     if (!e.fixture_id || !e.event_time) return;
 
     const date = e.event_time.split(" ")[0];
@@ -415,7 +396,7 @@ else if (selectedSport === "volleyball") {
   });
 }
 
-// 👉 เอา key มาเป็น date tabs
+ key มาเป็น date tabs
 const dates = Object.keys(grouped).sort();
 renderDateTabs(dates);
     const container = document.getElementById("matches");
