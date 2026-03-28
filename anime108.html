@@ -627,7 +627,8 @@ style="padding:6px 10px;border:none;border-radius:6px;background:#2196f3;color:#
 <iframe id="iframePlayer"
         style="display:none;width:100%;height:100%;border:none;"
         allowfullscreen
-        allow="autoplay">
+        allow="autoplay; fullscreen"
+        referrerpolicy="no-referrer">
 </iframe>
 
 </div>
@@ -1407,7 +1408,7 @@ if(oldVideo){
 
 const iframe = document.getElementById("iframePlayer");
 if(iframe){
-    iframe.src = "about:blank";
+    iframe.src = "";
     iframe.style.display = "none";
 }
 
@@ -1457,6 +1458,31 @@ function playStream(channel){
     overlay.classList.add("active");
     playerContainer.classList.add("active");
     resetPlayers();
+
+// 🔥 [วางตรงนี้]
+if(
+    channel.url.includes("108player.com") ||
+    channel.url.includes(".php") ||
+    channel.url.includes("embed") ||
+    channel.url.includes("player")
+){
+
+    setPlayerLabel("Iframe");
+
+    video.style.display = "none";
+    document.getElementById("jw-player").style.display = "none";
+
+    const iframe = document.getElementById("iframePlayer");
+    iframe.style.display = "block";
+
+    iframe.src = "";
+    setTimeout(()=>{
+        iframe.src = channel.url;
+    },100);
+
+    return;
+}
+
 
     if(!channel.url && channel.urls){
     channel.url = channel.urls[0];
