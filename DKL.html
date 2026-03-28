@@ -342,16 +342,45 @@ else if (selectedSport === "other") {
 
 const res = await fetch(url);
 const data = await res.json();
-    const dates = Object.keys(data);
-    renderDateTabs(dates);
+    let grouped = {};
+
+// 🟢 ฟุตบอล (เหมือนเดิม)
+if (selectedSport === "football") {
+  grouped = data;
+}
+
+// 🟡 กีฬาอื่น
+else if (selectedSport === "other") {
+  data.forEach(e => {
+    const time = e.event_time || e.start;
+if (!time) return;
+
+const date = time.split(" ")[0];
+    if (!grouped[date]) grouped[date] = [];
+    grouped[date].push(e);
+  });
+}
+
+// 🟣 วอลเลย์
+else if (selectedSport === "volleyball") {
+  data.data?.forEach(e => {
+    const date = e.event_time?.split(" ")[0];
+    if (!grouped[date]) grouped[date] = [];
+    grouped[date].push(e);
+  });
+}
+
+// 👉 เอา key มาเป็น date tabs
+const dates = Object.keys(grouped);
+renderDateTabs(dates);
     const container = document.getElementById("matches");
     container.innerHTML = "";
 
-    for (const date in data) {
+   for (const date in grouped) {
 
   if (selectedDate && date !== selectedDate) continue;
 
-      let matches = data[date];
+      let matches = grouped[date];
 
       // filter ลีก
       if (selectedLeague) {
@@ -370,29 +399,47 @@ border border-blue-400/20 rounded-lg text-blue-200 font-medium">
   </h2>
 `;
 
-      matches.sort((a,b) => new Date(a.event_time) - new Date(b.event_time));
+     matches.sort((a,b) => {
+  const ta = new Date(a.event_time || a.start);
+  const tb = new Date(b.event_time || b.start);
+  return ta - tb;
+});
 
       matches.forEach(m => {
         const stream = findStream(m.channel);
         const streamUrl = stream?.servers?.[0]?.url || "#";
         const streamLogo = stream?.logo || "";
-        const league = leaguesMap[m.league] || m.league_info;
-        const leagueLogo = league?.logo;
-        const leagueName = league?.name || league?.name_th;
+        const league = leaguesMap[m.league] || m.league_info || {};
+        const leagueLogo = league?.logo || m.thumbnail || "";
+        const leagueName = league?.name || league?.name_th || m.title || "กิจกรรม";
         
-        const home = m.teamhome?.name_th || m.teamhome?.name || "-";
-        const away = m.teamaway?.name_th || m.teamaway?.name || "-";
+        const home = m.teamhome?.name_th || m.teamhome?.name || m.title || "-";
+        const away = m.teamaway?.name_th || m.teamaway?.name || "";
 
-        const homeLogo = m.teamhome?.logo || "";
+        const homeLogo = m.teamhome?.logo || m.thumbnail || "";
         const awayLogo = m.teamaway?.logo || "";
 
-        const score = (m.goals_home !== null)
-          ? `${m.goals_home} - ${m.goals_away}`
-          : "? - ?";
-        const time = formatThaiTime(m.event_time);
+        let score = "";
+
+// ฟุตบอล
+if (m.goals_home !== undefined) {
+  score = `${m.goals_home} - ${m.goals_away}`;
+}
+
+// วอลเลย์
+else if (m.scores_home !== undefined) {
+  score = `${m.scores_home} - ${m.scores_away}`;
+}
+
+// events
+else {
+  score = "";
+}
+        const rawTime = m.event_time || m.start;
+const time = formatThaiTime(rawTime);
 
         // 🔥 สถานะ + สี
-        let status = m.status_short;
+        let status = m.status_short || "NS";
         let bg = "bg-gray-800";
         let badge = "";
         let minute = "";
