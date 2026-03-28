@@ -352,10 +352,13 @@ if (selectedSport === "football") {
 // 🟡 กีฬาอื่น
 else if (selectedSport === "other") {
   data.forEach(e => {
-    const time = e.event_time || e.start;
-if (!time) return;
 
-const date = time.split(" ")[0];
+    if (!e.start) return; // กันข้อมูลผิด
+
+    const time = e.start; // ✅ FIX ตรงนี้
+
+    const date = time.split(" ")[0];
+
     if (!grouped[date]) grouped[date] = [];
     grouped[date].push(e);
   });
