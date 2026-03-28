@@ -162,18 +162,6 @@ function findStream(channelName) {
   return best;
 }
 
-function detectSportFromTitle(title) {
-  const t = title || "";
-
-  if (t.includes("⚽")) return "football";
-  if (t.includes("🏐")) return "volleyball";
-  if (t.includes("🏀")) return "basketball";
-  if (t.includes("🎾")) return "tennis";
-  if (t.includes("⛳")) return "golf";
-
-  // 👉 กีฬาอื่นทั้งหมด
-  return "other";
-}
 // 🔥 โหลดลีก
 async function loadLeagues() {
   const res = await fetch("https://liveplayback.net/api/leagues");
@@ -239,11 +227,9 @@ function renderSportTabs() {
 
   const sports = [
   { id: "football", name: "⚽ ฟุตบอล" },
-  { id: "volleyball", name: "🏐 วอลเลย์" },
-  { id: "basketball", name: "🏀 บาส" },
-  { id: "tennis", name: "🎾 เทนนิส" },
-  { id: "golf", name: "⛳ กอล์ฟ" },
-  { id: "other", name: "🎯 อื่นๆ" }
+  { id: "volleyball", name: "🏐 วอลเลย์บอล" },
+  { id: "other", name: "🎯 กีฬาอื่นๆ" }
+
 ];
 
   tab.innerHTML = "";
@@ -379,10 +365,10 @@ else {
   url = "https://liveplayback.net/api/events";
 }
 
-
 const res = await fetch(url);
 const data = await res.json();
-    let grouped = {};
+
+let grouped = {};
 
 // 🟢 ฟุตบอล
 if (selectedSport === "football") {
@@ -390,19 +376,11 @@ if (selectedSport === "football") {
 }
 
 // 🟡 events (บาส / เทนนิส / กอล์ฟ / other)
-else if (selectedSport !== "football" && selectedSport !== "volleyball") {
+else {
 
   data.forEach(e => {
 
-    if (!e.event_id || !e.start) return;
-
-    const sportType = detectSportFromTitle(e.title);
-
-    if (selectedSport === "other") {
-  if (sportType === "football") return;
-} else {
-  if (sportType !== selectedSport) return;
-}
+    if (!e.start) return;
 
     const date = e.start.split(" ")[0];
 
@@ -414,39 +392,14 @@ else if (selectedSport !== "football" && selectedSport !== "volleyball") {
 // 🟣 วอลเลย์
 else if (selectedSport === "volleyball") {
 
-  // 🔥 1. โหลด volleyball API
-  let volleyData = [];
-  if (url.includes("volleyball")) {
-    volleyData = (data.data || data);
-  }
+  (data.data || []).forEach(m => {
 
-  // 🔥 2. โหลด events API เพิ่ม
-  let eventRes = await fetch("https://liveplayback.net/api/events");
-  let eventData = await eventRes.json();
+    if (!m.event_time) return;
 
-  // 🔥 filter เอาเฉพาะ 🏐
-  const volleyEvents = eventData.filter(e => {
-    return detectSportFromTitle(e.title) === "volleyball";
-  });
-
-  // 🔥 3. รวมข้อมูล
-  const all = [...volleyData, ...volleyEvents];
-
-  // 🔥 4. จัดกลุ่ม
-  all.forEach(e => {
-
-    const time =
-      e.event_time ||
-      e.start ||
-      e.start_time ||
-      e.time;
-
-    if (!time) return;
-
-    const date = time.split(" ")[0];
+    const date = m.event_time.split(" ")[0];
 
     if (!grouped[date]) grouped[date] = [];
-    grouped[date].push(e);
+    grouped[date].push(m);
   });
 }
 
