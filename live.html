@@ -495,6 +495,30 @@ function checkImage(url){
     });
 }
 
+function getValidLogo(servers){
+    if(!servers || !servers.length) return "";
+
+    const BAD_LOGO = "https://i.ibb.co/L8y25Wd/sports-icon.png";
+
+    for(const s of servers){
+        if(!s.image) continue;
+
+        const img = s.image.trim();
+
+        // ❌ ข้าม placeholder
+        if(img === BAD_LOGO) continue;
+
+        // ❌ กันพวก error image
+        if(img.includes("imgbb.com") || img.includes("no-image")) continue;
+
+        // ✅ ใช้ได้
+        if(img.startsWith("http")){
+            return img;
+        }
+    }
+
+    return "";
+}
 
 /* LOAD */
 async function load(){
@@ -730,12 +754,8 @@ async function render(){
             const card = document.createElement("div");
             card.className="card";
 
-            const mainLogo = m.servers?.[0]?.image || "";
-
-// 🔥 ตัดพวก placeholder ออก
-const isBadLogo = mainLogo.includes("imgbb.com") || mainLogo.includes("no-image");
-
-const showLogo = mainLogo && mainLogo.startsWith("http") && !isBadLogo;
+            const mainLogo = getValidLogo(m.servers);
+            const showLogo = !!mainLogo;
 
             card.innerHTML = `
                 <div class="bg"></div>
