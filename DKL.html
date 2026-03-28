@@ -409,11 +409,12 @@ else if (selectedSport !== "football" && selectedSport !== "volleyball") {
 // 🟣 วอลเลย์
 else if (selectedSport === "volleyball") {
 
-  data.data?.forEach(e => {
+  (data.data || data).forEach(e => {
 
-    if (!e.fixture_id || !e.event_time) return;
+    const time = e.event_time || e.start_time || e.time;
+    if (!time) return;
 
-    const date = e.event_time.split(" ")[0];
+    const date = time.split(" ")[0];
 
     if (!grouped[date]) grouped[date] = [];
     grouped[date].push(e);
