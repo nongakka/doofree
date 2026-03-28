@@ -378,7 +378,9 @@ if (selectedSport === "football") {
 // 🟣 วอลเลย์
 else if (selectedSport === "volleyball") {
 
-  (data.data || []).forEach(m => {
+  const list = Array.isArray(data) ? data : (data.data || []);
+
+  list.forEach(m => {
 
     if (!m.event_time) return;
 
