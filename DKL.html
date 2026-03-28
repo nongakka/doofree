@@ -162,7 +162,7 @@ function findStream(channelName) {
   return best;
 }
 
-function detectSportFromTitle(title) {
+ffunction detectSportFromTitle(title) {
   const t = title || "";
 
   if (t.includes("⚽")) return "football";
@@ -171,8 +171,9 @@ function detectSportFromTitle(title) {
   if (t.includes("🎾")) return "tennis";
   if (t.includes("⛳")) return "golf";
 
+  // 👉 กีฬาอื่นทั้งหมด
   return "other";
-}  
+}
 // 🔥 โหลดลีก
 async function loadLeagues() {
   const res = await fetch("https://liveplayback.net/api/leagues");
@@ -397,7 +398,11 @@ else if (selectedSport !== "football" && selectedSport !== "volleyball") {
 
     const sportType = detectSportFromTitle(e.title);
 
-    if (sportType !== selectedSport) return;
+    if (selectedSport === "other") {
+  if (sportType === "football") return;
+} else {
+  if (sportType !== selectedSport) return;
+}
 
     const date = e.start.split(" ")[0];
 
