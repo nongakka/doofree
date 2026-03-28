@@ -477,32 +477,87 @@ if (selectedSport !== "football" && selectedSport !== "volleyball") {
   return; // 🔴 สำคัญ
 }
 
-  // 🟣 วอลเลย์
+// 🟣 วอลเลย์
 if (selectedSport === "volleyball") {
 
   const home = m.teamhome?.name || "-";
   const away = m.teamaway?.name || "-";
+
+  const homeLogo = m.teamhome?.logo || "";
+  const awayLogo = m.teamaway?.logo || "";
+
+  const league = m.league_info || {};
+  const leagueLogo = league.logo || "";
+  const leagueName = league.name || "Volleyball";
+
   const score =
-  (m.scores_home != null && m.scores_away != null)
-    ? `${m.scores_home} - ${m.scores_away}`
-    : "? - ?";
+    (m.scores_home != null && m.scores_away != null)
+      ? `${m.scores_home} - ${m.scores_away}`
+      : "VS";
+
   const time = formatThaiTime(m.event_time);
 
+  const status = m.status_short || "NS";
+
+  const badge =
+    status === "NS"
+      ? getCountdown(m.event_time)
+      : status === "FT"
+      ? "จบ"
+      : status;
+
   container.innerHTML += `
-    <div class="bg-gray-800 rounded-xl p-4">
+    <div class="bg-gray-800 rounded-xl p-4 flex flex-col gap-2">
 
-      <div class="text-xs text-gray-400 mb-2">${time}</div>
+      <!-- 🔥 ลีก -->
+      <div class="flex items-center gap-2 text-xs text-gray-300">
+        ${leagueLogo 
+          ? `<img src="${leagueLogo}" class="w-5 h-5">` 
+          : ""
+        }
+        <span>${leagueName}</span>
+      </div>
 
-      <div class="flex justify-between">
-        <span>${home}</span>
-        <span class="text-green-400 font-bold">${score}</span>
-        <span>${away}</span>
+      <!-- เวลา -->
+      <div class="text-xs text-gray-400">${time}</div>
+
+      <!-- 🔥 ทีม -->
+      <div class="flex items-center justify-between">
+
+        <!-- ทีมเหย้า -->
+        <div class="flex items-center gap-2 flex-1">
+          ${homeLogo 
+            ? `<img src="${homeLogo}" class="w-6 h-6">` 
+            : ""
+          }
+          <span class="text-sm">${home}</span>
+        </div>
+
+        <!-- score -->
+        <div class="px-2 shrink-0 text-green-400 font-bold">
+          ${score}
+        </div>
+
+        <!-- ทีมเยือน -->
+        <div class="flex items-center gap-2 flex-1 justify-end text-right">
+          <span class="text-sm">${away}</span>
+          ${awayLogo 
+            ? `<img src="${awayLogo}" class="w-6 h-6">` 
+            : ""
+          }
+        </div>
+
+      </div>
+
+      <!-- 🔥 สถานะ -->
+      <div class="text-xs text-blue-400 text-center">
+        ${badge}
       </div>
 
     </div>
   `;
 
-  return; // 🔴 สำคัญ
+  return;
 }
         
         const stream = findStream(m.channel);
