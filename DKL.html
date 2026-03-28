@@ -192,13 +192,12 @@ function formatThaiTime(dateStr) {
   
 function formatThaiDate(dateStr) {
   const d = new Date(dateStr);
-
   if (isNaN(d)) return dateStr;
 
-  return d.toLocaleDateString("th-TH", {
-    weekday: "short",
+  return d.toLocaleDateString("th-TH-u-ca-buddhist", {
+    weekday: "long",
     day: "numeric",
-    month: "short",
+    month: "long",
     year: "numeric"
   });
 }
@@ -244,11 +243,11 @@ async function loadMatches() {
       if (matches.length === 0) continue;
 
       // หัววันที่
-      container.innerHTML += `
-        <h2 class="col-span-full text-lg mt-4 mb-2 text-yellow-400">
-          📅 ${date}
-        </h2>
-      `;
+   container.innerHTML += `
+  <h2 class="col-span-full text-lg mt-4 mb-2 text-yellow-400">
+    📅 ${formatThaiDate(date)}
+  </h2>
+`;
 
       matches.sort((a,b) => new Date(a.event_time) - new Date(b.event_time));
 
