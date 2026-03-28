@@ -36,6 +36,11 @@
     class="flex gap-4 overflow-x-auto px-2 pb-2">
   </div>
 
+ <div id="dateTabs"
+  class="flex gap-2 overflow-x-auto px-3 py-2 mt-2
+  bg-slate-800/60 backdrop-blur rounded-xl border border-white/5 shadow">
+</div>
+  
 </div> <!-- ✅ ปิด header ตรงนี้ -->
 
 <!-- 🔥 แมตช์ -->
@@ -77,14 +82,21 @@
 .league-active img {
   filter: drop-shadow(0 0 8px rgba(255,180,100,0.9));
 }
-
+.date-tab {
+  transition: 0.2s;
+}
+.date-tab:hover {
+  background: #3b82f6;
+  color: white;
+}
   
 </style>
 <script>
 let selectedLeague = null;
 let leaguesMap = {};
 let PLAYLIST = [];
-
+let selectedDate = null;
+  
 async function loadPlaylist() {
   try {
     const res = await fetch("https://raw.githubusercontent.com/nongakka/shortmovie/main/playlist.json");
@@ -171,7 +183,41 @@ function selectLeague(id, el) {
 
   loadMatches();
 }
-  
+
+function renderDateTabs(dates) {
+  const tab = document.getElementById("dateTabs");
+  tab.innerHTML = "";
+
+  dates.forEach(d => {
+    tab.innerHTML += `
+      <button onclick="selectDate('${d}', this)"
+        class="date-tab px-3 py-1.5 rounded-lg text-xs
+bg-slate-700/60 text-slate-200 border border-white/5
+hover:bg-blue-500 hover:text-white transition
+        ${formatThaiDate(d)}
+      </button>
+    `;
+  });
+
+  if (!selectedDate && dates.length > 0) {
+    selectedDate = dates[0];
+  }
+}
+
+function selectDate(date, el) {
+  selectedDate = date;
+
+  document.querySelectorAll(".date-tab").forEach(b => {
+    b.classList.remove("bg-blue-600", "text-white");
+    b.classList.add("bg-slate-700/60", "text-slate-200");
+  });
+
+  el.classList.remove("bg-white/10", "text-slate-300");
+ el.classList.add("bg-blue-500", "text-white", "shadow");
+
+  loadMatches();
+}
+
 function formatThaiTime(dateStr) {
   if (!dateStr) return "-";
 
@@ -227,11 +273,14 @@ async function loadMatches() {
   try {
     const res = await fetch("https://liveplayback.net/api/fixtures/date");
     const data = await res.json();
-
+    const dates = Object.keys(data);
+    renderDateTabs(dates);
     const container = document.getElementById("matches");
     container.innerHTML = "";
 
     for (const date in data) {
+
+  if (selectedDate && date !== selectedDate) continue;
 
       let matches = data[date];
 
