@@ -278,7 +278,26 @@ background:red;
 .menu-section span{
   text-shadow:0 0 8px rgba(0,229,255,0.7);
 }
+.menu-link{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:8px;
+  border-radius:10px;
+}
 
+.menu-link img{
+  width:100%;
+  max-width:120px;
+  height:40px;
+  object-fit:contain;
+  filter:drop-shadow(0 0 6px rgba(255,255,255,0.3));
+  transition:0.3s;
+}
+
+.menu-link:hover img{
+  transform:scale(1.1);
+}
 
 </style>
 </head>
@@ -368,25 +387,37 @@ background:red;
     
 <div class="menu-link"
      data-url="https://nongakka.github.io/doofree/flixmono.html"
-     data-type="page">Flixmono
+     data-type="page">
+     <img src="https://flixmono.com/wp-content/uploads/2025/05/cropped-F.png">
+
 </div>
+
 <div class="menu-link"
      data-url="https://nongakka.github.io/doofree/seriesday.html"
-     data-type="page">Series Day
+     data-type="page">
+     <img src="https://www.serie-days.com/wp-content/uploads/2023/02/seriesday-logo.png">
+
 </div>
 
 <div class="menu-link"
      data-url="https://nongakka.github.io/doofree/goseries4k.html"
-     data-type="page">GoSeries4K
+     data-type="page">
+     <img src="https://goseries4k.com/wp-content/uploads/2025/03/cropped-cropped-logo-2-2-1.png">
+
 </div>
+
 <div class="menu-link"
      data-url="https://nongakka.github.io/doofree/myseries.html"
-     data-type="page">MySeriesHD
+     data-type="page">
+     <img src="https://myserieshd.com/wp-content/uploads/2025/05/logo1-2.webp">
+
 </div>
 
 <div class="menu-link"
      data-url="https://nongakka.github.io/doofree/wlk.html"
-     data-type="page">Wathclakorn
+     data-type="page">
+     <img src="https://cdn.watchlakorn.net/images/video_logo.png">
+
 </div>
 </div>
   
