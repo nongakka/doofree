@@ -119,6 +119,10 @@ body{
     align-items:center;
     gap:12px;
     margin-top:10px;
+
+    background:rgba(0,0,0,0.35);   /* 🔥 พื้นหลัง */
+    padding:6px;
+    border-radius:10px;
 }
 
 .team{
@@ -130,17 +134,27 @@ body{
 }
 
 .team span{
-    font-size:11px;
+    font-size:13px;              /* 🔥 ใหญ่ขึ้น */
+    font-weight:700;             /* 🔥 หนาขึ้น */
+    color:#ffffff;               /* 🔥 ขาวชัด */
     text-align:center;
-    white-space:nowrap;
+
+    text-shadow:
+        0 0 6px rgba(0,0,0,0.9),
+        0 0 12px rgba(0,0,0,0.7); /* 🔥 กันจม */
+
+    display:-webkit-box;
+    -webkit-line-clamp:2;
+    -webkit-box-orient:vertical;
     overflow:hidden;
-    text-overflow:ellipsis;
 }
 
 /* VS */
 .vs{
-    font-size:12px;
-    opacity:.6;
+    font-size:13px;
+    font-weight:bold;
+    color:#00e5ff; /* 🔥 สีสด */
+    text-shadow:0 0 8px rgba(0,229,255,0.8);
 }
 
 /* SERVERS */
