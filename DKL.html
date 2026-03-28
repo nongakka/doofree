@@ -213,10 +213,13 @@ function renderSportTabs() {
   const tab = document.getElementById("sportTabs");
 
   const sports = [
-    { id: "football", name: "⚽ ฟุตบอล" },
-    { id: "volleyball", name: "🏐 วอลเลย์" },
-    { id: "other", name: "🏀 กีฬาอื่น" }
-  ];
+  { id: "football", name: "⚽ ฟุตบอล" },
+  { id: "volleyball", name: "🏐 วอลเลย์" },
+  { id: "basketball", name: "🏀 บาส" },
+  { id: "tennis", name: "🎾 เทนนิส" },
+  { id: "golf", name: "⛳ กอล์ฟ" },
+  { id: "other", name: "🎯 อื่นๆ" }
+];
 
   tab.innerHTML = "";
 
@@ -346,10 +349,11 @@ if (selectedSport === "football") {
 }
 else if (selectedSport === "volleyball") {
   url = "https://liveplayback.net/api/volleyball/fixtures";
-}  
-else if (selectedSport === "other") {
+}
+else {
   url = "https://liveplayback.net/api/events";
 }
+
 
 const res = await fetch(url);
 const data = await res.json();
@@ -360,8 +364,24 @@ if (selectedSport === "football") {
   grouped = data;
 }
 
-// 🟡 กีฬาอื่น
-else if (selectedSport === "other") {
+// 🟡 กีฬา events ทั้งหมด (basketball / tennis / golf / other)
+else if (selectedSport !== "football" && selectedSport !== "volleyball") {
+
+  data.forEach(e => {
+
+    if (!e.event_id || !e.start) return;
+
+    const sportType = detectSportFromTitle(e.title);
+
+    // ✅ filter ตาม tab
+    if (sportType !== selectedSport) return;
+
+    const date = e.start.split(" ")[0];
+
+    if (!grouped[date]) grouped[date] = [];
+    grouped[date].push(e);
+  });
+}
 
   data.forEach(e => {
 
@@ -434,7 +454,7 @@ border border-blue-400/20 rounded-lg text-blue-200 font-medium">
       matches.forEach(m => {
 
         // 🟡 กีฬาอื่น (events)
-if (selectedSport === "other") {
+if (selectedSport !== "football" && selectedSport !== "volleyball") {
 
   const time = m.start;
   const thumb = m.thumbnail;
