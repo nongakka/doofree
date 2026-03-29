@@ -934,23 +934,72 @@ function parseJSONPlaylist(data, playlistName, combineSeries=false){
     let channels = [];
 
 if(combineSeries && typeof data === "object" && !Array.isArray(data)){
-    Object.keys(data).forEach(seriesName=>{
-        const episodes = data[seriesName];
-        if(!Array.isArray(episodes)) return;
 
-        channels.push({
-            title: seriesName,
-            group: episodes[0]?.category || playlistName,
-            logo: episodes[0]?.poster || "",
-            episodes: episodes.map(ep=>({
-                title: ep.title || ep.name || "ไม่ทราบชื่อ",
-                url: ep.url,
-                poster: ep.poster || "",
-                page: ep.page || ""
-            }))
-        });
+    Object.keys(data).forEach(seriesName => {
+
+    const episodes = data[seriesName];
+    if(!Array.isArray(episodes)) return;
+
+    let baseName = seriesName;
+
+    // 🔥 ลบปี/EP/SS ออกจากชื่อหลัก
+    baseName = baseName
+        .replace(/(19|20)\d{2}/, "")
+        .replace(/SS\s*\d+/i, "")
+        .replace(/EP\.?\s*\d+/i, "")
+        .replace(/ตอนที่\s*\d+/, "")
+        .trim();
+
+    // 🔥 แยก episode ตามปี
+    let groupedByYear = {};
+
+    episodes.forEach(ep => {
+        
+        const yearMatch = (ep.title || "").match(/\d{4}/);
+
+let year = "no_year";
+
+if(yearMatch){
+
+    let y = parseInt(yearMatch[0]);
+
+    // 🔥 ถ้าเป็น พ.ศ. (> 2400) → แปลงเป็น ค.ศ.
+    if(y > 2400){
+        y = y - 543;
+    }
+
+    year = y.toString();
+}
+        if(!groupedByYear[year]){
+            groupedByYear[year] = [];
+        }
+
+        groupedByYear[year].push(ep);
     });
 
+    // 🔥 สร้าง series
+    Object.keys(groupedByYear)
+    .sort((a,b)=>{
+        if(a === "no_year") return 1;
+        if(b === "no_year") return -1;
+        return b - a;
+    })
+    .forEach(year => {
+
+        const title = (year !== "no_year")
+            ? `${baseName} (${year})`
+            : baseName;   // ✅ ไม่มีปี = ไม่ต่ออะไร
+
+        channels.push({
+            title: title,
+            group: episodes[0]?.category || playlistName,
+            logo: episodes[0]?.poster || "",
+            episodes: groupedByYear[year]
+        });
+
+    });
+
+});
     return channels;
 }
 
@@ -1197,9 +1246,9 @@ function renderGrid(){
     const keyword=document.getElementById("searchInput").value.toLowerCase();
 
     const filtered = allChannels.filter(c=>{
-        return (!currentCategory || c.group===currentCategory)
-        && c.title.toLowerCase().includes(keyword);
-    });
+    return (!currentCategory || (c.group || "").trim() === (currentCategory || "").trim())
+    && c.title.toLowerCase().includes(keyword);
+});
 
     if(filtered.length === 0){
         grid.innerHTML = `
