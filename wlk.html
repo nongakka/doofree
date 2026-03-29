@@ -933,6 +933,64 @@ function parseJSONPlaylist(data, playlistName, combineSeries=false){
 
     let channels = [];
 
+function getLatestEpisodeTime(episodes){
+    let latest = 0;
+
+    episodes.forEach(ep => {
+        const match = (ep.title || "").match(
+/(\d{1,2})\s*(มกราคม|กุมภาพันธ์|มีนาคม|เมษายน|พฤษภาคม|มิถุนายน|กรกฎาคม|สิงหาคม|กันยายน|ตุลาคม|พฤศจิกายน|ธันวาคม)\s*(\d{4})/
+);
+
+        if(match){
+            const day = parseInt(match[1]);
+            const monthTH = match[2];
+            let year = parseInt(match[3]);
+
+            if(year > 2500) year -= 543;
+
+            const months = {
+                "มกราคม":0,"กุมภาพันธ์":1,"มีนาคม":2,"เมษายน":3,
+                "พฤษภาคม":4,"มิถุนายน":5,"กรกฎาคม":6,"สิงหาคม":7,
+                "กันยายน":8,"ตุลาคม":9,"พฤศจิกายน":10,"ธันวาคม":11
+            };
+
+            const month = months[monthTH];
+
+            if(month !== undefined){
+                const time = new Date(year, month, day).getTime();
+                if(time > latest) latest = time;
+            }
+        }
+    });
+
+    return latest;
+}
+
+// 🔥 รวม series ที่ชื่อคล้ายกัน
+let mergedData = {};
+
+Object.keys(data).forEach(seriesName => {
+
+    let baseName = seriesName
+        .replace(/\(?\d{4}\)?/g, "")
+        .replace(/SS\s*\d+/gi, "")
+        .replace(/EP\.?\s*\d+/gi, "")
+        .replace(/ตอนที่\s*\d+/g, "")
+        .replace(/ตอนจบ/g, "")
+        .replace(/\(\s*\)/g, "")
+        .replace(/\s{2,}/g, " ")
+        .trim();
+
+    if(!mergedData[baseName]){
+        mergedData[baseName] = [];
+    }
+
+    mergedData[baseName] = mergedData[baseName].concat(data[seriesName]);
+});
+
+// 🔥 ใช้ mergedData แทน data
+data = mergedData;
+
 if(combineSeries && typeof data === "object" && !Array.isArray(data)){
 
     Object.keys(data).forEach(seriesName => {
@@ -944,32 +1002,37 @@ if(combineSeries && typeof data === "object" && !Array.isArray(data)){
 
     // 🔥 ลบปี/EP/SS ออกจากชื่อหลัก
     baseName = baseName
-        .replace(/(19|20)\d{2}/, "")
-        .replace(/SS\s*\d+/i, "")
-        .replace(/EP\.?\s*\d+/i, "")
-        .replace(/ตอนที่\s*\d+/, "")
-        .trim();
+    .replace(/\(?\d{4}\)?/g, "")     // 🔥 ลบปีทั้งหมด
+    .replace(/SS\s*\d+/gi, "")
+    .replace(/EP\.?\s*\d+/gi, "")
+    .replace(/ตอนที่\s*\d+/g, "")
+    .replace(/ตอนจบ/g, "")
+    .replace(/\(\s*\)/g, "")         // 🔥 ลบ () เปล่า
+    .replace(/\s{2,}/g, " ")         // 🔥 ลบ space ซ้อน
+    .trim();
 
     // 🔥 แยก episode ตามปี
     let groupedByYear = {};
 
     episodes.forEach(ep => {
         
-        const yearMatch = (ep.title || "").match(/\d{4}/);
+        const matches = [...(ep.title || "").matchAll(/\d{4}/g)];
 
 let year = "no_year";
 
-if(yearMatch){
+if(matches.length > 0){
 
-    let y = parseInt(yearMatch[0]);
+    let y = parseInt(matches[matches.length - 1][0]); // ✅ เอาปี "ตัวสุดท้าย"
 
-    // 🔥 ถ้าเป็น พ.ศ. (> 2400) → แปลงเป็น ค.ศ.
+    // ถ้าเป็น พ.ศ.
     if(y > 2400){
         y = y - 543;
     }
 
     year = y.toString();
 }
+
+
         if(!groupedByYear[year]){
             groupedByYear[year] = [];
         }
@@ -991,15 +1054,19 @@ if(yearMatch){
             : baseName;   // ✅ ไม่มีปี = ไม่ต่ออะไร
 
         channels.push({
-            title: title,
-            group: episodes[0]?.category || playlistName,
-            logo: episodes[0]?.poster || "",
-            episodes: groupedByYear[year]
-        });
+    title: title,
+    group: episodes[0]?.category || playlistName,
+    logo: episodes[0]?.poster || "",
+    episodes: groupedByYear[year],
+    latestTime: getLatestEpisodeTime(groupedByYear[year]) // 👈 เพิ่มบรรทัดนี้
+});
 
     });
 
 });
+
+channels.sort((a,b)=> b.latestTime - a.latestTime);
+
     return channels;
 }
 
