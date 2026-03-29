@@ -1243,7 +1243,44 @@ function renderSeriesEpisodes(series){
     grid.innerHTML = "";
 
     series.episodes
-.forEach(ep => {   // ใช้ตามลำดับ array ดั้งเดิม
+.sort((a, b) => {
+
+    const getDate = (str) => {
+
+        const match = str.match(/(\d+)\s*(มกราคม|กุมภาพันธ์|มีนาคม|เมษายน|พฤษภาคม|มิถุนายน|กรกฎาคม|กรกฏาคม|สิงหาคม|กันยายน|ตุลาคม|พฤศจิกายน|ธันวาคม|มกรา|กุมภา|มีนา|เมษา|พฤษภา|มิถุนา|กรกฎา|สิงหา|กันยา|ตุลา|พฤศจิกา|ธันวา)\s*(\d{4})/);
+
+        if (!match) return 0;
+
+        const day = parseInt(match[1]);
+        const monthName = match[2];
+        const year = parseInt(match[3]) - 543;
+
+        const months = {
+            "มกราคม":0,"มกรา":0,
+            "กุมภาพันธ์":1,"กุมภา":1,
+            "มีนาคม":2,"มีนา":2,
+            "เมษายน":3,"เมษา":3,
+            "พฤษภาคม":4,"พฤษภา":4,
+            "มิถุนายน":5,"มิถุนา":5,
+            "กรกฎาคม":6,"กรกฎา":6,
+            "กรกฏาคม":6,"กรกฏา":6,
+            "สิงหาคม":7,"สิงหา":7,
+            "กันยายน":8,"กันยา":8,
+            "ตุลาคม":9,"ตุลา":9,
+            "พฤศจิกายน":10,"พฤศจิกา":10,
+            "ธันวาคม":11,"ธันวา":11
+        };
+
+        return new Date(year, months[monthName], day).getTime();
+    };
+
+    const timeA = getDate(a.title || "");
+    const timeB = getDate(b.title || "");
+
+    return timeB - timeA; // ใหม่ → เก่า
+})
+
+.forEach(ep => {
         const card = document.createElement("div");
         card.className = "movie-card";
 
