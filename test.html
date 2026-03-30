@@ -1,31 +1,65 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <title>Anime Player</title>
+<meta charset="UTF-8">
+<title>Test Player</title>
 
-  <!-- ช่วยลดปัญหา referer -->
-  <meta name="referrer" content="no-referrer">
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
-  <style>
-    body {
-      margin: 0;
-      background: black;
-    }
-    iframe {
-      width: 100vw;
-      height: 100vh;
-      border: none;
-    }
-  </style>
+<style>
+body{
+    background:#000;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+    margin:0;
+}
+video{
+    width:80%;
+    max-width:900px;
+}
+</style>
 </head>
+
 <body>
 
-<iframe 
-  src="https://anime.tonytonychopper.net/v/TBRw1gJi"
-  allowfullscreen
-  allow="autoplay; fullscreen">
-</iframe>
+<video id="video" controls autoplay></video>
+
+<script>
+
+const video = document.getElementById("video");
+
+const url = "https://main.24playerhd.com/newplaylist/8dc5df20bcbd5b4f35489d03/2921.m3u8";
+
+// 🔥 proxy
+const proxy = "https://summer-recipe-da50.hssmnoy.workers.dev/?url=";
+const finalUrl = proxy + encodeURIComponent(url);
+
+if(Hls.isSupported()){
+
+    const hls = new Hls({
+        enableWorker:true,
+        lowLatencyMode:true
+    });
+
+    hls.loadSource(finalUrl);
+    hls.attachMedia(video);
+
+    hls.on(Hls.Events.MANIFEST_PARSED, function(){
+        video.play();
+    });
+
+    hls.on(Hls.Events.ERROR, function(e,data){
+        console.log("HLS ERROR:", data);
+    });
+
+}else if(video.canPlayType("application/vnd.apple.mpegurl")){
+    video.src = finalUrl;
+    video.play();
+}
+
+</script>
 
 </body>
 </html>
