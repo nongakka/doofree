@@ -787,11 +787,64 @@ const PLAYLISTS = [
 },
 {
     name: "DOOKEELA",
-    type: "json",
-    url: "https://raw.githubusercontent.com/nongakka/anime-auto/main/playlist.json",
+    type: "url",
+    url: "https://raw.githubusercontent.com/nongakka/anime-auto/main/playlist.m3u",
     
 },	
 ];
+
+function normalizePlaylist(data, playlistName){
+
+    let channels = [];
+
+    // =========================
+    // 🔥 แบบ object (series)
+    // =========================
+    if(typeof data === "object" && !Array.isArray(data)){
+        Object.keys(data).forEach(key=>{
+            const items = data[key];
+
+            if(!Array.isArray(items)) return;
+
+            items.forEach(item=>{
+                channels.push({
+                    title: item.title || item.name || key,
+                    group: item.category || key || playlistName,
+                    logo: item.poster || item.image || "",
+                    url: item.url || item.stream || "",
+                    servers: item.servers || [],
+                    urls: item.urls || (item.url ? [item.url] : [])
+                });
+            });
+        });
+
+        return channels;
+    }
+
+    // =========================
+    // 🔥 แบบ array
+    // =========================
+    if(Array.isArray(data)){
+
+        data.forEach(item=>{
+
+            channels.push({
+                title: item.title || item.name || "ไม่ทราบชื่อ",
+                group: item.group || item.category || playlistName,
+                logo: item.logo || item.poster || item.image || "",
+                url: item.url || item.stream || "",
+                servers: item.servers || [],
+                urls: item.urls || (item.url ? [item.url] : [])
+            });
+
+        });
+
+        return channels;
+    }
+
+    return channels;
+}
+
 
 function parseM3U(data, playlistName){
 
@@ -905,7 +958,7 @@ else if(pl.type==="json"){
 
     try{
         const data = JSON.parse(text);
-        channels = parseJSONPlaylist(data, pl.name, true); // ✅ combineSeries = true
+        channels = normalizePlaylist(data, pl.name); // ✅ combineSeries = true
     }catch(e){
         // ถ้าไม่ใช่ JSON → parse เป็น M3U
         channels = parseM3U(text, pl.name);
