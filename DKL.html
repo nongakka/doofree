@@ -113,9 +113,26 @@ let selectedSport = "football"; // football | other | volleyball
   
 async function loadPlaylist() {
   try {
-    const res = await fetch("https://raw.githubusercontent.com/nongakka/shortmovie/main/playlist.json");
-    PLAYLIST = await res.json();
+    const res = await fetch("https://raw.githubusercontent.com/nongakka/anime-auto/main/playlist.json");
+    const data = await res.json();
+
+    // 🔥 รองรับ format ใหม่ (channels)
+    if (data.channels) {
+      PLAYLIST = data.channels.map(c => ({
+        title: (c.id + " " + c.name),
+        logo: c.logo,
+        servers: (c.streams || []).map((url, i) => ({
+          name: "Server " + (i + 1),
+          url: url
+        }))
+      }));
+    } else {
+      // 🔥 format เก่า
+      PLAYLIST = data;
+    }
+
     console.log("✅ โหลด playlist แล้ว", PLAYLIST.length);
+
   } catch (e) {
     console.error("❌ โหลด playlist ไม่ได้", e);
   }
