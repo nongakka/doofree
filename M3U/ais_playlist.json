@@ -1,0 +1,241 @@
+{
+  "author": "AIS AUTO",
+  "updated": "2026-04-02T02:36:34.135Z",
+  "count": 39,
+  "stations": [
+    {
+      "name": "NBT 2 HD",
+      "vid": "5f9e908c12008d9caab3cf3b",
+      "logo": "https://ais-s.ais-vidnt.com/ais/play/origin/LIVE//channelicon/0001.png",
+      "url": "https://49-231-37-37-rewriter.ais-vidnt.com/ais/play/anevia/live/eds/B0001/HLS/B0001.m3u8?playbackUrlPrefix=https%3A%2F%2Ftr.play-rbcdn.ais.co.th%3A8438%2F&originBasicUrl=http%3A%2F%2Fpl-origin.ais-vidnt.com%2Fais%2Fplay%2Fanevia&tt=5600f43531cb5290f06ef10449848b6a&chunkHttps=true&tmid=B0001&tpbk=RkRs3tX1VIl1rLMW&rrt=1775096564&tmod=rfk&rsid=47f2c2a2-de11-4224-a5d8-479c7813bf32&tuid=21493167bf&cdn=redfox-https&tdid=fb7613941267b2a1b2e25bcec35cd769&origin=anevia&tfa=f0-fc&tttl=1775182964"
+    },
+    {
+      "name": "TPBS",
+      "vid": "6378ef895b10cf050fd01614",
+      "logo": "https://ais-s.ais-vidnt.com/ais/play/origin/LIVE//channelicon/0014.png",
+      "url": "https://49-231-34-101-rewriter.ais-vidnt.com/ais/play/anevia/live/eds/B0014/HLS/B0014.m3u8?playbackUrlPrefix=https%3A%2F%2Ftr.play-rbcdn.ais.co.th%3A8438%2F&originBasicUrl=http%3A%2F%2Fpl-origin.ais-vidnt.com%2Fais%2Fplay%2Fanevia&tt=5600f43531cb5290f06ef10449848b6a&chunkHttps=true&tmid=B0014&tpbk=RkRs3tX1VIl1rLMW&rrt=1775096569&tmod=rfk&rsid=d1ca8a0f-b4d0-428c-8f0d-4dea92f91b06&tuid=21493167bf&cdn=redfox-https&tdid=fb7613941267b2a1b2e25bcec35cd769&origin=anevia&tfa=f0-fc&tttl=1775182964"
+    },
+    {
+      "name": "CH5 HD",
+      "vid": "5b335ab3d817de6d62889a6b",
+      "logo": "https://ais-s.ais-vidnt.com/ais/play/origin/LIVE//channelicon//ch5new.logo.png",
+      "url": "https://49-231-37-235-rewriter.ais-vidnt.com/ais/play/anevia/live/eds/B0007/HLS/B0007.m3u8?playbackUrlPrefix=https%3A%2F%2Ftr.play-rbcdn.ais.co.th%3A8438%2F&originBasicUrl=http%3A%2F%2Fpl-origin.ais-vidnt.com%2Fais%2Fplay%2Fanevia&tt=5600f43531cb5290f06ef10449848b6a&chunkHttps=true&tmid=B0007&tpbk=RkRs3tX1VIl1rLMW&rrt=1775096573&tmod=rfk&rsid=c2f88be1-09c4-4659-ae35-928b3c753331&tuid=21493167bf&cdn=redfox-https&tdid=fb7613941267b2a1b2e25bcec35cd769&origin=anevia&tfa=f0-fc&tttl=1775182964"
+    },
+    {
+      "name": "T-Sports 7",
+      "vid": "627a27b26dbfe345cfc8a27f",
+      "logo": "https://ais-s.ais-vidnt.com/ais/play/origin/LIVE/channelicon/T-SPorts_7_Final.png",
+      "url": "https://49-231-37-37-rewriter.ais-vidnt.com/ais/play/anevia/live/eds/B0129/HLS/B0129.m3u8?playbackUrlPrefix=https%3A%2F%2Ftr.play-rbcdn.ais.co.th%3A8438%2F&originBasicUrl=http%3A%2F%2Fpl-origin.ais-vidnt.com%2Fais%2Fplay%2Fanevia&tt=5600f43531cb5290f06ef10449848b6a&chunkHttps=true&tmid=B0129&tpbk=RkRs3tX1VIl1rLMW&rrt=1775096578&tmod=rfk&rsid=34bbf42d-b62c-4ea3-8271-edcd05d9fa78&tuid=21493167bf&cdn=redfox-https&tdid=fb7613941267b2a1b2e25bcec35cd769&origin=anevia&tfa=f0-fc&tttl=1775182964"
+    },
+    {
+      "name": "Parliament",
+      "vid": "597be02d7ed5a24e46f67254",
+      "logo": "https://ais-s.ais-vidnt.com/ais/play/origin/LIVE//channelicon/0048.png",
+      "url": "https://49-231-34-109-rewriter.ais-vidnt.com/ais/play/anevia/live/eds/V0048/HLS/V0048.m3u8?playbackUrlPrefix=https%3A%2F%2Ftr.play-rbcdn.ais.co.th%3A8438%2F&originBasicUrl=http%3A%2F%2Fpl-origin.ais-vidnt.com%2Fais%2Fplay%2Fanevia&tt=5600f43531cb5290f06ef10449848b6a&chunkHttps=true&tmid=V0048&tpbk=RkRs3tX1VIl1rLMW&rrt=1775096582&tmod=rfk&rsid=13b03311-c42d-41bc-ac26-da20720743ff&tuid=21493167bf&cdn=redfox-https&tdid=fb7613941267b2a1b2e25bcec35cd769&origin=anevia&tfa=f0-fc&tttl=1775182964"
+    },
+    {
+      "name": "TNN",
+      "vid": "59671d1cd817de1df19711a6",
+      "logo": "https://ais-s.ais-vidnt.com/ais/play/origin/LIVE/channelicon/R2_0053.png",
+      "url": "https://49-231-37-237-rewriter.ais-vidnt.com/ais/play/anevia/live/eds/V0053/HLS/V0053.m3u8?playbackUrlPrefix=https%3A%2F%2Ftr.play-rbcdn.ais.co.th%3A8438%2F&originBasicUrl=http%3A%2F%2Fpl-origin.ais-vidnt.com%2Fais%2Fplay%2Fanevia&tt=5600f43531cb5290f06ef10449848b6a&chunkHttps=true&tmid=V0053&tpbk=RkRs3tX1VIl1rLMW&rrt=1775096586&tmod=rfk&rsid=fc47af91-9404-4bac-8dcf-74f133406e06&tuid=21493167bf&cdn=redfox-https&tdid=fb7613941267b2a1b2e25bcec35cd769&origin=anevia&tfa=f0-fc&tttl=1775182964"
+    },
+    {
+      "name": "Nation TV",
+      "vid": "6378f08337d179394ce585f4",
+      "logo": "https://ais-s.ais-vidnt.com/ais/play/origin/LIVE/channelicon/22_Nation_2025.png",
+      "url": "https://49-231-37-235-rewriter.ais-vidnt.com/ais/play/anevia/live/eds/B0021/HLS/B0021.m3u8?playbackUrlPrefix=https%3A%2F%2Ftr.play-rbcdn.ais.co.th%3A8438%2F&originBasicUrl=http%3A%2F%2Fpl-origin.ais-vidnt.com%2Fais%2Fplay%2Fanevia&tt=5600f43531cb5290f06ef10449848b6a&chunkHttps=true&tmid=B0021&tpbk=RkRs3tX1VIl1rLMW&rrt=1775096591&tmod=rfk&rsid=ddb03456-14eb-4cd9-9841-177c40bb7f00&tuid=21493167bf&cdn=redfox-https&tdid=fb7613941267b2a1b2e25bcec35cd769&origin=anevia&tfa=f0-fc&tttl=1775182964"
+    },
+    {
+      "name": "Workpoint TV",
+      "vid": "632f2696fd54ec81809f7920",
+      "logo": "https://ais-s.ais-vidnt.com/ais/play/origin/LIVE/channelicon//0015_R.png",
+      "url": "https://49-231-34-109-rewriter.ais-vidnt.com/ais/play/anevia/live/eds/B0015/HLS/B0015.m3u8?playbackUrlPrefix=https%3A%2F%2Ftr.play-rbcdn.ais.co.th%3A8438%2F&originBasicUrl=http%3A%2F%2Fpl-origin.ais-vidnt.com%2Fais%2Fplay%2Fanevia&tt=5600f43531cb5290f06ef10449848b6a&chunkHttps=true&tmid=B0015&tpbk=RkRs3tX1VIl1rLMW&rrt=1775096595&tmod=rfk&rsid=881663ac-40e4-45fe-9f56-317f6a4ce0d3&tuid=21493167bf&cdn=redfox-https&tdid=fb7613941267b2a1b2e25bcec35cd769&origin=anevia&tfa=f0-fc&tttl=1775182964"
+    },
+    {
+      "name": "True 4 U",
+      "vid": "5b3359d9bf6aee16d7459c25",
+      "logo": "https://ais-s.ais-vidnt.com/ais/play/origin/LIVE/channelicon/0054.png",
+      "url": "https://49-231-37-237-rewriter.ais-vidnt.com/ais/play/anevia/live/eds/B0054/HLS/B0054.m3u8?playbackUrlPrefix=https%3A%2F%2Ftr.play-rbcdn.ais.co.th%3A8438%2F&originBasicUrl=http%3A%2F%2Fpl-origin.ais-vidnt.com%2Fais%2Fplay%2Fanevia&tt=5600f43531cb5290f06ef10449848b6a&chunkHttps=true&tmid=B0054&tpbk=RkRs3tX1VIl1rLMW&rrt=1775096599&tmod=rfk&rsid=308cf42e-6eeb-4e4f-b9f0-7661fa3040c0&tuid=21493167bf&cdn=redfox-https&tdid=fb7613941267b2a1b2e25bcec35cd769&origin=anevia&tfa=f0-fc&tttl=1775182964"
+    },
+    {
+      "name": "GMM25",
+      "vid": "5a702c48d817de6932b0db7a",
+      "logo": "https://ais-s.ais-vidnt.com/ais/play/origin/LIVE/channelicon/0019.png",
+      "url": "https://49-231-37-236-rewriter.ais-vidnt.com/ais/play/anevia/live/eds/B0019/HLS/B0019.m3u8?playbackUrlPrefix=https%3A%2F%2Ftr.play-rbcdn.ais.co.th%3A8438%2F&originBasicUrl=http%3A%2F%2Fpl-origin.ais-vidnt.com%2Fais%2Fplay%2Fanevia&tt=5600f43531cb5290f06ef10449848b6a&chunkHttps=true&tmid=B0019&tpbk=RkRs3tX1VIl1rLMW&rrt=1775096604&tmod=rfk&rsid=645c5034-2883-4454-80b1-ca209f1f1a61&tuid=21493167bf&cdn=redfox-https&tdid=fb7613941267b2a1b2e25bcec35cd769&origin=anevia&tfa=f0-fc&tttl=1775182964"
+    },
+    {
+      "name": "CH8",
+      "vid": "5a127510d817de0fae3b6f2c",
+      "logo": "https://ais-s.ais-vidnt.com/ais/play/origin/LIVE/channelicon//CH8_2026.png",
+      "url": "https://49-231-37-229-rewriter.ais-vidnt.com/ais/play/anevia/live/eds/B0006/HLS/B0006.m3u8?playbackUrlPrefix=https%3A%2F%2Ftr.play-rbcdn.ais.co.th%3A8438%2F&originBasicUrl=http%3A%2F%2Fpl-origin.ais-vidnt.com%2Fais%2Fplay%2Fanevia&tt=5600f43531cb5290f06ef10449848b6a&chunkHttps=true&tmid=B0006&tpbk=RkRs3tX1VIl1rLMW&rrt=1775096608&tmod=rfk&rsid=933f3f90-68b2-49b1-9869-f82b64b53aed&tuid=21493167bf&cdn=redfox-https&tdid=fb7613941267b2a1b2e25bcec35cd769&origin=anevia&tfa=f0-fc&tttl=1775182964"
+    },
+    {
+      "name": "MCOT HD",
+      "vid": "5efec3f10f6d9dc4b26c6e77",
+      "logo": "https://ais-s.ais-vidnt.com/ais/play/origin/LIVE/channelicon/MCOT_new.png",
+      "url": "https://49-231-37-37-rewriter.ais-vidnt.com/ais/play/anevia/live/eds/B0008/HLS/B0008.m3u8?playbackUrlPrefix=https%3A%2F%2Ftr.play-rbcdn.ais.co.th%3A8438%2F&originBasicUrl=http%3A%2F%2Fpl-origin.ais-vidnt.com%2Fais%2Fplay%2Fanevia&tt=5600f43531cb5290f06ef10449848b6a&chunkHttps=true&tmid=B0008&tpbk=RkRs3tX1VIl1rLMW&rrt=1775096643&tmod=rfk&rsid=559f8810-ce13-4bb5-b20f-4649a2908082&tuid=21493167bf&cdn=redfox-https&tdid=fb7613941267b2a1b2e25bcec35cd769&origin=anevia&tfa=f0-fc&tttl=1775182964"
+    },
+    {
+      "name": "ONE 31 HD",
+      "vid": "5a1685baaae731375f0eb728",
+      "logo": "https://ais-s.ais-vidnt.com/ais/play/origin/LIVE/channelicon/0012.png",
+      "url": "https://49-231-37-235-rewriter.ais-vidnt.com/ais/play/anevia/live/eds/B0012/HLS/B0012.m3u8?playbackUrlPrefix=https%3A%2F%2Ftr.play-rbcdn.ais.co.th%3A8438%2F&originBasicUrl=http%3A%2F%2Fpl-origin.ais-vidnt.com%2Fais%2Fplay%2Fanevia&tt=5600f43531cb5290f06ef10449848b6a&chunkHttps=true&tmid=B0012&tpbk=RkRs3tX1VIl1rLMW&rrt=1775096647&tmod=rfk&rsid=c432a21a-d03c-47c6-afec-d2453b275447&tuid=21493167bf&cdn=redfox-https&tdid=fb7613941267b2a1b2e25bcec35cd769&origin=anevia&tfa=f0-fc&tttl=1775182964"
+    },
+    {
+      "name": "Thairath TV HD",
+      "vid": "60bd9c7b497960d3f9a3e222",
+      "logo": "https://ais-s.ais-vidnt.com/ais/play/origin/LIVE/channelicon/0013_R.png",
+      "url": "https://49-231-34-107-rewriter.ais-vidnt.com/ais/play/anevia/live/eds/B0013/HLS/B0013.m3u8?playbackUrlPrefix=https%3A%2F%2Ftr.play-rbcdn.ais.co.th%3A8438%2F&originBasicUrl=http%3A%2F%2Fpl-origin.ais-vidnt.com%2Fais%2Fplay%2Fanevia&tt=5600f43531cb5290f06ef10449848b6a&chunkHttps=true&tmid=B0013&tpbk=RkRs3tX1VIl1rLMW&rrt=1775096651&tmod=rfk&rsid=f5cb4664-73c2-49d6-b34a-37ecda54d36e&tuid=21493167bf&cdn=redfox-https&tdid=fb7613941267b2a1b2e25bcec35cd769&origin=anevia&tfa=f0-fc&tttl=1775182964"
+    },
+    {
+      "name": "3 HD",
+      "vid": "59592e08bf6aee4e3ecce051",
+      "logo": "https://ais-s.ais-vidnt.com/ais/play/origin/LIVE//channelicon/LOGO3HD.PNG",
+      "url": "https://49-231-34-107-rewriter.ais-vidnt.com/ais/play/anevia/live/eds/B0003/HLS/B0003.m3u8?playbackUrlPrefix=https%3A%2F%2Ftr.play-rbcdn.ais.co.th%3A8438%2F&originBasicUrl=http%3A%2F%2Fpl-origin.ais-vidnt.com%2Fais%2Fplay%2Fanevia&tt=5600f43531cb5290f06ef10449848b6a&chunkHttps=true&tmid=B0003&tpbk=RkRs3tX1VIl1rLMW&rrt=1775096656&tmod=rfk&rsid=ea8e221c-76dd-4590-b617-a61316680f7b&tuid=21493167bf&cdn=redfox-https&tdid=fb7613941267b2a1b2e25bcec35cd769&origin=anevia&tfa=f0-fc&tttl=1775182964"
+    },
+    {
+      "name": "AmarinTV HD",
+      "vid": "5b335b61bf6aee16d8c33382",
+      "logo": "https://ais-s.ais-vidnt.com/ais/play/origin/LIVE//channelicon/AmarinTV_NEW512.png",
+      "url": "https://49-231-37-229-rewriter.ais-vidnt.com/ais/play/anevia/live/eds/B0017/HLS/B0017.m3u8?playbackUrlPrefix=https%3A%2F%2Ftr.play-rbcdn.ais.co.th%3A8438%2F&originBasicUrl=http%3A%2F%2Fpl-origin.ais-vidnt.com%2Fais%2Fplay%2Fanevia&tt=5600f43531cb5290f06ef10449848b6a&chunkHttps=true&tmid=B0017&tpbk=RkRs3tX1VIl1rLMW&rrt=1775096660&tmod=rfk&rsid=c461dbcc-50c5-4e8b-af95-cdea57276f08&tuid=21493167bf&cdn=redfox-https&tdid=fb7613941267b2a1b2e25bcec35cd769&origin=anevia&tfa=f0-fc&tttl=1775182964"
+    },
+    {
+      "name": "CH7 HD",
+      "vid": "5abdd28daae73161cb8ef446",
+      "logo": "https://ais-s.ais-vidnt.com/ais/play/origin/LIVE//channelicon/0018.png",
+      "url": "https://49-231-34-101-rewriter.ais-vidnt.com/ais/play/anevia/live/eds/B0018/HLS/B0018.m3u8?playbackUrlPrefix=https%3A%2F%2Ftr.play-rbcdn.ais.co.th%3A8438%2F&originBasicUrl=http%3A%2F%2Fpl-origin.ais-vidnt.com%2Fais%2Fplay%2Fanevia&tt=5600f43531cb5290f06ef10449848b6a&chunkHttps=true&tmid=B0018&tpbk=RkRs3tX1VIl1rLMW&rrt=1775096664&tmod=rfk&rsid=80291c6c-c8ff-4c06-8fb5-57492eef08cf&tuid=21493167bf&cdn=redfox-https&tdid=fb7613941267b2a1b2e25bcec35cd769&origin=anevia&tfa=f0-fc&tttl=1775182964"
+    },
+    {
+      "name": "PPTV HD",
+      "vid": "5d4bebb6aae7315312049035",
+      "logo": "https://ais-s.ais-vidnt.com/ais/play/origin/LIVE/channelicon/PPTV_2024e.jpg",
+      "url": "https://49-231-34-108-rewriter.ais-vidnt.com/ais/play/anevia/live/eds/B0022/HLS/B0022.m3u8?playbackUrlPrefix=https%3A%2F%2Ftr.play-rbcdn.ais.co.th%3A8438%2F&originBasicUrl=http%3A%2F%2Fpl-origin.ais-vidnt.com%2Fais%2Fplay%2Fanevia&tt=5600f43531cb5290f06ef10449848b6a&chunkHttps=true&tmid=B0022&tpbk=RkRs3tX1VIl1rLMW&rrt=1775096669&tmod=rfk&rsid=5b52f501-5d2f-466f-a665-7f4d48b45f32&tuid=21493167bf&cdn=redfox-https&tdid=fb7613941267b2a1b2e25bcec35cd769&origin=anevia&tfa=f0-fc&tttl=1775182964"
+    },
+    {
+      "name": "Boomerang",
+      "vid": "597dfea47ed5a24e46f67259",
+      "logo": "https://ais-s.ais-vidnt.com/ais/play/origin/LIVE/channelicon/Boomerang_2025.png",
+      "url": "https://49-231-37-237-rewriter.ais-vidnt.com/ais/play/anevia/live/eds/V0104/HLS/V0104.m3u8?playbackUrlPrefix=https%3A%2F%2Ftr.play-rbcdn.ais.co.th%3A8438%2F&originBasicUrl=http%3A%2F%2Fpl-origin.ais-vidnt.com%2Fais%2Fplay%2Fanevia&tt=5600f43531cb5290f06ef10449848b6a&chunkHttps=true&tmid=V0104&tpbk=RkRs3tX1VIl1rLMW&rrt=1775096673&tmod=rfk&rsid=80c4a5d7-b1cf-4fb7-aee2-8ed8e0adf36e&tuid=21493167bf&cdn=redfox-https&tdid=fb7613941267b2a1b2e25bcec35cd769&origin=anevia&tfa=f0-fc&tttl=1775182964"
+    },
+    {
+      "name": "TOP News",
+      "vid": "605dad7dcebeb6db82829183",
+      "logo": "https://ais-s.ais-vidnt.com/ais/play/origin/LIVE//channelicon/TOPNEWS.PNG",
+      "url": "https://49-231-34-108-rewriter.ais-vidnt.com/ais/play/anevia/live/eds/V0033/HLS/V0033.m3u8?playbackUrlPrefix=https%3A%2F%2Ftr.play-rbcdn.ais.co.th%3A8438%2F&originBasicUrl=http%3A%2F%2Fpl-origin.ais-vidnt.com%2Fais%2Fplay%2Fanevia&tt=5600f43531cb5290f06ef10449848b6a&chunkHttps=true&tmid=V0033&tpbk=RkRs3tX1VIl1rLMW&rrt=1775097309&tmod=rfk&rsid=bb523829-0059-4b2b-b7a1-a077677fb271&tuid=21493167bf&cdn=redfox-https&tdid=fb7613941267b2a1b2e25bcec35cd769&origin=anevia&tfa=f0-fc&tttl=1775182964"
+    },
+    {
+      "name": "News 1",
+      "vid": "59a9a80baae7311c60cf2039",
+      "logo": "https://ais-s.ais-vidnt.com/ais/play/origin/LIVE/channelicon/0036.png",
+      "url": "https://49-231-37-37-rewriter.ais-vidnt.com/ais/play/anevia/live/eds/V0036/HLS/V0036.m3u8?playbackUrlPrefix=https%3A%2F%2Ftr.play-rbcdn.ais.co.th%3A8438%2F&originBasicUrl=http%3A%2F%2Fpl-origin.ais-vidnt.com%2Fais%2Fplay%2Fanevia&tt=5600f43531cb5290f06ef10449848b6a&chunkHttps=true&tmid=V0036&tpbk=RkRs3tX1VIl1rLMW&rrt=1775097314&tmod=rfk&rsid=e943e40e-3f4e-46a1-acee-b26f66526d3d&tuid=21493167bf&cdn=redfox-https&tdid=fb7613941267b2a1b2e25bcec35cd769&origin=anevia&tfa=f0-fc&tttl=1775182964"
+    },
+    {
+      "name": "DLTV1",
+      "vid": "59a9ac93aae7311c60cf203a",
+      "logo": "https://ais-s.ais-vidnt.com/ais/play/origin/LIVE//channelicon/DLTV1.png",
+      "url": "https://49-231-37-236-rewriter.ais-vidnt.com/ais/play/anevia/live/eds/V0068/HLS/V0068.m3u8?playbackUrlPrefix=https%3A%2F%2Ftr.play-rbcdn.ais.co.th%3A8438%2F&originBasicUrl=http%3A%2F%2Fpl-origin.ais-vidnt.com%2Fais%2Fplay%2Fanevia&tt=5600f43531cb5290f06ef10449848b6a&chunkHttps=true&tmid=V0068&tpbk=RkRs3tX1VIl1rLMW&rrt=1775097318&tmod=rfk&rsid=c88c1bcc-08c1-4a8f-9d0b-737e2bf9acb3&tuid=21493167bf&cdn=redfox-https&tdid=fb7613941267b2a1b2e25bcec35cd769&origin=anevia&tfa=f0-fc&tttl=1775182964"
+    },
+    {
+      "name": "DLTV2",
+      "vid": "59a9ace1aae7311c60cf203b",
+      "logo": "https://ais-s.ais-vidnt.com/ais/play/origin/LIVE//channelicon/DLTV2.png",
+      "url": "https://49-231-34-101-rewriter.ais-vidnt.com/ais/play/anevia/live/eds/V0069/HLS/V0069.m3u8?playbackUrlPrefix=https%3A%2F%2Ftr.play-rbcdn.ais.co.th%3A8438%2F&originBasicUrl=http%3A%2F%2Fpl-origin.ais-vidnt.com%2Fais%2Fplay%2Fanevia&tt=5600f43531cb5290f06ef10449848b6a&chunkHttps=true&tmid=V0069&tpbk=RkRs3tX1VIl1rLMW&rrt=1775097322&tmod=rfk&rsid=6d78b621-0fb7-4ed3-8b2e-a1651c4c5856&tuid=21493167bf&cdn=redfox-https&tdid=fb7613941267b2a1b2e25bcec35cd769&origin=anevia&tfa=f0-fc&tttl=1775182964"
+    },
+    {
+      "name": "DLTV3",
+      "vid": "59a9acf5aae7311c5f0cc5de",
+      "logo": "https://ais-s.ais-vidnt.com/ais/play/origin/LIVE//channelicon/DLTV3.png",
+      "url": "https://49-231-37-229-rewriter.ais-vidnt.com/ais/play/anevia/live/eds/V0070/HLS/V0070.m3u8?playbackUrlPrefix=https%3A%2F%2Ftr.play-rbcdn.ais.co.th%3A8438%2F&originBasicUrl=http%3A%2F%2Fpl-origin.ais-vidnt.com%2Fais%2Fplay%2Fanevia&tt=5600f43531cb5290f06ef10449848b6a&chunkHttps=true&tmid=V0070&tpbk=RkRs3tX1VIl1rLMW&rrt=1775097327&tmod=rfk&rsid=c7e8d73f-8a64-453f-9a8d-e553f9cbbd1a&tuid=21493167bf&cdn=redfox-https&tdid=fb7613941267b2a1b2e25bcec35cd769&origin=anevia&tfa=f0-fc&tttl=1775182964"
+    },
+    {
+      "name": "DLTV4",
+      "vid": "59a9ad01aae7311c60cf203c",
+      "logo": "https://ais-s.ais-vidnt.com/ais/play/origin/LIVE//channelicon/DLTV4.png",
+      "url": "https://49-231-37-235-rewriter.ais-vidnt.com/ais/play/anevia/live/eds/V0071/HLS/V0071.m3u8?playbackUrlPrefix=https%3A%2F%2Ftr.play-rbcdn.ais.co.th%3A8438%2F&originBasicUrl=http%3A%2F%2Fpl-origin.ais-vidnt.com%2Fais%2Fplay%2Fanevia&tt=5600f43531cb5290f06ef10449848b6a&chunkHttps=true&tmid=V0071&tpbk=RkRs3tX1VIl1rLMW&rrt=1775097331&tmod=rfk&rsid=3a43ccf3-6896-4631-9eeb-178b65dec8d2&tuid=21493167bf&cdn=redfox-https&tdid=fb7613941267b2a1b2e25bcec35cd769&origin=anevia&tfa=f0-fc&tttl=1775182964"
+    },
+    {
+      "name": "DLTV5",
+      "vid": "59a9adfbaae7311c5f0cc5df",
+      "logo": "https://ais-s.ais-vidnt.com/ais/play/origin/LIVE//channelicon/DLTV5.png",
+      "url": "https://49-231-37-237-rewriter.ais-vidnt.com/ais/play/anevia/live/eds/V0072/HLS/V0072.m3u8?playbackUrlPrefix=https%3A%2F%2Ftr.play-rbcdn.ais.co.th%3A8438%2F&originBasicUrl=http%3A%2F%2Fpl-origin.ais-vidnt.com%2Fais%2Fplay%2Fanevia&tt=5600f43531cb5290f06ef10449848b6a&chunkHttps=true&tmid=V0072&tpbk=RkRs3tX1VIl1rLMW&rrt=1775097335&tmod=rfk&rsid=50e143ba-fc87-4713-b69e-5f23949ab985&tuid=21493167bf&cdn=redfox-https&tdid=fb7613941267b2a1b2e25bcec35cd769&origin=anevia&tfa=f0-fc&tttl=1775182964"
+    },
+    {
+      "name": "DLTV6",
+      "vid": "59a9aeaaaae7311c60cf203d",
+      "logo": "https://ais-s.ais-vidnt.com/ais/play/origin/LIVE//channelicon/DLTV6.png",
+      "url": "https://49-231-34-109-rewriter.ais-vidnt.com/ais/play/anevia/live/eds/V0073/HLS/V0073.m3u8?playbackUrlPrefix=https%3A%2F%2Ftr.play-rbcdn.ais.co.th%3A8438%2F&originBasicUrl=http%3A%2F%2Fpl-origin.ais-vidnt.com%2Fais%2Fplay%2Fanevia&tt=5600f43531cb5290f06ef10449848b6a&chunkHttps=true&tmid=V0073&tpbk=RkRs3tX1VIl1rLMW&rrt=1775097340&tmod=rfk&rsid=d52bfd65-690d-42b3-9f21-982599fe628e&tuid=21493167bf&cdn=redfox-https&tdid=fb7613941267b2a1b2e25bcec35cd769&origin=anevia&tfa=f0-fc&tttl=1775182964"
+    },
+    {
+      "name": "DLTV7",
+      "vid": "59672d63bf6aee05dcdfc120",
+      "logo": "https://ais-s.ais-vidnt.com/ais/play/origin/LIVE//channelicon/DLTV7.png",
+      "url": "https://49-231-34-107-rewriter.ais-vidnt.com/ais/play/anevia/live/eds/V0074/HLS/V0074.m3u8?playbackUrlPrefix=https%3A%2F%2Ftr.play-rbcdn.ais.co.th%3A8438%2F&originBasicUrl=http%3A%2F%2Fpl-origin.ais-vidnt.com%2Fais%2Fplay%2Fanevia&tt=5600f43531cb5290f06ef10449848b6a&chunkHttps=true&tmid=V0074&tpbk=RkRs3tX1VIl1rLMW&rrt=1775097344&tmod=rfk&rsid=2b341b45-bc05-4a0a-8b19-c6704656e827&tuid=21493167bf&cdn=redfox-https&tdid=fb7613941267b2a1b2e25bcec35cd769&origin=anevia&tfa=f0-fc&tttl=1775182964"
+    },
+    {
+      "name": "DLTV8",
+      "vid": "59a9aef8aae7311c60cf203e",
+      "logo": "https://ais-s.ais-vidnt.com/ais/play/origin/LIVE//channelicon/DLTV8.png",
+      "url": "https://49-231-37-237-rewriter.ais-vidnt.com/ais/play/anevia/live/eds/V0075/HLS/V0075.m3u8?playbackUrlPrefix=https%3A%2F%2Ftr.play-rbcdn.ais.co.th%3A8438%2F&originBasicUrl=http%3A%2F%2Fpl-origin.ais-vidnt.com%2Fais%2Fplay%2Fanevia&tt=5600f43531cb5290f06ef10449848b6a&chunkHttps=true&tmid=V0075&tpbk=RkRs3tX1VIl1rLMW&rrt=1775097348&tmod=rfk&rsid=ffab67b6-ea8d-4569-b4b4-8c7b70ca48b8&tuid=21493167bf&cdn=redfox-https&tdid=fb7613941267b2a1b2e25bcec35cd769&origin=anevia&tfa=f0-fc&tttl=1775182964"
+    },
+    {
+      "name": "DLTV9",
+      "vid": "59a9af5caae7311c60cf203f",
+      "logo": "https://ais-s.ais-vidnt.com/ais/play/origin/LIVE//channelicon/DLTV9.png",
+      "url": "https://49-231-37-236-rewriter.ais-vidnt.com/ais/play/anevia/live/eds/V0076/HLS/V0076.m3u8?playbackUrlPrefix=https%3A%2F%2Ftr.play-rbcdn.ais.co.th%3A8438%2F&originBasicUrl=http%3A%2F%2Fpl-origin.ais-vidnt.com%2Fais%2Fplay%2Fanevia&tt=5600f43531cb5290f06ef10449848b6a&chunkHttps=true&tmid=V0076&tpbk=RkRs3tX1VIl1rLMW&rrt=1775097353&tmod=rfk&rsid=d237ef37-e5c4-4287-85d3-cd0b2cbd69e6&tuid=21493167bf&cdn=redfox-https&tdid=fb7613941267b2a1b2e25bcec35cd769&origin=anevia&tfa=f0-fc&tttl=1775182964"
+    },
+    {
+      "name": "DLTV10",
+      "vid": "59a9af65aae7311c60cf2040",
+      "logo": "https://ais-s.ais-vidnt.com/ais/play/origin/LIVE//channelicon/DLTV10.png",
+      "url": "https://49-231-37-237-rewriter.ais-vidnt.com/ais/play/anevia/live/eds/V0077/HLS/V0077.m3u8?playbackUrlPrefix=https%3A%2F%2Ftr.play-rbcdn.ais.co.th%3A8438%2F&originBasicUrl=http%3A%2F%2Fpl-origin.ais-vidnt.com%2Fais%2Fplay%2Fanevia&tt=5600f43531cb5290f06ef10449848b6a&chunkHttps=true&tmid=V0077&tpbk=RkRs3tX1VIl1rLMW&rrt=1775097357&tmod=rfk&rsid=b63cb681-5173-4d52-bd03-83e1f7b79e5f&tuid=21493167bf&cdn=redfox-https&tdid=fb7613941267b2a1b2e25bcec35cd769&origin=anevia&tfa=f0-fc&tttl=1775182964"
+    },
+    {
+      "name": "DLTV11",
+      "vid": "59ab1e38aae7311c60cf2044",
+      "logo": "https://ais-s.ais-vidnt.com/ais/play/origin/LIVE//channelicon/DLTV11.png",
+      "url": "https://49-231-34-109-rewriter.ais-vidnt.com/ais/play/anevia/live/eds/V0078/HLS/V0078.m3u8?playbackUrlPrefix=https%3A%2F%2Ftr.play-rbcdn.ais.co.th%3A8438%2F&originBasicUrl=http%3A%2F%2Fpl-origin.ais-vidnt.com%2Fais%2Fplay%2Fanevia&tt=5600f43531cb5290f06ef10449848b6a&chunkHttps=true&tmid=V0078&tpbk=RkRs3tX1VIl1rLMW&rrt=1775097362&tmod=rfk&rsid=912572d2-f411-4be9-88b6-ebcd85d2be89&tuid=21493167bf&cdn=redfox-https&tdid=fb7613941267b2a1b2e25bcec35cd769&origin=anevia&tfa=f0-fc&tttl=1775182964"
+    },
+    {
+      "name": "DLTV12",
+      "vid": "59ab1e80aae7311c5f0cc5e8",
+      "logo": "https://ais-s.ais-vidnt.com/ais/play/origin/LIVE//channelicon/DLTV12.png",
+      "url": "https://49-231-37-237-rewriter.ais-vidnt.com/ais/play/anevia/live/eds/V0079/HLS/V0079.m3u8?playbackUrlPrefix=https%3A%2F%2Ftr.play-rbcdn.ais.co.th%3A8438%2F&originBasicUrl=http%3A%2F%2Fpl-origin.ais-vidnt.com%2Fais%2Fplay%2Fanevia&tt=5600f43531cb5290f06ef10449848b6a&chunkHttps=true&tmid=V0079&tpbk=RkRs3tX1VIl1rLMW&rrt=1775097366&tmod=rfk&rsid=4464ea74-e5df-4798-ac75-6210a9f49df9&tuid=21493167bf&cdn=redfox-https&tdid=fb7613941267b2a1b2e25bcec35cd769&origin=anevia&tfa=f0-fc&tttl=1775182964"
+    },
+    {
+      "name": "DLTV13",
+      "vid": "59ab1eb3aae7311c5f0cc5e9",
+      "logo": "https://ais-s.ais-vidnt.com/ais/play/origin/LIVE//channelicon/DLTV13.png",
+      "url": "https://49-231-34-108-rewriter.ais-vidnt.com/ais/play/anevia/live/eds/V0080/HLS/V0080.m3u8?playbackUrlPrefix=https%3A%2F%2Ftr.play-rbcdn.ais.co.th%3A8438%2F&originBasicUrl=http%3A%2F%2Fpl-origin.ais-vidnt.com%2Fais%2Fplay%2Fanevia&tt=5600f43531cb5290f06ef10449848b6a&chunkHttps=true&tmid=V0080&tpbk=RkRs3tX1VIl1rLMW&rrt=1775097370&tmod=rfk&rsid=7e898ded-455c-4a0b-a7d9-1cb050b6104a&tuid=21493167bf&cdn=redfox-https&tdid=fb7613941267b2a1b2e25bcec35cd769&origin=anevia&tfa=f0-fc&tttl=1775182964"
+    },
+    {
+      "name": "DLTV14",
+      "vid": "5967310fbf6aee05dcdfc123",
+      "logo": "https://ais-s.ais-vidnt.com/ais/play/origin/LIVE//channelicon/DLTV14.png",
+      "url": "https://49-231-37-229-rewriter.ais-vidnt.com/ais/play/anevia/live/eds/V0081/HLS/V0081.m3u8?playbackUrlPrefix=https%3A%2F%2Ftr.play-rbcdn.ais.co.th%3A8438%2F&originBasicUrl=http%3A%2F%2Fpl-origin.ais-vidnt.com%2Fais%2Fplay%2Fanevia&tt=5600f43531cb5290f06ef10449848b6a&chunkHttps=true&tmid=V0081&tpbk=RkRs3tX1VIl1rLMW&rrt=1775097375&tmod=rfk&rsid=d61fcd3f-2ecd-4988-b418-66f3b09e1123&tuid=21493167bf&cdn=redfox-https&tdid=fb7613941267b2a1b2e25bcec35cd769&origin=anevia&tfa=f0-fc&tttl=1775182964"
+    },
+    {
+      "name": "DLTV15",
+      "vid": "59673200bf6aee05dcdfc124",
+      "logo": "https://ais-s.ais-vidnt.com/ais/play/origin/LIVE//channelicon/DLTV15.png",
+      "url": "https://49-231-34-109-rewriter.ais-vidnt.com/ais/play/anevia/live/eds/V0082/HLS/V0082.m3u8?playbackUrlPrefix=https%3A%2F%2Ftr.play-rbcdn.ais.co.th%3A8438%2F&originBasicUrl=http%3A%2F%2Fpl-origin.ais-vidnt.com%2Fais%2Fplay%2Fanevia&tt=5600f43531cb5290f06ef10449848b6a&chunkHttps=true&tmid=V0082&tpbk=RkRs3tX1VIl1rLMW&rrt=1775097379&tmod=rfk&rsid=0c248fff-81fb-45b8-8f6b-ece607d64172&tuid=21493167bf&cdn=redfox-https&tdid=fb7613941267b2a1b2e25bcec35cd769&origin=anevia&tfa=f0-fc&tttl=1775182964"
+    },
+    {
+      "name": "ETV",
+      "vid": "59673276bf6aee05db70dc43",
+      "logo": "https://ais-s.ais-vidnt.com/ais/play/origin/LIVE//channelicon/R_0087.png",
+      "url": "https://49-231-34-109-rewriter.ais-vidnt.com/ais/play/anevia/live/eds/V0087/HLS/V0087.m3u8?playbackUrlPrefix=https%3A%2F%2Ftr.play-rbcdn.ais.co.th%3A8438%2F&originBasicUrl=http%3A%2F%2Fpl-origin.ais-vidnt.com%2Fais%2Fplay%2Fanevia&tt=5600f43531cb5290f06ef10449848b6a&chunkHttps=true&tmid=V0087&tpbk=RkRs3tX1VIl1rLMW&rrt=1775097383&tmod=rfk&rsid=c75a17d2-5366-4ef9-8f5a-745a36d26a95&tuid=21493167bf&cdn=redfox-https&tdid=fb7613941267b2a1b2e25bcec35cd769&origin=anevia&tfa=f0-fc&tttl=1775182964"
+    },
+    {
+      "name": "LunthungTV",
+      "vid": "5ffebc5e3c4cabc51fbcf288",
+      "logo": "https://ais-s.ais-vidnt.com/ais/play/origin/LIVE//channelicon/LunthungTV.PNG",
+      "url": "https://49-231-37-37-rewriter.ais-vidnt.com/ais/play/anevia/live/eds/V0092/HLS/V0092.m3u8?playbackUrlPrefix=https%3A%2F%2Ftr.play-rbcdn.ais.co.th%3A8438%2F&originBasicUrl=http%3A%2F%2Fpl-origin.ais-vidnt.com%2Fais%2Fplay%2Fanevia&tt=5600f43531cb5290f06ef10449848b6a&chunkHttps=true&tmid=V0092&tpbk=RkRs3tX1VIl1rLMW&rrt=1775097388&tmod=rfk&rsid=5cef68a4-fa68-4735-bdbd-53e099823661&tuid=21493167bf&cdn=redfox-https&tdid=fb7613941267b2a1b2e25bcec35cd769&origin=anevia&tfa=f0-fc&tttl=1775182964"
+    },
+    {
+      "name": "MVTV",
+      "vid": "68f6eac91b3e3ed505a5f154",
+      "logo": "https://ais-s.ais-vidnt.com/ais/play/origin/LIVE//channelicon/MVTV.png",
+      "url": "https://49-231-37-235-rewriter.ais-vidnt.com/ais/play/anevia/live/eds/V0090/HLS/V0090.m3u8?playbackUrlPrefix=https%3A%2F%2Ftr.play-rbcdn.ais.co.th%3A8438%2F&originBasicUrl=http%3A%2F%2Fpl-origin.ais-vidnt.com%2Fais%2Fplay%2Fanevia&tt=5600f43531cb5290f06ef10449848b6a&chunkHttps=true&tmid=V0090&tpbk=RkRs3tX1VIl1rLMW&rrt=1775097392&tmod=rfk&rsid=2cd5fcb5-fb9a-4fe4-9cd5-8aab5252ec1f&tuid=21493167bf&cdn=redfox-https&tdid=fb7613941267b2a1b2e25bcec35cd769&origin=anevia&tfa=f0-fc&tttl=1775182964"
+    }
+  ]
+}
